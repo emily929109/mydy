@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>輪播拖曳GPT範例</title>
+    <style>
+      :root {
+        --gap: 16px;
+      }
+
+      .carousel {
+        position: relative;
+        width: min(900px, 92vw);
+        margin: 40px auto;
+        user-select: none;
+        -webkit-user-drag: none;
+        touch-action: pan-y; /* 允許垂直滾動，水平交給我們處理 */
+      }
+
+      .viewport {
+        overflow: hidden;
+        border-radius: 14px;
+      }
+
+      .track {
+        display: flex;
+        gap: var(--gap);
+        padding: 0 var(--gap);
+        will-change: transform;
+        transform: translateX(0);
+      }
+
+      .slide {
+        flex: 0 0 100%; /* 一屏一張；想一次顯示 3 張就改成 33.333% */
+        height: 300px;
+        border-radius: 12px;
+        background: #eee center/cover no-repeat;
+      }
+
+      /* 導航箭頭 */
+      .nav {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+      .btn {
+        pointer-events: auto;
+        position: absolute;
+        top: 50%;
+        translate: 0 -50%;
+        border: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #0008;
+        color: #fff;
+        font: 700 18px/40px system-ui, -apple-system, Segoe UI, Roboto;
+        cursor: pointer;
+      }
+      .btn.prev {
+        left: 10px;
+      }
+      .btn.next {
+        right: 10px;
+      }
+
+      /* 點點 */
+      .dots {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        margin-top: 10px;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #bbb;
+        cursor: pointer;
+      }
+      .dot.active {
+        background: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="carousel" id="carousel">
+      <div class="viewport">
+        <div class="track">
+          <div
+            class="slide"
+            style="
+              background-image: url('https://picsum.photos/seed/1/1200/600');
+            "
+          ></div>
+          <div
+            class="slide"
+            style="
+              background-image: url('https://picsum.photos/seed/2/1200/600');
+            "
+          ></div>
+          <div
+            class="slide"
+            style="
+              background-image: url('https://picsum.photos/seed/3/1200/600');
+            "
+          ></div>
+          <div
+            class="slide"
+            style="
+              background-image: url('https://picsum.photos/seed/4/1200/600');
+            "
+          ></div>
+        </div>
+      </div>
+
+      <div class="nav">
+        <button class="btn prev" aria-label="上一張">‹</button>
+        <button class="btn next" aria-label="下一張">›</button>
+      </div>
+
+      <div class="dots" aria-hidden="true"></div>
+    </div>
+
+    <script>
+      (() => {
+        const root = document.getElementById("carousel");
+        const track = root.querySelector(".track");
+        const slides = [...root.querySelectorAll(".slide")];
+        const prev = root.querySelector(".btn.prev");
+        const next = root.querySelector(".btn.next");
+        const dotsEl = root.querySelector(".dots");
+
+        let index = 0; // 目前第幾張
+        let startX = 0; // pointerdown 的座標
+        let startTx = 0; // pointerdown 時的 translateX
+        let tx = 0; // 當前 translateX
+        let dragging = false;
+        let slideW = 0; // 含 gap 的一張寬
+
+        // 產生 dots
+        slides.forEach((_, i) => {
+          const dot = document.createElement("div");
+          dot.className = "dot" + (i === 0 ? " active" : "");
+          dot.addEventListener("click", () => snapTo(i));
+          dotsEl.appendChild(dot);
+        });
+
+        const dots = [...dotsEl.children];
+
+        function measure() {
+          // 一張的顯示寬度 = viewport 寬度（因為 .slide flex-basis:100%）+ gap
+          const gap = parseFloat(getComputedStyle(track).gap) || 0;
+          const viewportW = root.querySelector(".viewport").clientWidth;
+          slideW = viewportW + gap;
+          snapTo(index, {immediate: true});
+        }
+
+        // 將 index 限制在 [0, slides.length-1]
+        function clamp(i) {
+          return Math.max(0, Math.min(slides.length - 1, i));
+        }
+
+        function setTx(value, withTransition = false) {
+          track.style.transition = withTransition
+            ? "transform .35s ease"
+            : "none";
+          track.style.transform = `translateX(${value}px)`;
+          tx = value;
+        }
+
+        function snapTo(i, {immediate = false} = {}) {
+          index = clamp(i);
+          dots.forEach((d, k) => d.classList.toggle("active", k === index));
+          const target = -index * slideW;
+          setTx(target, !immediate);
+        }
+
+        // ---- 拖曳 ----
+        track.addEventListener("pointerdown", (e) => {
+          console.log(e);
+          dragging = true;
+          track.setPointerCapture(e.pointerId);
+          startX = e.clientX;
+          startTx = tx;
+          //setTx(tx, false);  取消過渡，讓拖曳跟手
+        });
+
+        track.addEventListener("pointermove", (e) => {
+          if (!dragging) return;
+          const dx = e.clientX - startX;
+          const nextTx = startTx + dx;
+          // 邊界阻尼（超出時拖動變重）
+          const minTx = -(slides.length - 1) * slideW;
+          if (nextTx > 0) setTx(nextTx * 0.35);
+          else if (nextTx < minTx) setTx(minTx + (nextTx - minTx) * 0.35);
+          else setTx(nextTx);
+        });
+
+        function endDrag(e) {
+          if (!dragging) return;
+          dragging = false;
+
+          const dx = tx - startTx; // 實際移動量（px）
+          const threshold = slideW * 0.12; // 需超過 12% 寬才翻頁（也可用速度判斷）
+          if (dx < -threshold) snapTo(index + 1); // 往左滑 -> 下一張
+          else if (dx > threshold) snapTo(index - 1);
+          else snapTo(index); // 回彈
+        }
+
+        track.addEventListener("pointerup", endDrag);
+        track.addEventListener("pointercancel", endDrag);
+        track.addEventListener("pointerleave", endDrag);
+
+        // ---- 箭頭 ----
+        prev.addEventListener("click", () => snapTo(index - 1));
+        next.addEventListener("click", () => snapTo(index + 1));
+
+        // ---- Resize ----
+        addEventListener("resize", measure);
+        measure();
+      })();
+    </script>
+  </body>
+</html>
