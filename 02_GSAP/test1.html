@@ -70,10 +70,8 @@
         left: 0px;
         top: 100px;
         margin: 0px;
-        max-width: 1905px;
-        width: 1905px;
-        max-height: 1838px;
-        height: 1838px;
+        width: 100vw;
+        height: 100vh;
         padding: 0px;
         box-sizing: border-box;
         position: fixed;
@@ -92,6 +90,7 @@
         top: 0;
         width: 100%;
         z-index: 2;
+        width: 100vw;
       }
       .sticker_item {
         position: absolute;
@@ -254,10 +253,10 @@
       gsap.to(".banner", {
         scrollTrigger: {
           trigger: ".banner",
-          start: "top 250px",
-          end: "top 100px",
+          start: "top 25%",
+          end: "top 5%",
           scrub: 2,
-          markers: false,
+          markers: true,
         },
         opacity: 0,
         scale: 0,
@@ -294,8 +293,8 @@
       let tl = gsap.timeline({
         scrollTrigger: {
           trigger: ".img-sliding-up-inner-container",
-          start: "top 80%",
-          end: "+=300",
+          start: "center 80%",
+          end: "center 50%",
           scrub: 2,
           markers: false,
         },
@@ -304,8 +303,8 @@
       // 第一段：滑入、縮小
       tl.fromTo(
         ".img-sliding-up-inner-container",
-        { yPercent: 90, width: 600, opacity: 1 },
-        { yPercent: 0, width: 400, opacity: 1, ease: "none" }
+        { y: 400, width: 600, opacity: 1 },
+        { y: 0, width: 400, opacity: 1, ease: "none" }
       )
 
         // 第二段：背景變色
@@ -321,7 +320,7 @@
           start: "top 10%",
           end: "center top",
           scrub: 1,
-          markers: true,
+          markers: false,
         },
       });
 
