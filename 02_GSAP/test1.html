@@ -288,7 +288,7 @@
       //     },
       //   }
       // );
-      const isBigScreen = window.innerHeight > 1000;
+      const offsetY = window.innerHeight > 800 ? 70 : 50;
       //=========== 1.圖片上浮 2.fixed到一個定點 3.背景變色
       let tl = gsap.timeline({
         scrollTrigger: {
@@ -305,7 +305,7 @@
         ".img-sliding-up-inner-container",
         {
           // yPercent: 70,
-          yPercent: isBigScreen ? 35 : 70, // 大螢幕不要太沉
+          yPercent: offsetY, // 大螢幕不要太沉
           width: 600,
           opacity: 1,
         },
