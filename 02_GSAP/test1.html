@@ -256,7 +256,7 @@
           start: "top 25%",
           end: "top 5%",
           scrub: 2,
-          markers: true,
+          markers: false,
         },
         opacity: 0,
         scale: 0,
@@ -288,7 +288,7 @@
       //     },
       //   }
       // );
-
+      const isBigScreen = window.innerHeight > 1000;
       //=========== 1.圖片上浮 2.fixed到一個定點 3.背景變色
       let tl = gsap.timeline({
         scrollTrigger: {
@@ -296,15 +296,20 @@
           start: "center 80%",
           end: "center 50%",
           scrub: 2,
-          markers: false,
+          markers: true,
         },
       });
 
       // 第一段：滑入、縮小
       tl.fromTo(
         ".img-sliding-up-inner-container",
-        { y: 400, width: 600, opacity: 1 },
-        { y: 0, width: 400, opacity: 1, ease: "none" }
+        {
+          // yPercent: 70,
+          yPercent: isBigScreen ? 35 : 70, // 大螢幕不要太沉
+          width: 600,
+          opacity: 1,
+        },
+        { yPercent: 0, width: 400, opacity: 1, ease: "none" }
       )
 
         // 第二段：背景變色
