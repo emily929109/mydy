@@ -68,7 +68,7 @@
         rotate: none;
         scale: none;
         left: 0px;
-        top: 100px;
+        /* top: 100px; */
         margin: 0px;
         width: 100vw;
         height: 100vh;
@@ -77,6 +77,8 @@
         position: fixed;
         transform: translate(0px, 0px);
         z-index: 2;
+        display: flex;
+        align-items: center;
       }
 
       .img-sliding-up-inner-container {
@@ -146,6 +148,74 @@
         bottom: 9%;
         right: 26%;
       }
+
+      /*=======swiper =======*/
+      .swiper-container {
+        overflow: hidden;
+        padding: 0;
+        z-index: 1;
+        opacity: 1;
+        transition: opacity 0.3s;
+        align-items: center;
+        display: flex;
+        height: 100vh;
+        justify-content: center;
+        left: 0;
+        /* opacity: 0; */
+        position: fixed; /*垂直置中*/
+        top: 0;
+        width: 100%;
+        z-index: 1;
+      }
+      .swiper-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        display: flex;
+        transition-property: transform;
+        box-sizing: content-box;
+      }
+      .swiper-slide {
+        flex-shrink: 0;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        transition-property: transform;
+      }
+      .phone_swiper_item {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 10vw;
+        height: 100vh;
+      }
+      h2.phone_swiper_text {
+        font-size: 40px;
+        font-weight: 700;
+        line-height: 56px;
+        flex: 1;
+        height: auto;
+        max-width: 240px;
+        position: relative;
+        text-align: left;
+        white-space: pre-line;
+      }
+      .phone_swiper_text.phone_mockup_description {
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 33px;
+        color: #717171;
+        height: auto;
+        max-width: 240px;
+        position: relative;
+        text-align: left;
+        white-space: pre-line;
+      }
+
+      .phone_swiper_img {
+        width: 554px;
+      }
     </style>
   </head>
   <body style="background-color: #ffd100">
@@ -155,9 +225,8 @@
         <button class="banner-btn">立即下載</button>
       </div>
 
-      <!-- 圖片 -->
+      <!--------- 往上滑入的圖片 -------->
       <div class="sticky_wrapper">
-        <!-- 往上滑入的圖片 -->
         <div class="img-sliding-up-inner-container">
           <img
             class="img-sliding-up"
@@ -166,7 +235,7 @@
           />
         </div>
 
-        <!-- 往四面八方飛出的小圖案 -->
+        <!--------- 往四面八方飛出的小圖案 -------->
         <div class="stickers_wrapper">
           <div class="sticker_item sticker_item_1">
             <img
@@ -239,8 +308,28 @@
             />
           </div>
         </div>
+
+        <!-- swiper -->
+        <div class="swiper-container">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <div class="phone_swiper_item">
+                <h2 class="phone_swiper_text">簡單一掃， 即可付款</h2>
+                <div class="phone_swiper_img"></div>
+                <div class="phone_swiper_text phone_mockup_description">
+                  透過掃描條碼或出示付款碼，即可在全支付合作的實體/網路商店完成付款。
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- <div class="swiper-pagination"></div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div> -->
+        </div>
       </div>
     </div>
+
+    <!-- 增加高度 -->
     <div class="other" style="width: 100%; height: 900px">xxx</div>
 
     <!-- GSAP & ScrollTrigger -->
@@ -263,38 +352,16 @@
         ease: "none",
       });
 
-      // // 圖片往上浮現
-      // gsap.fromTo(
-      //   ".img-sliding-up-inner-container",
-      //   {
-      //     // y: 540,
-      //     yPercent: 100,
-      //     width: 600,
-      //     opacity: 1,
-      //   },
-      //   {
-      //     // y: 0,
-      //     yPercent: 0,
-      //     width: 400,
-      //     ease: "none",
-      //     opacity: 0,
-      //     // immediateRender: false,
-      //     scrollTrigger: {
-      //       trigger: ".img-sliding-up-inner-container",
-      //       start: "top 80%",
-      //       end: "top 40%", // 到視窗 20% 結束
-      //       scrub: 3,
-      //       markers: true,
-      //     },
-      //   }
-      // );
-      const offsetY = window.innerHeight > 800 ? 70 : 50;
       //=========== 1.圖片上浮 2.fixed到一個定點 3.背景變色
+
+      // const offsetY = window.innerHeight > 800 ? 70 : 50; // 大螢幕不要太沉
+      const start = window.innerHeight > 800 ? "35% 95%" : "20% 95%"; // 大螢幕不要太慢trigger
+
       let tl = gsap.timeline({
         scrollTrigger: {
           trigger: ".img-sliding-up-inner-container",
-          start: "center 80%",
-          end: "center 50%",
+          start: start,
+          end: "center 70%",
           scrub: 2,
           markers: true,
         },
@@ -304,12 +371,11 @@
       tl.fromTo(
         ".img-sliding-up-inner-container",
         {
-          // yPercent: 70,
-          yPercent: offsetY, // 大螢幕不要太沉
-          width: 600,
+          yPercent: 70,
+          width: 724,
           opacity: 1,
         },
-        { yPercent: 0, width: 400, opacity: 1, ease: "none" }
+        { yPercent: 0, width: 554, opacity: 1, ease: "none" }
       )
 
         // 第二段：背景變色
@@ -322,8 +388,8 @@
       let flyout = gsap.timeline({
         scrollTrigger: {
           trigger: ".stickers_wrapper",
-          start: "top 10%",
-          end: "center top",
+          start: "20% 15%",
+          end: "20% 15",
           scrub: 1,
           markers: false,
         },
@@ -343,7 +409,7 @@
         y: () => gsap.utils.random(-300, 400), // 垂直隨機位移
         rotation: () => gsap.utils.random(-45, 45), // 隨機旋轉角度
         opacity: 0, // 淡出
-        ease: "power2.out",
+        ease: "none",
       });
     </script>
   </body>
