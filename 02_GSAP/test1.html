@@ -161,7 +161,7 @@
         height: 100vh;
         justify-content: center;
         left: 0;
-        /* opacity: 0; */
+        opacity: 0;
         position: fixed; /*垂直置中*/
         top: 0;
         width: 100%;
@@ -355,7 +355,7 @@
       //=========== 1.圖片上浮 2.fixed到一個定點 3.背景變色
 
       // const offsetY = window.innerHeight > 800 ? 70 : 50; // 大螢幕不要太沉
-      const start = window.innerHeight > 800 ? "35% 95%" : "20% 95%"; // 大螢幕不要太慢trigger
+      const start = window.innerHeight > 750 ? "35% 95%" : "20% 95%"; // 大螢幕不要太慢trigger
 
       let tl = gsap.timeline({
         scrollTrigger: {
@@ -363,7 +363,7 @@
           start: start,
           end: "center 70%",
           scrub: 2,
-          markers: true,
+          markers: false,
         },
       });
 
@@ -378,11 +378,16 @@
         { yPercent: 0, width: 554, opacity: 1, ease: "none" }
       )
 
-        // 第二段：背景變色
-        .to("body", {
-          backgroundColor: "#fff",
-          duration: 0,
+        // 第二段: swiper opacity 0 -> 1
+        .to(".swiper-container", {
+          opacity: 1,
         });
+
+      // 第三段：背景變色
+      // .to("body", {
+      //   backgroundColor: "#fff",
+      //   duration: 0,
+      // });
 
       //=========== 小圖片往外飛
       let flyout = gsap.timeline({
