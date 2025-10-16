@@ -381,13 +381,16 @@
         // 第二段: swiper opacity 0 -> 1
         .to(".swiper-container", {
           opacity: 1,
-        });
+        })
 
-      // 第三段：背景變色
-      // .to("body", {
-      //   backgroundColor: "#fff",
-      //   duration: 0,
-      // });
+        // 第三段：背景變色
+        .to(
+          "body",
+          {
+            backgroundColor: "#fff",
+          },
+          "<"
+        );
 
       //=========== 小圖片往外飛
       let flyout = gsap.timeline({
@@ -415,6 +418,26 @@
         rotation: () => gsap.utils.random(-45, 45), // 隨機旋轉角度
         opacity: 0, // 淡出
         ease: "none",
+      });
+
+      // 小icon跟著滑鼠移動
+      document.addEventListener("mousemove", (e) => {
+        const centerX = window.innerWidth / 2;
+        const centerY = window.innerHeight / 2;
+
+        // 將滑鼠座標轉換為 -1 ~ 1 的範圍
+        const offsetX = (e.clientX - centerX) / centerX;
+        const offsetY = (e.clientY - centerY) / centerY;
+
+        const maxMove = 20; // 控制最大移動範圍(px)
+
+        // 使用 GSAP 平滑移動 icon
+        gsap.to(".sticker_item", {
+          x: offsetX * maxMove,
+          y: offsetY * maxMove,
+          duration: 0.3,
+          ease: "power2.out",
+        });
       });
     </script>
   </body>
