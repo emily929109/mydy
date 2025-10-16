@@ -424,19 +424,19 @@
       document.addEventListener("mousemove", (e) => {
         const centerX = window.innerWidth / 2;
         const centerY = window.innerHeight / 2;
-
+        console.log(e.clientX);
         // 將滑鼠座標轉換為 -1 ~ 1 的範圍
         const offsetX = (e.clientX - centerX) / centerX;
         const offsetY = (e.clientY - centerY) / centerY;
 
-        const maxMove = 20; // 控制最大移動範圍(px)
+        const maxMove = 25; // 控制最大移動範圍(px)
 
         // 使用 GSAP 平滑移動 icon
         gsap.to(".sticker_item", {
           x: offsetX * maxMove,
           y: offsetY * maxMove,
-          duration: 0.3,
-          ease: "power2.out",
+          // duration: 0.2,
+          ease: "none",
         });
       });
     </script>
