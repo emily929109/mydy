@@ -3,100 +3,174 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sticker Scatter Demo</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        height: 200vh; /* 增加滾動距離 */
-        background: #f0f0f0;
-        font-family: sans-serif;
-        overflow-x: hidden;
-      }
+    <title>全支付模仿</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"
+    />
 
-      .section {
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .stickers_wrapper {
-        position: relative;
-        width: 500px;
-        height: 500px;
-        background: #fff;
-        border-radius: 10px;
-        overflow: visible;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      }
-
-      .sticker_item {
-        position: absolute;
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        background-color: #ff6b6b;
-        opacity: 1;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
-
-      .sticker_item:nth-child(2) {
-        background-color: #ffa36c;
-      }
-      .sticker_item:nth-child(3) {
-        background-color: #ffd93d;
-      }
-      .sticker_item:nth-child(4) {
-        background-color: #6bcb77;
-      }
-      .sticker_item:nth-child(5) {
-        background-color: #4d96ff;
-      }
-      .sticker_item:nth-child(6) {
-        background-color: #8a2be2;
-      }
-    </style>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/7c6bbc6b90.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
   </head>
-
-  <body>
-    <div class="section">
-      <h2>往下滑 👇</h2>
-    </div>
-
-    <div class="section">
-      <div class="stickers_wrapper">
-        <div class="sticker_item"></div>
-        <div class="sticker_item"></div>
-        <div class="sticker_item"></div>
-        <div class="sticker_item"></div>
-        <div class="sticker_item"></div>
-        <div class="sticker_item"></div>
+  <body style="background-color: #ffd100">
+    <div class="container">
+      <!--============ banner ============-->
+      <div class="banner">
+        <h1 class="banner-slogan">全面支持你付</h1>
+        <button class="banner-btn">立即下載</button>
       </div>
+
+      <!--============ fixed container============ -->
+      <div class="sticky_wrapper">
+        <!--============ 大手機 ============-->
+        <div class="img-sliding-up-inner-container">
+          <img
+            class="img-sliding-up"
+            src="phone.avif"
+            style="border-radius: 24px"
+          />
+        </div>
+
+        <!--============ 飛出icon ============-->
+        <div class="stickers_wrapper">
+          <div class="sticker_item sticker_item_1">
+            <img
+              class="sticker_img_1"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_1"
+            />
+          </div>
+          <div class="sticker_item sticker_item_2">
+            <img
+              class="sticker_img_2"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_2"
+            />
+          </div>
+          <div class="sticker_item sticker_item_3">
+            <img
+              class="sticker_img_3"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_3"
+            />
+          </div>
+          <div class="sticker_item sticker_item_4">
+            <img
+              class="sticker_img_4"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_4"
+            />
+          </div>
+          <div class="sticker_item sticker_item_5">
+            <img
+              class="sticker_img_5"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_5"
+            />
+          </div>
+          <div class="sticker_item sticker_item_6">
+            <img
+              class="sticker_img_6"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_6"
+            />
+          </div>
+          <div class="sticker_item sticker_item_7">
+            <img
+              class="sticker_img_7"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_7"
+            />
+          </div>
+          <div class="sticker_item sticker_item_8">
+            <img
+              class="sticker_img_8"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_8"
+            />
+          </div>
+          <div class="sticker_item sticker_item_9">
+            <img
+              class="sticker_img_9"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_9"
+            />
+          </div>
+          <div class="sticker_item sticker_item_10">
+            <img
+              class="sticker_img_10"
+              src="sticker_1.a54e8d0a.svg"
+              alt="sticker_img_10"
+            />
+          </div>
+        </div>
+
+        <!--============ swiper============ -->
+        <div class="swiper" style="opacity: 0">
+          <div class="swiper-wrapper">
+            <!-- slide-1 -->
+            <div class="swiper-slide">
+              <div class="phone_swiper_item">
+                <h2 class="phone_swiper_text">簡單一掃， 即可付款</h2>
+                <div class="phone_swiper_img">
+                  <img src="phone.avif" />
+                </div>
+                <div class="phone_swiper_text phone_mockup_description">
+                  透過掃描條碼或出示付款碼，即可在全支付合作的實體/網路商店完成付款。
+                </div>
+              </div>
+            </div>
+
+            <!-- slide-2 -->
+            <div class="swiper-slide">
+              <div class="phone_swiper_item">
+                <h2 class="phone_swiper_text">簡單一掃， 即可付款</h2>
+                <div class="phone_swiper_img">
+                  <img src="phone.avif" />
+                </div>
+                <div class="phone_swiper_text phone_mockup_description">
+                  透過掃描條碼或出示付款碼，即可在全支付合作的實體/網路商店完成付款。
+                </div>
+              </div>
+            </div>
+
+            <!-- slide-3 -->
+            <div class="swiper-slide">
+              <div class="phone_swiper_item">
+                <h2 class="phone_swiper_text">簡單一掃， 即可付款</h2>
+                <div class="phone_swiper_img">
+                  <img src="phone.avif" />
+                </div>
+                <div class="phone_swiper_text phone_mockup_description">
+                  透過掃描條碼或出示付款碼，即可在全支付合作的實體/網路商店完成付款。
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- End of swiper-wrapper -->
+
+          <div class="swiper-button-prev">
+            <span class="fas fa-arrow-left"></span>
+          </div>
+          <div class="swiper-button-next">
+            <span class="fas fa-arrow-right"></span>
+          </div>
+        </div>
+      </div>
+      <!-- end of sticky_wrapper -->
+
+      <!--============ 歪歪輪播============ -->
+      <section class="section_block instructions">
+        <h3 class="intro_title">體驗全支付</h3>
+        <p class="intro_para">提供多元的支付功能 支持您的生活大小事</p>
+        <div class="instructions_swiper"></div>
+      </section>
     </div>
-
-    <script>
-      gsap.registerPlugin(ScrollTrigger);
-
-      gsap.to(".sticker_item", {
-        x: () => gsap.utils.random(-800, 800), // 水平隨機位移
-        y: () => gsap.utils.random(-600, 600), // 垂直隨機位移
-        rotation: () => gsap.utils.random(-45, 45), // 隨機旋轉角度
-        opacity: 0, // 淡出
-        scale: () => gsap.utils.random(0.5, 1.2), // 隨機縮放
-        ease: "none",
-        // stagger: 0.05,
-        scrollTrigger: {
-          trigger: ".stickers_wrapper",
-          start: "top 75%", // 滾到該區上方時觸發
-          end: "bottom 60%",
-          toggleActions: "play none none reverse", // 滑入播放，滑回回復
-          markers: true,
-        },
-      });
-    </script>
   </body>
+
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 </html>
