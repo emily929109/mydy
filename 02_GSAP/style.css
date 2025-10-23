@@ -260,3 +260,32 @@ svg.swiper-navigation-icon {
   color: #717171;
   margin: 0 0 50px;
 }
+
+/* 測試 */
+.container {
+  display: none;
+}
+
+.test-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.test {
+  width: 200px;
+  height: 300px;
+  border: 1px solid red;
+  white-space: nowrap;
+  overflow-x: auto;
+}
+
+.test::-webkit-scrollbar {
+  background-color: transparent;
+  height: 6px;
+}
+.test::-webkit-scrollbar-thumb {
+  background-color: #01ab98;
+  border-radius: 8px;
+}
