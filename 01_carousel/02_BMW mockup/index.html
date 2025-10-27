@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BMW mockup</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+  </head>
+  <body>
+    <section class="newsBox">
+      <!-- leftBox -->
+      <div class="leftBox">
+        <!-- Slider main container -->
+        <div class="swiper left-swiper">
+          <!-- Additional required wrapper -->
+          <div class="swiper-wrapper">
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-1.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-2.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-3.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+          </div>
+
+          <!-- If we need pagination -->
+          <div class="swiper-pagination"></div>
+          <!-- If we need navigation buttons -->
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
+      </div>
+      <!-- end of leftBox -->
+
+      <!-- rightBox -->
+      <div class="rightBox">
+        <!-- Slider main container -->
+        <div class="swiper">
+          <!-- Additional required wrapper -->
+          <div class="swiper-wrapper">
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-2.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-3.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-1.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+          </div>
+
+          <!-- If we need pagination -->
+          <div class="swiper-pagination"></div>
+          <!-- If we need navigation buttons -->
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
+      </div>
+      <!-- end of rightBox -->
+    </section>
+  </body>
+  <script>
+    // 左側 Swiper
+    const leftSwiper = new Swiper(".left-swiper", {
+      loop: true,
+
+      // If we need pagination
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+
+      // Navigation arrows
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+
+      //   autoplay: {
+      //     delay: 5000,
+      //   },
+
+      speed: 1000,
+    });
+
+    // 右側 Swiper
+    const rightSwiper = new Swiper(".rightBox .swiper", {
+      loop: true,
+
+      // If we need pagination
+      pagination: {
+        el: ".swiper-pagination",
+        clickable: true,
+      },
+
+      // Navigation arrows
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+
+      //   autoplay: {
+      //     delay: 5000,
+      //   },
+
+      speed: 1000,
+      slidesPerView: 2,
+    });
+
+    // 控制彼此
+    // rightSwiper.controller.control = leftSwiper;
+    // leftSwiper.controller.control = rightSwiper;
+    // 當主控 Swiper 切換時，讓副控同步
+    // rightSwiper.on("slideChange", () => {
+    //   leftSwiper.slideToLoop(rightSwiper.clickedIndex);
+    // });
+    leftSwiper.on("slideChange", () => {
+      rightSwiper.slideToLoop(leftSwiper.realIndex);
+    });
+
+    // 3️⃣ 讓兩個 Swiper 同步切換
+    // leftSwiper.controller.control = rightSwiper;
+    // rightSwiper.controller.control = leftSwiper;
+
+    // 4️⃣ 單一 pagination 控制其中一個（例如左邊那個）
+    // const paginationSwiper = new Swiper(".left-swiper", {
+    //   pagination: {
+    //     el: ".swiper-pagination",
+    //     clickable: true,
+    //   },
+    // });
+
+    // // 5️⃣ 讓 paginationSwiper 實際綁定左邊那個的事件
+    // paginationSwiper.controller.control = rightSwiper;
+    // rightSwiper.controller.control = paginationSwiper;
+  </script>
+</html>
