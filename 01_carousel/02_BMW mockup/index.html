@@ -40,13 +40,34 @@
               </div>
             </div>
             <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-1.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-2.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-3.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
           </div>
 
           <!-- If we need pagination -->
-          <div class="swiper-pagination"></div>
+          <div class="swiper-pagination left-pagination"></div>
           <!-- If we need navigation buttons -->
-          <div class="swiper-button-prev"></div>
-          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev left-prev"></div>
+          <div class="swiper-button-next left-next"></div>
         </div>
       </div>
       <!-- end of leftBox -->
@@ -54,9 +75,30 @@
       <!-- rightBox -->
       <div class="rightBox">
         <!-- Slider main container -->
-        <div class="swiper">
+        <div class="swiper right-swiper">
           <!-- Additional required wrapper -->
           <div class="swiper-wrapper">
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-2.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-3.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
+            <!-- item -->
+            <div class="swiper-slide">
+              <div class="Img">
+                <img src="img/random-pic-1.jpg" alt="Random photo" />
+              </div>
+            </div>
+            <!-- end of item -->
             <!-- item -->
             <div class="swiper-slide">
               <div class="Img">
@@ -81,10 +123,10 @@
           </div>
 
           <!-- If we need pagination -->
-          <div class="swiper-pagination"></div>
+          <div class="swiper-pagination right-pagination"></div>
           <!-- If we need navigation buttons -->
-          <div class="swiper-button-prev"></div>
-          <div class="swiper-button-next"></div>
+          <div class="swiper-button-prev right-prev"></div>
+          <div class="swiper-button-next right-next"></div>
         </div>
       </div>
       <!-- end of rightBox -->
@@ -103,8 +145,8 @@
 
       // Navigation arrows
       navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
+        nextEl: ".left-next",
+        prevEl: ".left-prev",
       },
 
       //   autoplay: {
@@ -115,19 +157,19 @@
     });
 
     // 右側 Swiper
-    const rightSwiper = new Swiper(".rightBox .swiper", {
+    const rightSwiper = new Swiper(".right-swiper", {
       loop: true,
 
       // If we need pagination
       pagination: {
-        el: ".swiper-pagination",
+        el: ".right-pagination",
         clickable: true,
       },
 
       // Navigation arrows
       navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
+        nextEl: ".right-next",
+        prevEl: ".right-prev",
       },
 
       //   autoplay: {
@@ -139,15 +181,26 @@
     });
 
     // 控制彼此
-    // rightSwiper.controller.control = leftSwiper;
-    // leftSwiper.controller.control = rightSwiper;
+    rightSwiper.controller.control = leftSwiper;
+    leftSwiper.controller.control = rightSwiper;
+    // 控制邏輯：按左邊（主圖）時，右邊跟著切換
+    // leftSwiper.on("slideChange", () => {
+    //   // console.log(leftSwiper.realIndex);
+    //   rightSwiper.slideToLoop(leftSwiper.realIndex, 3000, true);
+    //   console.log(rightSwiper.realIndex);
+    // });
+
+    // 按右邊（預覽圖）時，左邊顯示對應主圖
+    // rightSwiper.on("click", () => {
+    //   leftSwiper.slideToLoop(rightSwiper.clickedIndex);
+    // });
     // 當主控 Swiper 切換時，讓副控同步
     // rightSwiper.on("slideChange", () => {
     //   leftSwiper.slideToLoop(rightSwiper.clickedIndex);
     // });
-    leftSwiper.on("slideChange", () => {
-      rightSwiper.slideToLoop(leftSwiper.realIndex);
-    });
+    // leftSwiper.on("slideChange", () => {
+    //   rightSwiper.slideToLoop(leftSwiper.realIndex);
+    // });
 
     // 3️⃣ 讓兩個 Swiper 同步切換
     // leftSwiper.controller.control = rightSwiper;
