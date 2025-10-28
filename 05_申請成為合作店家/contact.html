@@ -11,6 +11,7 @@
       rel="stylesheet"
     />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/taiwan-id-validator" defer></script>
     <script src="contact.js" defer></script>
   </head>
   <body>
@@ -47,7 +48,7 @@
         </li>
       </ul>
       <div class="tab-content" id="myTabContent">
-        <!-- panel -->
+        <!------------ 專人聯繫panel ------------>
         <div
           class="tab-pane fade show active"
           id="contact"
@@ -56,15 +57,46 @@
         >
           <form>
             <div class="basic-info">
+              <!-- 公司/品牌名稱 -->
               <label class="input-underlined required">
                 <input type="text" maxlength="30" class="input" />
                 <span class="label">公司/品牌名稱</span>
                 <span class="error-message"> 此欄位為必填 </span>
               </label>
+              <!-- 身分證字號 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" />
+                <span class="label">統一編號/身分證字號</span>
+                <span class="error-message"> 此欄位為必填 </span>
+                <span class="error-message id">
+                  統一編號/身分證字號格式錯誤
+                </span>
+              </label>
+              <!-- 聯絡人姓名 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">聯絡人姓名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 手機號碼 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" />
+                <span class="label">手機號碼</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 電子郵件 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" />
+                <span class="label">電子郵件</span>
+                <span class="error-message"> 此欄位為必填 </span>
+                <span class="error-message mail"> 電子郵件格式錯誤 </span>
+              </label>
             </div>
           </form>
           <!-- input -->
         </div>
+
+        <!------------ 線上申請panel ------------>
         <div
           class="tab-pane fade"
           id="apply"

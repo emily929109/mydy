@@ -105,7 +105,8 @@ form {
   transition-property: transform, top, font-size;
 }
 
-.input-underlined input[type="text"]:focus ~ .label {
+.input-underlined input[type="text"]:focus ~ .label,
+.input-underlined input[type="text"].filled ~ .label {
   top: 0;
   left: var(--xPadding);
   transform: translate(0);
@@ -125,6 +126,29 @@ form {
   color: var(--color-danger);
 }
 
+/* .error-message */
 .error-message {
   display: none;
+  padding: 0 8px;
+  line-height: 1;
+  grid-template-columns: auto 1fr;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
+span.error-message::before {
+  width: 1rem;
+  height: 1rem;
+  content: "i";
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-danger);
+  color: #fff;
+  font-size: 1em;
 }
