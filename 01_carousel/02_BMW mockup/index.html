@@ -181,14 +181,14 @@
     });
 
     // 控制彼此
-    rightSwiper.controller.control = leftSwiper;
-    leftSwiper.controller.control = rightSwiper;
+    // rightSwiper.controller.control = leftSwiper;
+    // leftSwiper.controller.control = rightSwiper;
     // 控制邏輯：按左邊（主圖）時，右邊跟著切換
-    // leftSwiper.on("slideChange", () => {
-    //   // console.log(leftSwiper.realIndex);
-    //   rightSwiper.slideToLoop(leftSwiper.realIndex, 3000, true);
-    //   console.log(rightSwiper.realIndex);
-    // });
+    leftSwiper.on("slideChange", () => {
+      // console.log(leftSwiper.realIndex);
+      rightSwiper.slideToLoop(leftSwiper.realIndex, 1000, true);
+      console.log(rightSwiper.realIndex);
+    });
 
     // 按右邊（預覽圖）時，左邊顯示對應主圖
     // rightSwiper.on("click", () => {
