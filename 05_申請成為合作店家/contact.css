@@ -113,7 +113,7 @@ form {
 .input-underlined input[type="text"].filled ~ .label,
 .form-select:focus ~ .label,
 .form-select.filled ~ .label,
-.select:focus .label {
+.select.focus .label {
   top: 0;
   left: var(--xPadding);
   transform: translate(0);

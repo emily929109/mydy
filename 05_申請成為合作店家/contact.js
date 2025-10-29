@@ -39,16 +39,17 @@ selects.forEach((select) => {
   const updateState = () => {
     const isEmpty = select.innerHTML.trim() === "&nbsp;";
     wrapper.classList.toggle("empty", isEmpty);
+    wrapper.classList.remove("focus");
   };
 
   select.addEventListener("focus", () => {
     wrapper.classList.add("focus");
-    updateState();
+    // updateState();
   });
 
-  select.addEventListener("blur", () => {
-    wrapper.classList.remove("focus");
-  });
+  // select.addEventListener("blur", () => {
+  //   wrapper.classList.remove("focus");
+  // });
 
   select.addEventListener("change", updateState);
 
