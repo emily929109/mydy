@@ -1,0 +1,9 @@
+$border-width: 0;
+$form-select-focus-border-color: #e8456b;
+$form-select-focus-box-shadow: none;
+
+// .form-select:focus {
+//   border-top: none;
+// }
+
+@import "../../node_modules/bootstrap/scss/bootstrap.scss"; // 這行要在你覆寫變數之後

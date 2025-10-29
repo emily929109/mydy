@@ -72,7 +72,8 @@ form {
   column-gap: 1rem;
 }
 
-.input-underlined {
+.input-underlined,
+.select {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -80,21 +81,24 @@ form {
   z-index: 0;
 }
 
-.input-underlined input[type="text"] {
+.input-underlined input[type="text"],
+.select .form-select {
   width: 100%;
   padding: 1.5rem var(--xPadding) 0.25rem;
-  padding-left: var(--xPadding);
   border: none;
   border-bottom: 1px solid var(--color-gray-4);
   border-radius: 0;
   outline: none;
+  text-align: left;
 }
 
-.input-underlined .label {
+.input-underlined .label,
+.select .label {
   color: var(--color-text);
 }
 
-.input-underlined .label {
+.input-underlined .label,
+.select .label {
   position: absolute;
   top: 1.85rem;
   left: var(--xPadding);
@@ -106,18 +110,23 @@ form {
 }
 
 .input-underlined input[type="text"]:focus ~ .label,
-.input-underlined input[type="text"].filled ~ .label {
+.input-underlined input[type="text"].filled ~ .label,
+.form-select:focus ~ .label,
+.form-select.filled ~ .label,
+.select:focus .label {
   top: 0;
   left: var(--xPadding);
   transform: translate(0);
   font-size: 0.85rem;
 }
 
-.input-underlined input[type="text"]:focus {
+.input-underlined input[type="text"]:focus,
+.form-select:focus {
   border-bottom: 2px solid var(--color-primary);
 }
 
-.input-underlined.required .label:before {
+.input-underlined.required .label:before,
+.select .label:before {
   content: "*";
   position: absolute;
   left: calc(var(--xPadding) * -0.5);
@@ -151,4 +160,36 @@ span.error-message::before {
   background-color: var(--color-danger);
   color: #fff;
   font-size: 1em;
+}
+
+/* .dropdown */
+
+.dropdown-placeholder {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  color: #8e9294;
+  opacity: 0;
+}
+
+.select.focus.empty .dropdown-placeholder {
+  opacity: 1;
+}
+
+.form-select:focus option:first-of-type,
+.form-select.filled option:first-of-type {
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block;
+  background: #fff;
+  color: #495057;
+  border: 0;
+  box-shadow: 0 2px 4px -1px #0003, 0 4px 5px 0 #00000024,
+    0 1px 10px 0 #0000001f;
+  margin-top: 0.5rem !important;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  width: 100%;
 }

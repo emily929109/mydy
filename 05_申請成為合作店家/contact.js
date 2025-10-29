@@ -1,5 +1,5 @@
-// input變數
 const inputs = document.querySelectorAll(".input-underlined input");
+const selects = document.querySelectorAll(".form-select"); //btn
 const inputsRequired = document.querySelectorAll(
   ".input-underlined.required input"
 );
@@ -10,9 +10,7 @@ const inputmail = document.querySelector(
   ".input-underlined.required:nth-of-type(5) input"
 );
 
-// 訊息變數
-
-// add filled class
+// add filled class to all inputs
 inputs.forEach((input) => {
   input.addEventListener("input", () => {
     if (input.value.trim() !== "") {
@@ -20,6 +18,56 @@ inputs.forEach((input) => {
     } else {
       input.classList.remove("filled");
     }
+  });
+});
+
+// add filled class to all selects
+selects.forEach((select) => {
+  select.addEventListener("change", () => {
+    if (select.value.trim() !== "") {
+      select.classList.add("filled");
+    } else {
+      select.classList.remove("filled");
+    }
+  });
+});
+
+// select focus且值為空時出現"請選擇"
+selects.forEach((select) => {
+  const wrapper = select.closest(".select");
+
+  const updateState = () => {
+    const isEmpty = select.innerHTML.trim() === "&nbsp;";
+    wrapper.classList.toggle("empty", isEmpty);
+  };
+
+  select.addEventListener("focus", () => {
+    wrapper.classList.add("focus");
+    updateState();
+  });
+
+  select.addEventListener("blur", () => {
+    wrapper.classList.remove("focus");
+  });
+
+  select.addEventListener("change", updateState);
+
+  // 初始化時也檢查一次
+  updateState();
+});
+
+// select後btn加入選擇文字
+document.querySelectorAll(".dropdown-item").forEach((item) => {
+  item.addEventListener("click", function (e) {
+    e.preventDefault(); // 避免跳轉頁面
+
+    const selectedText = this.textContent; // 取得被點擊的文字
+    const parent = this.closest(".select"); // 找到對應的 select 包裝器
+    const button = parent.querySelector("button"); // 找到按鈕
+    button.classList.add("filled");
+    parent.classList.remove("empty");
+
+    button.textContent = selectedText; // 替換原本的 "請選擇"
   });
 });
 
