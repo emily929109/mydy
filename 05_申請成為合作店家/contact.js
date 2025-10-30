@@ -1,14 +1,13 @@
-const inputs = document.querySelectorAll(".input-underlined input");
+const inputs = document.querySelectorAll("input");
 const selects = document.querySelectorAll(".form-select"); //btn
-const inputsRequired = document.querySelectorAll(
-  ".input-underlined.required input"
-);
+const inputsRequired = document.querySelectorAll(".required input");
 const inputID = document.querySelector(
   ".input-underlined.required:nth-of-type(2) input"
 );
 const inputmail = document.querySelector(
-  ".input-underlined.required:nth-of-type(5) input"
+  ".input-underlined.required:nth-of-type(3) input"
 );
+const progressBar = document.querySelector(".progress-bar");
 
 // add filled class to all inputs
 inputs.forEach((input) => {
@@ -18,57 +17,6 @@ inputs.forEach((input) => {
     } else {
       input.classList.remove("filled");
     }
-  });
-});
-
-// add filled class to all selects
-selects.forEach((select) => {
-  select.addEventListener("change", () => {
-    if (select.value.trim() !== "") {
-      select.classList.add("filled");
-    } else {
-      select.classList.remove("filled");
-    }
-  });
-});
-
-// select focus且值為空時出現"請選擇"
-selects.forEach((select) => {
-  const wrapper = select.closest(".select");
-
-  const updateState = () => {
-    const isEmpty = select.innerHTML.trim() === "&nbsp;";
-    wrapper.classList.toggle("empty", isEmpty);
-    wrapper.classList.remove("focus");
-  };
-
-  select.addEventListener("focus", () => {
-    wrapper.classList.add("focus");
-    // updateState();
-  });
-
-  // select.addEventListener("blur", () => {
-  //   wrapper.classList.remove("focus");
-  // });
-
-  select.addEventListener("change", updateState);
-
-  // 初始化時也檢查一次
-  updateState();
-});
-
-// select後btn加入選擇文字
-document.querySelectorAll(".dropdown-item").forEach((item) => {
-  item.addEventListener("click", function (e) {
-    e.preventDefault(); // 避免跳轉頁面
-
-    const selectedText = this.textContent; // 取得被點擊的文字
-    const parent = this.closest(".select"); // 找到對應的 select 包裝器
-    const button = parent.querySelector("button"); // 找到按鈕
-    button.classList.add("filled");
-    parent.classList.remove("empty");
-
-    button.textContent = selectedText; // 替換原本的 "請選擇"
   });
 });
 
@@ -106,7 +54,7 @@ inputID.addEventListener("change", (e) => {
 // mail格式判斷
 inputmail.addEventListener("change", (e) => {
   const errorMsgID = document.querySelector(
-    ".input-underlined.required:nth-of-type(5) .error-message.mail"
+    ".input-underlined.required:nth-of-type(3) .error-message.mail"
   );
 
   if (isValidEmail(inputmail.value) || !inputmail.value.trim()) {
@@ -120,3 +68,80 @@ function isValidEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
+
+// ----------------select 開始---------------------
+document.addEventListener("DOMContentLoaded", initSelect);
+
+// 初始化
+function initSelect() {
+  const selects = document.querySelectorAll(".form-select"); //btn
+
+  selects.forEach((select) => {
+    handleFilledClass(select);
+    handleFocusClass(select);
+    handlePlaceholderVisibility(select);
+  });
+
+  handleDropdownItemClick();
+}
+
+function handleFilledClass(select) {
+  select.addEventListener("focus", () => {
+    if (select.value.trim() !== "") {
+      select.classList.add("filled");
+    }
+  });
+}
+
+function handleFocusClass(select) {
+  const wrapper = select.closest(".select");
+
+  wrapper.addEventListener("focusin", () => {
+    wrapper.classList.add("focus");
+  });
+
+  wrapper.addEventListener("focusout", () => {
+    wrapper.classList.remove("focus");
+  });
+}
+
+function handlePlaceholderVisibility(select) {
+  const wrapper = select.closest(".select");
+  const selectPlaceholder = wrapper.querySelector(".dropdown-placeholder");
+
+  const updateState = () => {
+    const isFocused = document.activeElement === select;
+    const isEmpty =
+      select.textContent.trim() === "" || select.textContent === "\u00A0"; // &nbsp;
+
+    if (isFocused && isEmpty) {
+      selectPlaceholder.style.opacity = "1";
+    } else {
+      selectPlaceholder.style.opacity = "0";
+    }
+  };
+
+  select.addEventListener("focus", updateState);
+  select.addEventListener("blur", updateState);
+}
+
+function handleDropdownItemClick() {
+  document.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault(); // 避免跳轉
+
+      const selectedText = this.textContent;
+      const parent = this.closest(".select");
+      const button = parent.querySelector("button");
+
+      button.textContent = selectedText;
+      button.classList.add("filled");
+    });
+  });
+}
+
+// ----------------select結束---------------------
+
+// ----------------進度條 開始---------------------
+
+// ----------------進度條 結束---------------------

@@ -5,6 +5,8 @@
   --color-text: #32322e;
   --color-primary: #e8456b;
   --color-danger: #f16f63;
+  --color-gray-7: 656b6e;
+  --color-gray-3: #e3e6e8;
 }
 
 button,
@@ -171,10 +173,10 @@ span.error-message::before {
   color: #8e9294;
   opacity: 0;
 }
-
-.select.focus.empty .dropdown-placeholder {
+/* 
+.select.empty .dropdown-placeholder {
   opacity: 1;
-}
+} */
 
 .form-select:focus option:first-of-type,
 .form-select.filled option:first-of-type {
@@ -193,3 +195,75 @@ span.error-message::before {
   overflow: hidden;
   width: 100%;
 }
+
+/* ===============進度條1 開始 ===============*/
+.section-progress {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 64px;
+  font-size: 12px;
+  background-color: rgb(255, 255, 255);
+  padding: 10px 15px;
+  box-shadow: rgb(221, 224, 235) 0px -1px 2px 0px;
+  box-sizing: border-box;
+  border-top: 1px solid rgb(227, 227, 227);
+  z-index: 10;
+}
+
+.progress-container {
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-box-align: center;
+  align-items: center;
+  width: 100%;
+  max-width: 60rem;
+  margin: 0px auto;
+  padding: 0px;
+  height: 100%;
+  gap: 10px;
+}
+
+.progress {
+  width: 320px;
+}
+
+.progress-text {
+  color: #0d6efd;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  min-height: 0.01px;
+  margin: 0px 0px 0px 10px;
+  flex: 1 1 5%;
+  font-weight: bold;
+}
+
+/* ===============進度條1 結束 ===============*/
+
+.title {
+  margin: 1.5rem 0;
+  color: var(--color-text);
+}
+
+/* ===============進度條2 開始 ===============*/
+
+.steps-indicator {
+  --step: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  margin: 21rem 0 2rem;
+}
+
+.steps-indicator span {
+  background-color: var(--color-gray-3);
+}
+
+.steps-indicator span.filled {
+  background-color: var(--color-text);
+  height: 0.35rem;
+}
+
+/* ===============進度條2 結束 ===============*/

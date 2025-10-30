@@ -1,0 +1,168 @@
+:root {
+  --color-blue: #1779a4;
+  --xPadding: 2rem;
+  --color-gray-4: #d0d4d7;
+  --color-text: #32322e;
+  --color-primary: #e8456b;
+  --color-danger: #f16f63;
+  --color-gray-7: 656b6e;
+  --color-gray-3: #e3e6e8;
+}
+
+body a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.section {
+  max-width: 60em;
+}
+
+.nav-tabs.nav-custom .nav-link {
+  border: none;
+  border-bottom: 1px solid #e3e6e8;
+  padding: 1.25rem 1rem;
+  position: relative;
+}
+
+ul#myTab,
+.nav-tabs.nav-custom .nav-link.active {
+  border-bottom: 1px solid #e3e6e8;
+}
+.nav-tabs.nav-custom .nav-link:hover,
+.nav-tabs.nav-custom .nav-link:focus,
+.nav-tabs.nav-custom .nav-link.active {
+  color: var(--color-blue);
+}
+
+.nav-tabs.nav-custom .nav-link {
+  color: black;
+}
+
+.nav-tabs.nav-custom .nav-link::before {
+  content: "";
+  border-bottom: none;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: var(--color-blue);
+  opacity: 0;
+  transition: 0.2s;
+}
+
+.nav-tabs.nav-custom .nav-link.active::before,
+.nav-tabs.nav-custom .nav-link:hover,
+.nav-tabs.nav-custom .nav-link:focus {
+  opacity: 1;
+}
+
+/* 文字 */
+.title {
+  margin: 1.5rem 0;
+  color: var(--color-text);
+}
+.content {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 3.5rem;
+}
+h4.sub-title {
+  margin: 1rem 0;
+  color: var(--color-text);
+}
+
+section.tab-section {
+  color: var(--color-gray-7);
+  border-bottom: 1px solid var(--color-gray-3);
+  padding: 1.5rem 0;
+}
+
+.tab-section:last-of-type {
+  border: none;
+}
+
+.btn-primary {
+  margin-left: auto;
+  display: block;
+  width: 100%;
+  max-width: 300px;
+}
+button.btn.btn-custom {
+  width: 100%;
+  max-width: 15rem;
+  margin: 1rem 0;
+  margin-left: auto;
+  display: block;
+  /* padding: .6rem 1.5rem; */
+}
+
+/* ===============進度條2 開始 ===============*/
+.section-progress {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 64px;
+  font-size: 12px;
+  background-color: rgb(255, 255, 255);
+  padding: 10px 15px;
+  box-shadow: rgb(221, 224, 235) 0px -1px 2px 0px;
+  box-sizing: border-box;
+  border-top: 1px solid rgb(227, 227, 227);
+  z-index: 10;
+}
+
+.progress-container {
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-box-align: center;
+  align-items: center;
+  width: 100%;
+  max-width: 60rem;
+  margin: 0px auto;
+  padding: 0px;
+  height: 100%;
+  gap: 10px;
+}
+
+.progress {
+  width: 320px;
+}
+
+.progress-text {
+  color: #0d6efd;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  min-height: 0.01px;
+  margin: 0px 0px 0px 10px;
+  flex: 1 1 5%;
+  font-weight: bold;
+}
+
+/* ===============進度條2 結束 ===============*/
+
+/* ===============進度條1 開始 ===============*/
+body {
+  padding-bottom: 100px;
+}
+.steps-indicator {
+  --step: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem;
+  margin: 2rem 0;
+}
+
+.steps-indicator span {
+  background-color: var(--color-gray-3);
+}
+
+.steps-indicator span.filled {
+  background-color: var(--color-text);
+  height: 0.35rem;
+}
+
+/* ===============進度條1 結束 ===============*/
