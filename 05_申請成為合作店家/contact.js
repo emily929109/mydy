@@ -1,4 +1,4 @@
-const inputs = document.querySelectorAll("input");
+const inputs = document.querySelectorAll(".input-underlined input");
 const selects = document.querySelectorAll(".form-select"); //btn
 const inputsRequired = document.querySelectorAll(".required input");
 const inputID = document.querySelector(
@@ -142,6 +142,36 @@ function handleDropdownItemClick() {
 
 // ----------------select結束---------------------
 
-// ----------------進度條 開始---------------------
+// ----------------radio切換 開始---------------------
+function handleRadioTab() {
+  const radioBtns = document.querySelectorAll("input[type='radio']");
+  const tabPanes = document.querySelectorAll(".tab-pane");
 
-// ----------------進度條 結束---------------------
+  radioBtns.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      const selectedId = radio.id;
+
+      tabPanes.forEach((pane) => {
+        if (pane.id === selectedId) {
+          pane.classList.add("active");
+          requestAnimationFrame(() => {
+            pane.classList.add("show");
+          });
+        } else {
+          pane.classList.remove("active");
+          requestAnimationFrame(() => {
+            pane.classList.remove("show");
+          });
+        }
+      });
+    });
+  });
+}
+
+// 初始只綁一次事件
+// document.querySelectorAll("input[type='radio']").forEach((radio) => {
+//   radio.addEventListener("change", handleRadioTab);
+// });
+
+handleRadioTab();
+// ----------------radio切換 結束---------------------

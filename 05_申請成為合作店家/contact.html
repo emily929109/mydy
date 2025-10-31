@@ -17,75 +17,161 @@
   </head>
   <body>
     <section class="mx-auto pt-5 section">
-      <h4 class="fw-bold">合作商家線上申請</h4>
-      <h2>商家資訊填寫</h2>
+      <h2 class="title fw-bold">商家資訊填寫</h2>
       <div class="grid-container">
-        <div class="section-title mt-5">商家基本資料</div>
-        <div class="field-title mt-5">商家身分</div>
-        <!-- radio切換 開始-->
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="flexRadioDefault"
-            id="flexRadioDefault1"
-          />
-          <label class="form-check-label" for="flexRadioDefault1">
-            公司法人
-          </label>
+        <div class="grid-container">
+          <!-- radio切換 開始-->
+          <!-- 公司法人title -->
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="flexRadioDefault"
+              id="cooperate"
+              checked
+            />
+            <label class="form-check-label" for="cooperate"> 公司法人 </label>
+          </div>
+          <!-- 個人商家title -->
+          <div class="form-check">
+            <input
+              class="form-check-input"
+              type="radio"
+              name="flexRadioDefault"
+              id="individual"
+            />
+            <label class="form-check-label" for="individual"> 個人商家 </label>
+          </div>
+          <!-- radio切換 結束-->
         </div>
-        <div class="form-check">
-          <input
-            class="form-check-input"
-            type="radio"
-            name="flexRadioDefault"
-            id="flexRadioDefault2"
-            checked
-          />
-          <label class="form-check-label" for="flexRadioDefault2">
-            個人商家
-          </label>
-        </div>
-        <!-- radio切換 結束-->
       </div>
 
       <!------------ tab-content 開始------------>
       <div class="tab-content" id="myTabContent">
-        <!------------ 專人聯繫panel ------------>
-        <div
-          class="tab-pane fade show active"
-          id="contact"
-          role="tabpanel"
-          aria-labelledby="home-tab"
-        >
+        <!------------ 公司法人panel ------------>
+        <div class="tab-pane fade show active" id="cooperate">
           <form>
             <div class="basic-info">
-              <!-- 公司/品牌名稱 -->
+              <!-- 公司統編 -->
               <label class="input-underlined required">
+                <input type="text" maxlength="8" class="input" />
+                <span class="label">公司統編</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 公司登記名稱 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="13" class="input" />
+                <span class="label">公司登記名稱</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 公司電話 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="20" class="input" />
+                <span class="label">公司電話</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 資本額 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="15" class="input" />
+                <span class="label">產品類別</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 公司登記地址 -->
+              <label class="input-underlined required address">
                 <input type="text" maxlength="30" class="input" />
-                <span class="label">公司/品牌名稱</span>
+                <span class="label">公司登記地址</span>
                 <span class="error-message"> 此欄位為必填 </span>
               </label>
-              <!-- 身分證字號 -->
-              <label class="input-underlined required">
-                <input type="text" maxlength="10" class="input" />
-                <span class="label">統一編號/身分證字號</span>
+              <!-- 公司通訊地址 -->
+              <label class="input-underlined required address">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">公司通訊地址</span>
                 <span class="error-message"> 此欄位為必填 </span>
-                <span class="error-message id">
-                  統一編號/身分證字號格式錯誤
-                </span>
               </label>
+              <!-- 營業型態 -->
+              <div class="d-flex type-container">
+                <div>營業型態(複選)</div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck1"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck1"
+                    >實體商店(offline)</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >網路(online)</label
+                  >
+                </div>
+              </div>
 
-              <!-- 電子郵件 -->
-              <label class="input-underlined required">
-                <input type="text" maxlength="10" class="input" />
-                <span class="label">電子郵件</span>
+              <!-- 營業型態 -->
+              <div class="d-flex type-container">
+                <div>營業型態(複選)</div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck1"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck1"
+                    >門市交貨</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >宅配</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >超商取貨</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >其他</label
+                  >
+                </div>
+              </div>
+
+              <!-- 業務內容說明 -->
+              <label class="input-underlined required address">
+                <input
+                  type="text"
+                  maxlength="100"
+                  class="input"
+                  placeholder="請簡述您公司的產品或服務內容"
+                />
+                <span class="label">業務內容說明</span>
                 <span class="error-message"> 此欄位為必填 </span>
-                <span class="error-message mail"> 電子郵件格式錯誤 </span>
               </label>
 
               <!-- 下拉選單 聯絡時間-->
-              <div class="select">
+              <!-- <div class="select">
                 <button
                   class="form-select"
                   type="button"
@@ -103,34 +189,279 @@
                 </ul>
                 <span class="dropdown-placeholder">請選擇</span>
                 <span class="label">聯絡時間</span>
-              </div>
+              </div> -->
               <!-- 下拉選單 聯絡時間 結束-->
             </div>
           </form>
-          <!-- input -->
         </div>
-        <!------------ 專人聯繫panel 結束------------>
-        <!------------ 線上申請panel ------------>
-        <div
-          class="tab-pane fade"
-          id="apply"
-          role="tabpanel"
-          aria-labelledby="profile-tab"
-        >
-          apply
+        <!------------ 公司法人panel 結束------------>
+        <!------------ 個人商家panel ------------>
+        <div class="tab-pane fade" id="individual">
+          <form>
+            <div class="basic-info">
+              <!-- 身分證字號 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" />
+                <span class="label">身分證字號</span>
+                <span class="error-message"> 此欄位為必填 </span>
+                <span class="error-message id"> 身分證字號格式錯誤 </span>
+              </label>
+              <!-- 姓名 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="8" class="input" />
+                <span class="label">姓名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 電話 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">電話</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 產品類別 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">產品類別</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 公司登記地址 -->
+              <label class="input-underlined required address">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">公司登記地址</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 公司通訊地址 -->
+              <label class="input-underlined required address">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">公司通訊地址</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 營業型態 -->
+              <div class="d-flex type-container">
+                <div>營業型態(複選)</div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck1"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck1"
+                    >實體商店(offline)</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >網路(online)</label
+                  >
+                </div>
+              </div>
+
+              <!-- 營業型態 -->
+              <div class="d-flex type-container">
+                <div>營業型態(複選)</div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck1"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck1"
+                    >門市交貨</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >宅配</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >超商取貨</label
+                  >
+                </div>
+                <div class="custom-control custom-checkbox">
+                  <input
+                    class="custom-control-input"
+                    id="customCheck2"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck2"
+                    >其他</label
+                  >
+                </div>
+              </div>
+
+              <!-- 業務內容說明 -->
+              <label class="input-underlined required address">
+                <input
+                  type="text"
+                  maxlength="100"
+                  class="input"
+                  placeholder="請簡述您公司的產品或服務內容"
+                />
+                <span class="label">業務內容說明</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+
+              <!-- 共用 -->
+              <div class="subtitle">負責人資訊</div>
+              <!-- 負責人姓名 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">負責人姓名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 身分證字號 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" />
+                <span class="label">身分證字號</span>
+                <span class="error-message"> 此欄位為必填 </span>
+                <span class="error-message id"> 身分證字號格式錯誤 </span>
+              </label>
+              <!-- 負責人電子郵件 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" />
+                <span class="label">負責人電子郵件</span>
+                <span class="error-message"> 此欄位為必填 </span>
+                <span class="error-message mail"> 電子郵件格式錯誤 </span>
+              </label>
+              <!-- 生日 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" placeholder="1900/01/01" />
+                <span class="label">生日</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 電話 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">電話</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 戶籍地址 -->
+              <label class="input-underlined required address">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">戶籍地址</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 居住地址 -->
+              <label class="input-underlined required address">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">居住地址</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+
+              <div class="subtitle" style="grid-column: unset">聯絡人資訊</div>
+              <div class="custom-control custom-radio custom-control-inline">
+                <input
+                  class="custom-control-input"
+                  id="customRadioInline1"
+                  type="radio"
+                  name="customRadioInline1"
+                />
+              </div>
+              <label class="custom-control-label" for="customRadioInline1"
+                >同負責人</label
+              >
+              <!-- 聯絡人姓名 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">聯絡人姓名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 職務名稱 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">職務名稱</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 電話 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">電話</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+
+              <div class="subtitle">收款人資訊</div>
+              <!-- 收款戶名 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">收款戶名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 收款銀行 -->
+              <label class="input-underlined required">
+                <input
+                  type="text"
+                  class="input"
+                  placeholder="範例:聯邦商業銀行"
+                />
+                <span class="label">收款銀行</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 收款分行 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" placeholder="範例:中和分行" />
+                <span class="label">收款分行</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 收款帳號 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" placeholder="請輸入帳號" />
+                <span class="label">收款帳號</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 寄送電子郵件 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">寄送電子郵件</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <div>
+                請填寫正確電子信箱資訊，申請核准後將以此信箱寄送通知，並提供電子合約、分期利率期數與經辦業務等資料
+                <button>發送驗證碼</button>
+              </div>
+
+              <!-- 驗證碼 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">驗證碼</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <div>驗證碼將於發送30分鐘後自動失效</div>
+            </div>
+          </form>
+          <!-- 下一步 -->
+          <button type="button" class="btn btn-custom">
+            <a href="contact.html" target="_blank">下一步</a>
+          </button>
         </div>
-        <!------------ 線上申請panel 結束------------>
+        <!------------ 個人商家panel 結束------------>
       </div>
       <!------------ tab-content 結束------------>
     </section>
     <!------------ section 結束------------>
 
     <!------------ 進度條 開始------------>
-    <div class="steps-indicator">
+    <!-- <div class="steps-indicator">
       <span class="filled"></span>
       <span class="filled"></span>
       <span></span>
-    </div>
+    </div> -->
 
     <!------------ 進度條 結束------------>
 

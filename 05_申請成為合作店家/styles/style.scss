@@ -5,6 +5,10 @@ $body-color: #656b6e;
 $btn-padding-x: 1.5rem;
 $btn-padding-y: 0.6rem;
 $btn-border-radius: 0.625rem;
+$form-check-radio-checked-bg-image: none;
+$form-check-input-width: 1.5em;
+$form-check-input-checked-bg-color: var(--color-blue);
+$progress-bar-bg: var(--color-blue);
 
 @import "../../node_modules/bootstrap/scss/functions";
 @import "../../node_modules/bootstrap/scss/variables";
@@ -18,3 +22,14 @@ $custom-colors: (
 $theme-colors: map-merge($theme-colors, $custom-colors);
 
 @import "../../node_modules/bootstrap/scss/bootstrap.scss"; // 這行要在你覆寫變數之後
+
+:root {
+  --color-blue: #1779a4; //主題色
+  --xPadding: 2rem;
+  --color-gray-4: #d0d4d7;
+  --color-text: #32322e;
+  --color-primary: #e8456b;
+  --color-danger: #f16f63;
+  --color-gray-7: 656b6e;
+  --color-gray-3: #e3e6e8;
+}

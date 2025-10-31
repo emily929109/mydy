@@ -64,10 +64,6 @@ ul#myTab,
 }
 
 /* 表單樣式 */
-form {
-  margin: 2rem 0;
-}
-
 .basic-info {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -196,6 +192,12 @@ span.error-message::before {
   width: 100%;
 }
 
+.input-underlined.address,
+.type-container,
+.subtitle {
+  grid-column: 1 / span 2;
+}
+
 /* ===============進度條1 開始 ===============*/
 .section-progress {
   position: fixed;
@@ -230,7 +232,7 @@ span.error-message::before {
 }
 
 .progress-text {
-  color: #0d6efd;
+  color: var(--color-blue);
   font-weight: 400;
   font-size: 14px;
   line-height: 22px;
@@ -243,8 +245,12 @@ span.error-message::before {
 /* ===============進度條1 結束 ===============*/
 
 .title {
-  margin: 1.5rem 0;
-  color: var(--color-text);
+  margin: 1rem 0;
+}
+
+body {
+  color: var(--color-text) !important;
+  padding-bottom: 100px;
 }
 
 /* ===============進度條2 開始 ===============*/
@@ -267,3 +273,41 @@ span.error-message::before {
 }
 
 /* ===============進度條2 結束 ===============*/
+
+/* ===============radio 開始 ===============*/
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 1.25rem;
+}
+.field-title {
+  grid-column: span 2;
+}
+
+.form-check-input[type="radio"] {
+  position: relative;
+  border: 1px solid var(--color-gray-4);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-check-input[type="radio"]:hover {
+  border-color: var(--color-blue);
+}
+
+.form-check-input[type="radio"]:checked::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transition: 0.15s;
+  transition-property: border-color, background-color;
+  top: 45%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 25%;
+  height: 50%;
+  border: 0.1em solid #fff;
+  border-top: none;
+  border-left: none;
+}
+
+/* ===============radio 結束 ===============*/
