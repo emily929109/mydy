@@ -124,7 +124,8 @@ ul#myTab,
 }
 
 .input-underlined.required .label:before,
-.select .label:before {
+.select .label:before,
+.type-container .label::before {
   content: "*";
   position: absolute;
   left: calc(var(--xPadding) * -0.5);
@@ -198,6 +199,21 @@ span.error-message::before {
   grid-column: 1 / span 2;
 }
 
+.type-container {
+  gap: 40px;
+  margin-top: 2rem;
+  padding: 1.5rem var(--xPadding) 0.25rem;
+}
+
+.type-container .label {
+  position: relative;
+}
+
+.subtitle {
+  margin-top: 2rem;
+  color: var(--color-blue);
+}
+
 /* ===============進度條1 開始 ===============*/
 .section-progress {
   position: fixed;
@@ -240,6 +256,15 @@ span.error-message::before {
   margin: 0px 0px 0px 10px;
   flex: 1 1 5%;
   font-weight: bold;
+}
+
+.subtitle-container {
+  margin-top: 2rem;
+  grid-column: 1 / span 2;
+}
+
+.subtitle-container .subtitle {
+  margin: 0;
 }
 
 /* ===============進度條1 結束 ===============*/

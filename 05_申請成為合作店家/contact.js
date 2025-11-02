@@ -29,7 +29,6 @@ inputsRequired.forEach((input) => {
       errorMsg.style.display = "grid";
     } else {
       errorMsg.style.display = "none";
-      console.log("hi");
     }
   });
 });
@@ -70,75 +69,75 @@ function isValidEmail(email) {
 }
 
 // ----------------select 開始---------------------
-document.addEventListener("DOMContentLoaded", initSelect);
+// document.addEventListener("DOMContentLoaded", initSelect);
 
-// 初始化
-function initSelect() {
-  const selects = document.querySelectorAll(".form-select"); //btn
+// // 初始化
+// function initSelect() {
+//   const selects = document.querySelectorAll(".form-select"); //btn
 
-  selects.forEach((select) => {
-    handleFilledClass(select);
-    handleFocusClass(select);
-    handlePlaceholderVisibility(select);
-  });
+//   selects.forEach((select) => {
+//     handleFilledClass(select);
+//     handleFocusClass(select);
+//     handlePlaceholderVisibility(select);
+//   });
 
-  handleDropdownItemClick();
-}
+//   handleDropdownItemClick();
+// }
 
-function handleFilledClass(select) {
-  select.addEventListener("focus", () => {
-    if (select.value.trim() !== "") {
-      select.classList.add("filled");
-    }
-  });
-}
+// function handleFilledClass(select) {
+//   select.addEventListener("focus", () => {
+//     if (select.value.trim() !== "") {
+//       select.classList.add("filled");
+//     }
+//   });
+// }
 
-function handleFocusClass(select) {
-  const wrapper = select.closest(".select");
+// function handleFocusClass(select) {
+//   const wrapper = select.closest(".select");
 
-  wrapper.addEventListener("focusin", () => {
-    wrapper.classList.add("focus");
-  });
+//   wrapper.addEventListener("focusin", () => {
+//     wrapper.classList.add("focus");
+//   });
 
-  wrapper.addEventListener("focusout", () => {
-    wrapper.classList.remove("focus");
-  });
-}
+//   wrapper.addEventListener("focusout", () => {
+//     wrapper.classList.remove("focus");
+//   });
+// }
 
-function handlePlaceholderVisibility(select) {
-  const wrapper = select.closest(".select");
-  const selectPlaceholder = wrapper.querySelector(".dropdown-placeholder");
+// function handlePlaceholderVisibility(select) {
+//   const wrapper = select.closest(".select");
+//   const selectPlaceholder = wrapper.querySelector(".dropdown-placeholder");
 
-  const updateState = () => {
-    const isFocused = document.activeElement === select;
-    const isEmpty =
-      select.textContent.trim() === "" || select.textContent === "\u00A0"; // &nbsp;
+//   const updateState = () => {
+//     const isFocused = document.activeElement === select;
+//     const isEmpty =
+//       select.textContent.trim() === "" || select.textContent === "\u00A0"; // &nbsp;
 
-    if (isFocused && isEmpty) {
-      selectPlaceholder.style.opacity = "1";
-    } else {
-      selectPlaceholder.style.opacity = "0";
-    }
-  };
+//     if (isFocused && isEmpty) {
+//       selectPlaceholder.style.opacity = "1";
+//     } else {
+//       selectPlaceholder.style.opacity = "0";
+//     }
+//   };
 
-  select.addEventListener("focus", updateState);
-  select.addEventListener("blur", updateState);
-}
+//   select.addEventListener("focus", updateState);
+//   select.addEventListener("blur", updateState);
+// }
 
-function handleDropdownItemClick() {
-  document.querySelectorAll(".dropdown-item").forEach((item) => {
-    item.addEventListener("click", function (e) {
-      e.preventDefault(); // 避免跳轉
+// function handleDropdownItemClick() {
+//   document.querySelectorAll(".dropdown-item").forEach((item) => {
+//     item.addEventListener("click", function (e) {
+//       e.preventDefault(); // 避免跳轉
 
-      const selectedText = this.textContent;
-      const parent = this.closest(".select");
-      const button = parent.querySelector("button");
+//       const selectedText = this.textContent;
+//       const parent = this.closest(".select");
+//       const button = parent.querySelector("button");
 
-      button.textContent = selectedText;
-      button.classList.add("filled");
-    });
-  });
-}
+//       button.textContent = selectedText;
+//       button.classList.add("filled");
+//     });
+//   });
+// }
 
 // ----------------select結束---------------------
 
@@ -175,3 +174,58 @@ function handleRadioTab() {
 
 handleRadioTab();
 // ----------------radio切換 結束---------------------
+// ----------------input-placeholder 開始---------------------
+const inputsPlaceholder = document.querySelectorAll(".input-placeholder"); //input
+
+inputsPlaceholder.forEach((input) => {
+  handleInputPlaceholder(input);
+});
+
+function handleInputPlaceholder(input) {
+  const updateState = () => {
+    const isFocused = document.activeElement === input;
+    const isEmpty = input.value.trim() === "" || input.value === "\u00A0"; // &nbsp;
+
+    if (isFocused && isEmpty) {
+      input.setAttribute("placeholder", input.dataset.placeholder);
+    } else {
+      input.setAttribute("placeholder", "");
+    }
+  };
+
+  input.addEventListener("focus", updateState);
+  input.addEventListener("blur", updateState);
+}
+
+// ----------------input-placeholder 結束---------------------
+
+// ----------------同負責人 開始---------------------
+const checkbox = document.querySelector(
+  "#same-as-contact input[type='checkbox']"
+);
+
+checkbox.addEventListener("change", function () {
+  const contactName = document.querySelector("#contact-name").value;
+  const contactPhone = document.querySelector("#contact-phone").value;
+  const managerNameEl = document.querySelector("#manager-name");
+  const managerPhoneEl = document.querySelector("#manager-phone");
+
+  if (this.checked) {
+    // 複製聯絡人資料
+    managerNameEl.value = contactName;
+    managerPhoneEl.value = contactPhone;
+
+    // 可選：讓使用者不能編輯
+    // managerNameEl.setAttribute("readonly", true);
+    // managerPhoneEl.setAttribute("readonly", true);
+  } else {
+    // 清除負責人資料
+    managerNameEl.value = "";
+    managerPhoneEl.value = "";
+
+    // 可選：恢復可編輯
+    // managerNameEl.removeAttribute("readonly");
+    // managerPhoneEl.removeAttribute("readonly");
+  }
+});
+// ----------------同負責人 結束--------------------
