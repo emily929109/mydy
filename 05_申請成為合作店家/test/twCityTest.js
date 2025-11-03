@@ -8,8 +8,11 @@ $(document).ready(function () {
       console.log(data);
       $.each(data, function (key, value) {
         console.log(key, value);
+        // $("#city").append(
+        //   '<option value="' + key + '">' + data[key].CityName + "</option>"
+        // );
         $("#city").append(
-          '<option value="' + key + '">' + data[key].CityName + "</option>"
+          '<div data-value="' + key + '">' + data[key].CityName + "</div>"
         );
       });
     },
