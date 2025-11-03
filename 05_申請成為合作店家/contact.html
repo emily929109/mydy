@@ -54,7 +54,7 @@
 
       <!------------ tab-content 開始------------>
       <div class="tab-content" id="myTabContent">
-        <!------------ 公司法人panel ------------>
+        <!------------ 公司行號panel ------------>
         <div class="tab-pane fade show active" id="cooperate">
           <form>
             <div class="basic-info">
@@ -176,6 +176,151 @@
                 <span class="error-message"> 此欄位為必填 </span>
               </label>
 
+              <div class="subtitle fs-4 fw-bold">負責人資訊</div>
+              <!-- 負責人姓名 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" id="contact-name" />
+                <span class="label">負責人姓名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 身分證字號 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" id="inputID" />
+                <span class="label">身分證字號</span>
+                <span class="error-message"> 此欄位為必填 </span>
+                <span class="error-message id"> 身分證字號格式錯誤 </span>
+              </label>
+              <!-- 負責人電子郵件 -->
+              <label class="input-underlined required">
+                <input type="text" maxlength="10" class="input" />
+                <span class="label">負責人電子郵件</span>
+                <span class="error-message"> 此欄位為必填 </span>
+                <span class="error-message mail"> 電子郵件格式錯誤 </span>
+              </label>
+              <!-- 生日 -->
+              <label class="input-underlined required">
+                <input
+                  type="text"
+                  class="input input-placeholder"
+                  data-placeholder="1900/01/01"
+                />
+                <span class="label">生日</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 電話 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" id="contact-phone" />
+                <span class="label">電話</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 戶籍地址 -->
+              <label class="input-underlined required address">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">戶籍地址</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 居住地址 -->
+              <label class="input-underlined required address">
+                <input type="text" maxlength="30" class="input" />
+                <span class="label">居住地址</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+
+              <div class="subtitle-container d-flex align-items-center">
+                <div class="subtitle fs-4 fw-bold" style="grid-column: unset">
+                  聯絡人資訊
+                </div>
+                <!-- 同負責人 -->
+                <div
+                  class="custom-control custom-checkbox"
+                  id="same-as-contact"
+                >
+                  <input
+                    class="custom-control-input"
+                    id="customCheck1"
+                    type="checkbox"
+                  />
+                  <label class="custom-control-label" for="customCheck1"
+                    >同負責人</label
+                  >
+                </div>
+              </div>
+
+              <!-- 聯絡人姓名 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" id="manager-name" />
+                <span class="label">聯絡人姓名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 職務名稱 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">職務名稱</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 電話 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" id="manager-phone" />
+                <span class="label">電話</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+
+              <div class="subtitle fs-4 fw-bold">收款人資訊</div>
+              <!-- 收款戶名 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">收款戶名</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 收款銀行 -->
+              <label class="input-underlined required">
+                <input
+                  type="text"
+                  class="input input-placeholder"
+                  data-placeholder="範例:聯邦商業銀行"
+                />
+                <span class="label">收款銀行</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 收款分行 -->
+              <label class="input-underlined required">
+                <input
+                  type="text"
+                  class="input input-placeholder"
+                  data-placeholder="範例:中和分行"
+                />
+                <span class="label">收款分行</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 收款帳號 -->
+              <label class="input-underlined required">
+                <input
+                  type="text"
+                  class="input input-placeholder"
+                  data-placeholder="請輸入帳號"
+                />
+                <span class="label">收款帳號</span>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+              <!-- 寄送電子郵件 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">寄送電子郵件</span>
+                <button class="verification-btn px-3 py-2">發送驗證碼</button>
+                <div class="notice-message">
+                  請填寫正確電子信箱資訊，申請核准後將以此信箱寄送通知，並提供電子合約、分期利率期數與經辦業務等資料
+                </div>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+
+              <!-- 驗證碼 -->
+              <label class="input-underlined required">
+                <input type="text" class="input" />
+                <span class="label">驗證碼</span>
+                <div class="notice-message">驗證碼將於發送30分鐘後自動失效</div>
+                <span class="error-message"> 此欄位為必填 </span>
+              </label>
+
               <!-- 下拉選單 聯絡時間-->
               <!-- <div class="select">
                 <button
@@ -199,15 +344,18 @@
               <!-- 下拉選單 聯絡時間 結束-->
             </div>
           </form>
+          <button type="button" class="btn btn-custom d-block">
+            <a href="contact.html" target="_blank">下一步</a>
+          </button>
         </div>
-        <!------------ 公司法人panel 結束------------>
+        <!------------ 公司行號panel 結束------------>
         <!------------ 個人商家panel ------------>
         <div class="tab-pane fade" id="individual">
           <form>
             <div class="basic-info">
               <!-- 身分證字號 -->
               <label class="input-underlined required">
-                <input type="text" maxlength="10" class="input" />
+                <input type="text" maxlength="10" class="input" id="inputID" />
                 <span class="label">身分證字號</span>
                 <span class="error-message"> 此欄位為必填 </span>
                 <span class="error-message id"> 身分證字號格式錯誤 </span>
@@ -336,7 +484,7 @@
               </label>
               <!-- 身分證字號 -->
               <label class="input-underlined required">
-                <input type="text" maxlength="10" class="input" />
+                <input type="text" maxlength="10" class="input" id="inputID" />
                 <span class="label">身分證字號</span>
                 <span class="error-message"> 此欄位為必填 </span>
                 <span class="error-message id"> 身分證字號格式錯誤 </span>
@@ -382,18 +530,6 @@
                   聯絡人資訊
                 </div>
                 <!-- 同負責人 -->
-
-                <!-- <div class="custom-control custom-radio custom-control-inline">
-                  <input
-                    class="custom-control-input"
-                    id="customRadioInline1"
-                    type="radio"
-                    name="customRadioInline1"
-                  />
-                </div>
-                <label class="custom-control-label" for="customRadioInline1"
-                  >同負責人</label
-                > -->
                 <div
                   class="custom-control custom-checkbox"
                   id="same-as-contact"
@@ -469,24 +605,24 @@
               <label class="input-underlined required">
                 <input type="text" class="input" />
                 <span class="label">寄送電子郵件</span>
+                <button class="verification-btn px-3 py-2">發送驗證碼</button>
+                <div class="notice-message">
+                  請填寫正確電子信箱資訊，申請核准後將以此信箱寄送通知，並提供電子合約、分期利率期數與經辦業務等資料
+                </div>
                 <span class="error-message"> 此欄位為必填 </span>
               </label>
-              <div>
-                請填寫正確電子信箱資訊，申請核准後將以此信箱寄送通知，並提供電子合約、分期利率期數與經辦業務等資料
-                <button>發送驗證碼</button>
-              </div>
 
               <!-- 驗證碼 -->
               <label class="input-underlined required">
                 <input type="text" class="input" />
                 <span class="label">驗證碼</span>
+                <div class="notice-message">驗證碼將於發送30分鐘後自動失效</div>
                 <span class="error-message"> 此欄位為必填 </span>
               </label>
-              <div>驗證碼將於發送30分鐘後自動失效</div>
             </div>
           </form>
           <!-- 下一步 -->
-          <button type="button" class="btn btn-custom">
+          <button type="button" class="btn btn-custom d-block">
             <a href="contact.html" target="_blank">下一步</a>
           </button>
         </div>

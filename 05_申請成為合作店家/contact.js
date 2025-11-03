@@ -1,9 +1,7 @@
 const inputs = document.querySelectorAll(".input-underlined input");
 const selects = document.querySelectorAll(".form-select"); //btn
 const inputsRequired = document.querySelectorAll(".required input");
-const inputID = document.querySelector(
-  ".input-underlined.required:nth-of-type(2) input"
-);
+const inputID = document.querySelectorAll("#inputID");
 const inputmail = document.querySelector(
   ".input-underlined.required:nth-of-type(3) input"
 );
@@ -34,20 +32,22 @@ inputsRequired.forEach((input) => {
 });
 
 // 身分證格式判斷
-inputID.addEventListener("change", (e) => {
-  const errorMsgID = document.querySelector(
-    ".input-underlined.required:nth-of-type(2) .error-message.id"
-  );
-  const value = inputID.value.toUpperCase();
+inputID.forEach((inputID) => {
+  inputID.addEventListener("change", (e) => {
+    const parent = inputID.parentElement;
+    const errorMsgID = parent.querySelector(".error-message.id");
+    const value = inputID.value;
+    console.log(value);
 
-  if (
-    taiwanIdValidator.isNationalIdentificationNumberValid(value) ||
-    !value.trim()
-  ) {
-    errorMsgID.style.display = "none";
-  } else {
-    errorMsgID.style.display = "grid";
-  }
+    if (
+      taiwanIdValidator.isNationalIdentificationNumberValid(value) ||
+      value.trim() === ""
+    ) {
+      errorMsgID.style.display = "none";
+    } else {
+      errorMsgID.style.display = "grid";
+    }
+  });
 });
 
 // mail格式判斷
@@ -211,21 +211,18 @@ checkbox.addEventListener("change", function () {
   const managerPhoneEl = document.querySelector("#manager-phone");
 
   if (this.checked) {
-    // 複製聯絡人資料
     managerNameEl.value = contactName;
     managerPhoneEl.value = contactPhone;
-
-    // 可選：讓使用者不能編輯
-    // managerNameEl.setAttribute("readonly", true);
-    // managerPhoneEl.setAttribute("readonly", true);
+    if (contactName.trim() != "" || contactPhone.trim() != "") {
+      managerNameEl.classList.add("filled");
+      managerPhoneEl.classList.add("filled");
+    } else {
+    }
   } else {
-    // 清除負責人資料
     managerNameEl.value = "";
     managerPhoneEl.value = "";
-
-    // 可選：恢復可編輯
-    // managerNameEl.removeAttribute("readonly");
-    // managerPhoneEl.removeAttribute("readonly");
+    managerNameEl.classList.remove("filled");
+    managerPhoneEl.classList.remove("filled");
   }
 });
 // ----------------同負責人 結束--------------------
