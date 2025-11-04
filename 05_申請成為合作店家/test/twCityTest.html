@@ -1,3 +1,4 @@
+<!-- https://raw.githubusercontent.com/donma/TaiwanAddressCityAreaRoadChineseEnglishJSON/master/CityCountyData.json<br /> -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -10,6 +11,8 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link href="../contact.css" rel="stylesheet" />
+    <link href="styles/style.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script
       src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
@@ -17,7 +20,23 @@
       crossorigin="anonymous"
     ></script>
     <script src="twCityTest.js" defer></script>
-    <style></style>
+    <style>
+      .wrapper {
+        max-width: 30em;
+        margin: 20px auto;
+        display: flex;
+        gap: 20px;
+      }
+
+      .wrapper > div {
+        width: 48%;
+      }
+
+      ul#city-select {
+        max-height: 200px;
+        overflow: auto;
+      }
+    </style>
   </head>
   <body>
     <html>
@@ -25,19 +44,45 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
       </head>
       <body>
-        https://raw.githubusercontent.com/donma/TaiwanAddressCityAreaRoadChineseEnglishJSON/master/CityCountyData.json<br />
-        台灣縣市 API:<br />
-        第一層選單
-        <!-- <select id="city" name="city">
+        <div class="wrapper">
+          <!-- <select id="city" name="city">
           <option value="">請選擇</option>
         </select> -->
-        <div id="city" name="city">
-          <div></div>
-        </div>
-        <br />
-        第二層選單(先隱藏，選完第一層後再出現)
-        <div id="area" name="area" style="display: none">
-          <div value="">請選擇</div>
+
+          <!-- 第一層下拉選單 開始-->
+          <div class="select">
+            <button
+              class="form-select"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              &nbsp;
+            </button>
+            <ul class="dropdown-menu" id="city-select"></ul>
+            <span class="dropdown-placeholder">請選擇</span>
+            <span class="label">縣市</span>
+          </div>
+          <!-- 第一層下拉選單 結束-->
+
+          <!-- 第二層選單(先隱藏，選完第一層後再出現)
+          <div id="area" name="area" style="display: none">
+            <div value="">請選擇</div>
+          </div> -->
+          <!-- 第一層下拉選單 開始-->
+          <div class="select">
+            <button
+              class="form-select"
+              type="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              &nbsp;
+            </button>
+            <ul class="dropdown-menu" id="area-select"></ul>
+            <span class="dropdown-placeholder">請選擇</span>
+            <span class="label">區域</span>
+          </div>
         </div>
       </body>
     </html>
