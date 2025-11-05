@@ -69,75 +69,75 @@ function isValidEmail(email) {
 }
 
 // ----------------select 開始---------------------
-// document.addEventListener("DOMContentLoaded", initSelect);
+document.addEventListener("DOMContentLoaded", initSelect);
 
-// // 初始化
-// function initSelect() {
-//   const selects = document.querySelectorAll(".form-select"); //btn
+// 初始化
+function initSelect() {
+  const selects = document.querySelectorAll(".form-select"); //btn
 
-//   selects.forEach((select) => {
-//     handleFilledClass(select);
-//     handleFocusClass(select);
-//     handlePlaceholderVisibility(select);
-//   });
+  selects.forEach((select) => {
+    handleFilledClass(select);
+    handleFocusClass(select);
+    handlePlaceholderVisibility(select);
+  });
 
-//   handleDropdownItemClick();
-// }
+  handleDropdownItemClick();
+}
 
-// function handleFilledClass(select) {
-//   select.addEventListener("focus", () => {
-//     if (select.value.trim() !== "") {
-//       select.classList.add("filled");
-//     }
-//   });
-// }
+function handleFilledClass(select) {
+  select.addEventListener("focus", () => {
+    if (select.value.trim() !== "") {
+      select.classList.add("filled");
+    }
+  });
+}
 
-// function handleFocusClass(select) {
-//   const wrapper = select.closest(".select");
+function handleFocusClass(select) {
+  const wrapper = select.closest(".select");
 
-//   wrapper.addEventListener("focusin", () => {
-//     wrapper.classList.add("focus");
-//   });
+  wrapper.addEventListener("focusin", () => {
+    wrapper.classList.add("focus");
+  });
 
-//   wrapper.addEventListener("focusout", () => {
-//     wrapper.classList.remove("focus");
-//   });
-// }
+  wrapper.addEventListener("focusout", () => {
+    wrapper.classList.remove("focus");
+  });
+}
 
-// function handlePlaceholderVisibility(select) {
-//   const wrapper = select.closest(".select");
-//   const selectPlaceholder = wrapper.querySelector(".dropdown-placeholder");
+function handlePlaceholderVisibility(select) {
+  const wrapper = select.closest(".select");
+  const selectPlaceholder = wrapper.querySelector(".dropdown-placeholder");
 
-//   const updateState = () => {
-//     const isFocused = document.activeElement === select;
-//     const isEmpty =
-//       select.textContent.trim() === "" || select.textContent === "\u00A0"; // &nbsp;
+  const updateState = () => {
+    const isFocused = document.activeElement === select;
+    const isEmpty =
+      select.textContent.trim() === "" || select.textContent === "\u00A0"; // &nbsp;
 
-//     if (isFocused && isEmpty) {
-//       selectPlaceholder.style.opacity = "1";
-//     } else {
-//       selectPlaceholder.style.opacity = "0";
-//     }
-//   };
+    if (isFocused && isEmpty) {
+      selectPlaceholder.style.opacity = "1";
+    } else {
+      selectPlaceholder.style.opacity = "0";
+    }
+  };
 
-//   select.addEventListener("focus", updateState);
-//   select.addEventListener("blur", updateState);
-// }
+  select.addEventListener("focus", updateState);
+  select.addEventListener("blur", updateState);
+}
 
-// function handleDropdownItemClick() {
-//   document.querySelectorAll(".dropdown-item").forEach((item) => {
-//     item.addEventListener("click", function (e) {
-//       e.preventDefault(); // 避免跳轉
+function handleDropdownItemClick() {
+  document.querySelectorAll(".dropdown-item").forEach((item) => {
+    item.addEventListener("click", function (e) {
+      e.preventDefault(); // 避免跳轉
 
-//       const selectedText = this.textContent;
-//       const parent = this.closest(".select");
-//       const button = parent.querySelector("button");
+      const selectedText = this.textContent;
+      const parent = this.closest(".select");
+      const button = parent.querySelector("button");
 
-//       button.textContent = selectedText;
-//       button.classList.add("filled");
-//     });
-//   });
-// }
+      button.textContent = selectedText;
+      button.classList.add("filled");
+    });
+  });
+}
 
 // ----------------select結束---------------------
 

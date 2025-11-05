@@ -1,25 +1,19 @@
 $(document).ready(function () {
-  //第一層選單
+  // 第一層選單
   $.ajax({
     url: "https://raw.githubusercontent.com/donma/TaiwanAddressCityAreaRoadChineseEnglishJSON/master/CityCountyData.json",
     type: "get",
     dataType: "json",
     success: function (data) {
-      console.log(data);
-      const filteredData = data.filter(
-        (item) => item.CityName !== "釣魚臺" && item.CityEngName !== "Diaoyutai"
-      );
-      filteredData.forEach(data, function (key, value) {
-        console.log(key, value);
-
-        // $("#city").append(
-        //   '<option value="' + key + '">' + data[key].CityName + "</option>"
-        // );
+      const filteredData = data.filter(function (item) {
+        return item.CityName !== "釣魚臺" && item.CityName !== "南海島";
+      });
+      $.each(filteredData, function (key, value) {
         $("#city-select").append(
           '<li class="dropdown-item" data-value="' +
             key +
             '">' +
-            data[key].CityName +
+            filteredData[key].CityName +
             "</li>"
         );
       });
@@ -29,8 +23,8 @@ $(document).ready(function () {
     },
   });
 
-  //第二層選單
-  // 注意：綁在父層 #city-select 上，針對未來加入的 .dropdown-item
+  // 第二層選單
+  // 綁在父層 #city-select 上，針對未來加入的 .dropdown-item
   $("#city-select").on("click", ".dropdown-item", function () {
     const cityvalue = $(this).data("value"); // 取得 data-value
     // const cityvalue = $(this).text(); // 縣市
@@ -58,56 +52,30 @@ $(document).ready(function () {
       },
     });
   });
-
-  // ✅ 可以做額外處理，例如顯示選取結果
-  // $("#selected-city").text(cityName);
 });
 
-//   $("#city").change(function () {
-//     cityvalue = $("#city").val(); //取值
-//     $("#area").empty(); //清空上次的值
-//     $("#area").css("display", "inline"); //顯現
-//     $.ajax({
-//       url: "https://raw.githubusercontent.com/donma/TaiwanAddressCityAreaRoadChineseEnglishJSON/master/CityCountyData.json",
-//       type: "get",
-//       dataType: "json",
-//       success: function (data) {
-//         eachval = data[cityvalue].AreaList; //鄉鎮
+//選完後跳出選擇值(市)
+$("#city-select").click(function () {
+  if (event.target.nodeName == "LI") {
+    let cityvalue = $(event.target).text(); //縣市
+    let $parent = $(event.target).closest(".select");
+    let $btn = $parent.find(".form-select");
 
-//         $.each(eachval, function (key, value) {
-//           $("#area").append(
-//             '<option value="' + key + '">' + eachval[key].AreaName + "</option>"
-//           );
-//         });
-//       },
-//       error: function () {
-//         alert("fail");
-//       },
-//     });
-//   });
-// });
-//選完後跳出選擇值
-// $("#area").change(function () {
-//   console.log("hi");
-//   cityvalue = $("#city").val(); //縣市
-//   areavalue = $("#area").val(); //鄉鎮
-//   $.ajax({
-//     url: "https://raw.githubusercontent.com/donma/TaiwanAddressCityAreaRoadChineseEnglishJSON/master/CityCountyData.json",
-//     type: "get",
-//     dataType: "json",
-//     success: function (data) {
-//       alert(
-//         data[cityvalue].CityName +
-//           "-" +
-//           data[cityvalue].AreaList[areavalue].AreaName
-//       );
-//     },
-//     error: function () {
-//       alert("fail");
-//     },
-//   });
-// });
-// });
+    $("#form-select-city").text(cityvalue);
+    $btn.addClass("filled");
+  }
+});
+
+$("#area-select").click(function () {
+  if (event.target.nodeName == "LI") {
+    let areavalue = $(event.target).text();
+    let $parent = $(event.target).closest(".select");
+    let $btn = $parent.find(".form-select");
+
+    $("#form-select-area").text(areavalue);
+    $btn.addClass("filled");
+  }
+});
 
 // ----------------select 開始---------------------
 document.addEventListener("DOMContentLoaded", initSelect);
@@ -126,9 +94,22 @@ function initSelect() {
 }
 
 function handleFilledClass(select) {
-  select.addEventListener("focus", () => {
-    if (select.value.trim() !== "") {
-      select.classList.add("filled");
+  const parent = select.closest(".select");
+  const btn = parent.querySelector("button");
+
+  if (btn.innerText.trim() == "") {
+    select.classList.remove("filled");
+  }
+
+  parent.addEventListener("click", () => {
+    console.log("click");
+    // console.log(btn);
+    btn.classList.add("filled");
+    parent.classList.add("filled");
+
+    //click後依然沒選
+    if (btn.innerText.trim() == "") {
+      btn.classList.remove("filled");
     }
   });
 }
