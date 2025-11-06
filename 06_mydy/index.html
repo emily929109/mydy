@@ -24,12 +24,19 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous"
     ></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"
+    />
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
   </head>
   <body>
     <div class="wrapper">
       <section class="section banner">
         <!-- carousel start -->
-        <div id="carousel" class="carousel slide" data-ride="carousel">
+        <!-- <div id="carousel" class="carousel slide" data-ride="carousel">
           <div class="carousel-inner">
             <div class="carousel-item active">
               <img
@@ -71,9 +78,61 @@
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
             <span class="sr-only">Next</span>
           </a>
-        </div>
+        </div> -->
         <!-- carousel end -->
+        <!-- Slider main container -->
+        <div class="swiper">
+          <!-- Additional required wrapper -->
+          <div class="swiper-wrapper">
+            <!-- Slides -->
+            <div class="swiper-slide">
+              <img
+                class="d-block w-100"
+                src="img/banner.png"
+                alt="Second slide"
+              />
+            </div>
+            <div class="swiper-slide">
+              <img
+                class="d-block w-100"
+                src="img/banner.png"
+                alt="Second slide"
+              />
+            </div>
+            <div class="swiper-slide">
+              <img
+                class="d-block w-100"
+                src="img/banner.png"
+                alt="Second slide"
+              />
+            </div>
+            ...
+          </div>
+          <!-- If we need pagination -->
+          <div class="swiper-pagination"></div>
+
+          <!-- If we need navigation buttons -->
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
       </section>
     </div>
   </body>
+  <script>
+    const swiper = new Swiper(".swiper", {
+      // Optional parameters
+      loop: true,
+
+      // If we need pagination
+      pagination: {
+        el: ".swiper-pagination",
+      },
+
+      // Navigation arrows
+      navigation: {
+        nextEl: ".swiper-button-next",
+        prevEl: ".swiper-button-prev",
+      },
+    });
+  </script>
 </html>
