@@ -31,87 +31,186 @@
     />
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+    <!-- <link href="../05_申請成為合作店家/styles/style.css" rel="stylesheet" /> -->
+    <!-- google font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div class="wrapper">
-      <section class="section banner">
-        <!-- carousel start -->
-        <div
-          id="carouselExampleIndicators"
-          class="carousel slide"
-          data-ride="carousel"
-        >
-          <ol class="carousel-indicators">
-            <li
-              data-target="#carouselExampleIndicators"
-              data-slide-to="0"
-              class="active"
-            ></li>
-            <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
-            <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
-          </ol>
-          <div class="carousel-inner">
-            <div class="carousel-item active">
-              <img
-                class="d-block w-100"
-                src="img/banner.png"
-                alt="First slide"
-              />
+      <!-- section banner start-->
+      <section class="section banner position-relative mx-auto">
+        <!-- swiper start -->
+        <div class="swiper">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide">
+              <img src="img/banner.png" alt="slide-1" />
             </div>
-            <div class="carousel-item">
-              <img
-                class="d-block w-100"
-                src="img/banner.png"
-                alt="Second slide"
-              />
+            <div class="swiper-slide">
+              <img src="img/banner.png" alt="slide-2" />
             </div>
-            <div class="carousel-item">
-              <img
-                class="d-block w-100"
-                src="img/banner.png"
-                alt="Third slide"
-              />
+            <div class="swiper-slide">
+              <img src="img/banner.png" alt="slide-3" />
             </div>
           </div>
-          <a
-            class="carousel-control-prev"
-            href="#carouselExampleIndicators"
-            role="button"
-            data-slide="prev"
-          >
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="sr-only">Previous</span>
-          </a>
-          <a
-            class="carousel-control-next"
-            href="#carouselExampleIndicators"
-            role="button"
-            data-slide="next"
-          >
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="sr-only">Next</span>
-          </a>
         </div>
-        <!-- carousel end -->
-        <!-- Slider main container -->
+        <!-- swiper end -->
+        <div class="slider-text d-flex flex-column position-absolute">
+          <img src="img/logo.png" alt="logo" class="mb-3" />
+          <div class="title">永續共榮 迎向未來</div>
+          <div class="subtitle">不斷的自我督促<br />提升資融的環境與市場</div>
+          <div class="text">
+            Striving for excellence to elevate the financial market.
+          </div>
+          <div class="subtitle">靈活支付/信用服務/資金規劃</div>
+          <button class="btn-custom"><a href="">聯絡我們</a></button>
+        </div>
       </section>
+      <!-- section banner end-->
+      <!-- section about start-->
+      <section class="section about">
+        <div class="about-container d-flex align-items-center mx-auto">
+          <div class="about-img">
+            <img src="img/about-img.png" alt="about-img" />
+          </div>
+          <div class="about-txt">
+            <div class="text">About us</div>
+            <div class="title">
+              我們用謙和與信任為本<br />築起金融服務的長青基石
+            </div>
+            <div class="text fw-bold mb-3">
+              我們致力於提供多元化的金融解決方案，無論是靈活支付、信用服務或資金規劃，我們都能為客戶滿足不同的資金需求。
+            </div>
+            <button class="btn-custom">了解更多</button>
+          </div>
+        </div>
+      </section>
+      <!-- section about end-->
+      <!-- section countup start-->
+      <section class="section countup">
+        <div class="countup-container d-flex mx-auto w-100 align-items-center">
+          <!-- 專案經驗 -->
+          <div
+            class="countup-block align-items-center d-flex justify-content-center"
+          >
+            <div class="block-left">
+              <div class="countup-num">20</div>
+              <span class="countup-plus"></span>
+              <div class="title">專案經驗</div>
+            </div>
+            <div class="block-right title">年</div>
+          </div>
+          <div class="count-up-border"></div>
+          <!-- 合作品牌 -->
+          <div
+            class="countup-block align-items-center d-flex justify-content-center"
+          >
+            <div class="block-left">
+              <div class="countup-num">20</div>
+              <span class="countup-plus"></span>
+              <div class="title">合作品牌</div>
+            </div>
+            <div class="block-right title">家</div>
+          </div>
+          <div class="count-up-border"></div>
+          <!-- 專案案件 -->
+          <div
+            class="countup-block align-items-center d-flex justify-content-center"
+          >
+            <div class="block-left">
+              <div class="countup-num">20</div>
+              <span class="countup-plus"></span>
+              <div class="title">專案案件</div>
+            </div>
+            <div class="block-right title">件</div>
+          </div>
+          <!-- countup-block end -->
+        </div>
+        <!-- countup-container end -->
+      </section>
+      <!-- section countup end-->
+      <!-- section sub-banner start-->
+      <section class="section sub-banner">
+        <div class="sub-banner-txt">
+          <div class="subtitle">不再只是憧憬</div>
+          <div class="title">更是未來路上的堅定起步</div>
+        </div>
+      </section>
+      <!-- section sub-banner end-->
+      <!-- section sub-banner-txt start-->
+      <section class="section sub-banner-txt text-center">
+        <div class="title">東元資融穩健專業，貼心相伴</div>
+        <div class="subtitle">
+          對我們來說，資金融通不只是提供資金，更是在關鍵時刻給您實在的支持。<br />
+          選擇東元資融，是信賴的開始，更是與您攜手前行的夥伴關係。
+        </div>
+      </section>
+      <!-- section sub-banner-txt end-->
+      <!-- section feature start-->
+      <section class="section feature text-center">
+        <div class="feature-container mx-auto">
+          <div class="title">專業守護，用心成就每一步</div>
+          <div class="subtitle">從服務出發，共創永續可能</div>
+          <div class="fw-normal subtitle">
+            從產品到方案，東元以專業與用心，陪伴每一位客戶穩健前行<br />我們相信服務不只是協助，更是承諾
+          </div>
+          <div class="feature-icon-wrapper d-flex justify-content-center">
+            <div class="icon-item d-flex flex-column">
+              <img src="img/feature-icon1.png" alt="icon-item1" />
+              <div class="subtitle">服務據點</div>
+              <div class="icon-text">Service Centers</div>
+            </div>
+            <div class="icon-item d-flex flex-column">
+              <img src="img/feature-icon2.png" alt="icon-item1" />
+              <div class="subtitle">行動服務</div>
+              <div class="icon-text">Mobile Services</div>
+            </div>
+            <div class="icon-item d-flex flex-column">
+              <img src="img/feature-icon1.png" alt="icon-item1" />
+              <div class="subtitle">網路平台</div>
+              <div class="icon-text">Online Platform</div>
+            </div>
+            <div class="icon-item d-flex flex-column">
+              <img src="img/feature-icon1.png" alt="icon-item1" />
+              <div class="subtitle">電話客服</div>
+              <div class="icon-text">Phone Support</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- section feature end-->
+      <!-- section brand start-->
+      <section class="brand d-flex section">
+        <div class="brand-img text-end">
+          <img src="img/brand/brand-img.png" />
+        </div>
+        <div class="brand-text">
+          <div class="title">東元資融旗下品牌</div>
+          <div class="subtitle">多元品牌，共同承諾</div>
+          <div class="brand-wrapper d-flex">
+            <div
+              class="brand-item align-items-center d-flex justify-content-center"
+            >
+              <img src="img/brand/bobopay.png" alt="bobopay" />
+            </div>
+            <div
+              class="brand-item align-items-center d-flex justify-content-center"
+            >
+              <img src="img/brand/dudupay.png" alt="dudupay" />
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- section brand end-->
     </div>
   </body>
   <script>
     const swiper = new Swiper(".swiper", {
-      // Optional parameters
       loop: true,
-
-      // If we need pagination
-      pagination: {
-        el: ".swiper-pagination",
-      },
-
-      // Navigation arrows
-      navigation: {
-        nextEl: ".swiper-button-next",
-        prevEl: ".swiper-button-prev",
-      },
     });
   </script>
 </html>
