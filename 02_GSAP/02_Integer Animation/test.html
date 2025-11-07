@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Integer Animation</title>
+    <style>
+      body {
+        background: #112222;
+        color: #fff;
+      }
+      .tals {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .tal {
+        height: 300px;
+        width: 50%;
+        font-size: 72px;
+        text-align: center;
+      }
+
+      @media screen and (max-width: 768px) {
+        .tal {
+          width: 100%;
+        }
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/CSSRulePlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/ScrollTrigger.min.js"></script>
+  </head>
+  <body>
+    <div class="tals">
+      <div class="tal" data-end="10">0</div>
+      <div class="tal" data-end="20">0</div>
+      <div class="tal" data-end="30">0</div>
+    </div>
+  </body>
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+    let start = { val: 0 };
+    gsap.utils.toArray(".tal").forEach((label) => {
+      start.val = 0;
+      gsap.to(start, {
+        duration: 1,
+        scrollTrigger: {
+          trigger: label,
+          // 在這個情境 trigger 要是物件，不是選擇器
+          toggleActions: "play none none none",
+          start: "top center",
+          markers: true,
+        },
+        val: label.dataset.end,
+        onUpdate: () => {
+          label.innerHTML = Math.floor(Number(start.val));
+        },
+      });
+    });
+  </script>
+</html>

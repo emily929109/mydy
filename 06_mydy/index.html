@@ -39,6 +39,10 @@
       href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap"
       rel="stylesheet"
     />
+    <!-- gsap -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/CSSRulePlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.5.1/ScrollTrigger.min.js"></script>
   </head>
   <body>
     <div class="wrapper">
@@ -98,9 +102,9 @@
             class="countup-block align-items-center d-flex justify-content-center"
           >
             <div class="block-left">
-              <div class="countup-num">20</div>
+              <div class="countup-num" data-num="20">0</div>
               <span class="countup-plus"></span>
-              <div class="title">專案經驗</div>
+              <div class="title text-center">專案經驗</div>
             </div>
             <div class="block-right title">年</div>
           </div>
@@ -110,9 +114,9 @@
             class="countup-block align-items-center d-flex justify-content-center"
           >
             <div class="block-left">
-              <div class="countup-num">20</div>
+              <div class="countup-num" data-num="200">0</div>
               <span class="countup-plus"></span>
-              <div class="title">合作品牌</div>
+              <div class="title text-center">合作品牌</div>
             </div>
             <div class="block-right title">家</div>
           </div>
@@ -122,9 +126,9 @@
             class="countup-block align-items-center d-flex justify-content-center"
           >
             <div class="block-left">
-              <div class="countup-num">20</div>
+              <div class="countup-num" data-num="3000">0</div>
               <span class="countup-plus"></span>
-              <div class="title">專案案件</div>
+              <div class="title text-center">專案案件</div>
             </div>
             <div class="block-right title">件</div>
           </div>
@@ -184,33 +188,115 @@
       </section>
       <!-- section feature end-->
       <!-- section brand start-->
-      <section class="brand d-flex section">
-        <div class="brand-img text-end">
-          <img src="img/brand/brand-img.png" />
-        </div>
-        <div class="brand-text">
-          <div class="title">東元資融旗下品牌</div>
-          <div class="subtitle">多元品牌，共同承諾</div>
-          <div class="brand-wrapper d-flex">
-            <div
-              class="brand-item align-items-center d-flex justify-content-center"
-            >
-              <img src="img/brand/bobopay.png" alt="bobopay" />
-            </div>
-            <div
-              class="brand-item align-items-center d-flex justify-content-center"
-            >
-              <img src="img/brand/dudupay.png" alt="dudupay" />
+      <section class="brand section overflow-hidden">
+        <div class="brand-container d-flex justify-content-between mx-auto">
+          <div class="brand-img text-end">
+            <img src="img/brand/brand-img.png" />
+          </div>
+          <div class="brand-text">
+            <div class="title">東元資融旗下品牌</div>
+            <div class="subtitle">多元品牌，共同承諾</div>
+            <div class="brand-wrapper d-flex">
+              <div
+                class="brand-item align-items-center d-flex justify-content-center"
+              >
+                <img src="img/brand/bobopay.png" alt="bobopay" />
+              </div>
+              <div
+                class="brand-item align-items-center d-flex justify-content-center"
+              >
+                <img src="img/brand/dudupay.png" alt="dudupay" />
+              </div>
             </div>
           </div>
         </div>
       </section>
       <!-- section brand end-->
+      <!-- section contact start-->
+      <section class="section contact">
+        <div class="contact-container d-flex mx-auto">
+          <div class="contact-item position-relative">
+            <div class="contact-item-img">
+              <img src="img/index-contact/item1.png" alt="contact-item1" />
+            </div>
+            <div
+              class="contact-item-txt align-items-center d-flex justify-content-between position-absolute"
+            >
+              <div>
+                <div class="title">服務據點</div>
+                <div class="text">Service Locations</div>
+              </div>
+              <div class="arrow">
+                <!-- <img src="img/arrow.svg" /> -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 23.07 5.51"
+                >
+                  <g>
+                    <polyline
+                      class="cls-1"
+                      points=".5 5.01 22.57 5.01 18.06 .5"
+                    />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="contact-item position-relative">
+            <div class="contact-item-img">
+              <img src="img/index-contact/item1.png" alt="contact-item1" />
+            </div>
+            <div
+              class="contact-item-txt align-items-center d-flex justify-content-between position-absolute"
+            >
+              <div>
+                <div class="title">聯絡我們</div>
+                <div class="text">Contact Us</div>
+              </div>
+              <div class="arrow">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 23.07 5.51"
+                >
+                  <g>
+                    <polyline
+                      class="cls-1"
+                      points=".5 5.01 22.57 5.01 18.06 .5"
+                    />
+                  </g>
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- section contact end-->
     </div>
   </body>
   <script>
+    // swiper
     const swiper = new Swiper(".swiper", {
       loop: true,
+    });
+
+    // countup
+    gsap.registerPlugin(ScrollTrigger);
+    let start = { val: 0 };
+    gsap.utils.toArray(".countup-num").forEach((num) => {
+      start.val = 0;
+      gsap.to(start, {
+        duration: 1,
+        scrollTrigger: {
+          trigger: num,
+          toggleActions: "play none none none",
+          start: "top 95%",
+          markers: false,
+        },
+        val: num.dataset.num,
+        onUpdate: () => {
+          num.innerHTML = Math.floor(Number(start.val));
+        },
+      });
     });
   </script>
 </html>
