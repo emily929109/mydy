@@ -155,7 +155,9 @@
       </section>
       <!-- section sub-banner-txt end-->
       <!-- section feature start-->
+
       <section class="section feature text-center">
+        <div class="feature-bg"></div>
         <div class="feature-container mx-auto">
           <div class="title">專業守護，用心成就每一步</div>
           <div class="subtitle">從服務出發，共創永續可能</div>
@@ -297,6 +299,42 @@
           num.innerHTML = Math.floor(Number(start.val));
         },
       });
+    });
+
+    // fadeup
+    const options_x = {
+      root: null, // 以視窗為範圍
+      threshold: 0.5,
+    };
+    const observer = new IntersectionObserver(fadeUp, options_x);
+
+    const target = document.querySelectorAll(".section");
+    target.forEach((el) => observer.observe(el));
+
+    function fadeUp(entries) {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("fade-up");
+          console.log("目標元素在可視區域內");
+          observer.unobserve(entry.target);
+        } else {
+          //   entry.target.classList.remove("fade-in");
+          //   console.log("目標元素在可視區域外");
+        }
+      });
+    }
+
+    // parralax
+    gsap.to(".feature-bg", {
+      yPercent: -25, // 背景下滑幅度
+      ease: "none",
+      scrollTrigger: {
+        trigger: ".feature.section",
+        start: "top bottom",
+        end: "bottom center",
+        scrub: true, // 平滑跟隨滾動
+        markers: false,
+      },
     });
   </script>
 </html>
