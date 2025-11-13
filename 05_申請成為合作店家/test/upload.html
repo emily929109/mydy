@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <form action="/action_page.php">
+      <label for="myfile">Select a file:</label>
+      <input type="file" id="myfile" name="myfile" /><br /><br />
+      <div class="preview">
+        <img id="previewFront" src="" alt="預覽圖片" style="max-width: 200px" />
+      </div>
+      <input type="submit" value="Submit" />
+    </form>
+  </body>
+
+  <script>
+    document.getElementById("myfile").addEventListener("change", function (e) {
+      const file = e.target.files[0]; // 取得使用者選的檔案
+      if (!file) return;
+
+      const reader = new FileReader();
+      console.log(reader);
+      reader.onload = function (event) {
+        // event.target.result 是 base64 資料
+        document.getElementById("previewFront").src = event.target.result;
+      };
+      reader.readAsDataURL(file); // 將檔案讀成 base64
+    });
+  </script>
+</html>

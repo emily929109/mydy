@@ -151,10 +151,11 @@
 
         function measure() {
           // 一張的顯示寬度 = viewport 寬度（因為 .slide flex-basis:100%）+ gap
-          const gap = parseFloat(getComputedStyle(track).gap) || 0;
+          const gap = parseFloat(getComputedStyle(track).gap) || 0; //把字串轉乘小數
           const viewportW = root.querySelector(".viewport").clientWidth;
+
           slideW = viewportW + gap;
-          snapTo(index, {immediate: true});
+          snapTo(index, { immediate: true });
         }
 
         // 將 index 限制在 [0, slides.length-1]
@@ -170,7 +171,7 @@
           tx = value;
         }
 
-        function snapTo(i, {immediate = false} = {}) {
+        function snapTo(i, { immediate = false } = {}) {
           index = clamp(i);
           dots.forEach((d, k) => d.classList.toggle("active", k === index));
           const target = -index * slideW;
