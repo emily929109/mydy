@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PDF.js 渲染 PDF 成 DOM</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/wasm/openjpeg_nowasm_fallback.min.js"></script> -->
+    <style>
+      body {
+        font-family: sans-serif;
+        background: #f3f3f3;
+        margin: 0;
+        padding: 20px;
+      }
+      #pdf-container {
+        height: 80vh;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        background: white;
+        padding: 10px;
+      }
+      canvas {
+        display: block;
+        margin: 0 auto 20px auto;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <h2>PDF.js 渲染範例</h2>
+    <div id="pdf-container"></div>
+    <div class="form-group form-check">
+      <input class="form-check-input" id="read" type="checkbox" disabled />
+      <label class="form-check-label" for="read"> 我已閱讀</label>
+    </div>
+
+    <script>
+      // 設定 PDF.js worker 路徑（必要）
+      //   pdfjsLib.GlobalWorkerOptions.workerSrc =
+      //     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+      const url = "B-71_V04_東元資融特約商DUDUPAY合作契約書.pdf"; // ✅ 這裡放 PDF 檔案路徑
+      const container = document.getElementById("pdf-container");
+
+      // 載入 PDF
+      pdfjsLib.getDocument(url).promise.then((pdf) => {
+        // console.log(`📘 PDF 總頁數：${pdf.numPages}`);
+
+        // 每一頁渲染成 canvas
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          pdf.getPage(pageNum).then((page) => {
+            const viewport = page.getViewport({ scale: 1.5 });
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            container.appendChild(canvas);
+
+            page.render({
+              canvasContext: context,
+              viewport: viewport,
+            });
+          });
+        }
+      });
+
+      //       inputRead.addEventListener("change", () => {
+      //   checkScrollToBottom(exampleModal);
+      // });
+      const input = document.querySelector("input");
+
+      container.addEventListener("scroll", () => {
+        checkboxStatus(container);
+      });
+
+      function checkScrollToBottom(element) {
+        return (
+          Math.abs(
+            element.scrollHeight - element.clientHeight - element.scrollTop
+          ) <= 1
+        );
+      }
+
+      function checkboxStatus(element) {
+        if (checkScrollToBottom(element)) {
+          input.disabled = false;
+        }
+      }
+    </script>
+  </body>
+</html>

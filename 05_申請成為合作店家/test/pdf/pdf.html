@@ -15,6 +15,26 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.332/pdf.min.js"></script> -->
+    <script src="https://www.jsdelivr.com/package/npm/pdfjs-dist"></script>
+    <script src="https://cdnjs.com/libraries/pdf.js"></script>
+    <script src="https://unpkg.com/pdfjs-dist/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/+esm"></script>
+    <!-- <script type="module">
+      import pdfjsDist from "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/+esm";
+    </script> -->
+
+    <script src="
+https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/wasm/openjpeg_nowasm_fallback.min.js
+"></script>
+    <link
+      href="
+https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/web/pdf_viewer.min.css
+"
+      rel="stylesheet"
+    />
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/pdf.min.mjs"></script> -->
 
     <style>
       .modal-dialog {
@@ -49,7 +69,7 @@
       aria-labelledby="exampleModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <button
@@ -62,11 +82,27 @@
           <div class="modal-body">
             <iframe
               id="pdfFrame"
-              src="B-71_V04_東元資融特約商DUDUPAY合作契約書.pdf"
+              src="/pdfjs/web/viewer.html?file=B-71_V04_東元資融特約商DUDUPAY合作契約書.pdf"
               style="width: 100%; height: 100%; border: none"
-            ></iframe>
+            >
+            </iframe>
           </div>
+          <!-- <canvas id="canvas"></canvas> -->
           <div class="modal-footer">
+            <div class="form-group form-check">
+              <input
+                class="form-check-input"
+                id="agreement-check"
+                type="checkbox"
+              />
+              <label
+                class="form-check-label"
+                for="agreement-check"
+                style="font-size: 1rem"
+              >
+                我已閱讀且同意隱私權政策
+              </label>
+            </div>
             <button
               type="button"
               class="btn btn-secondary"
@@ -87,6 +123,58 @@
       //   const pdfUrl = "https://www.pdffiller.com/s/dY9ccx4m"; // 改成你的PDF路徑
       //   document.getElementById("pdfFrame").src = pdfUrl;
       // });
+
+      // const iframe = document.getElementById("pdfFrame");
+      // console.log(iframe);
+
+      //test
+      // var url = "/cdn.mozilla.net/pdfjs/helloworld.pdf";
+      // PDFJS.workerSrc = "//mozilla.github.io/pdf.js/build/pdf.worker.js";
+      // var loadingTask = PDFJS.getDocument( url );
+      // loadingTask.promise.then(
+      // 	function( pdf ) {
+      // 		console.log( "PDF loaded" );
+      // 		var pageNumber = 1;
+      // 		pdf.getPage(pageNumber).then( function( page ) {
+      // 			console.log( "Page loaded" );
+      // 			var scale = 1.5;
+      // 			var viewport = page.getViewport( scale );
+      // 			var canvas = document.getElementById( "example" );
+      // 			var context = canvas.getContext( "2d" );
+      // 			canvas.height = viewport.height;
+      // 			canvas.width = viewport.width;
+      // 			var renderContext = {
+      // 				canvasContext: context,
+      // 				viewport: viewport
+      // 			};
+      // 			var renderTask = page.render( renderContext );
+      // 			renderTask.then( function () { console.log( "Page rendered" ); });
+      // 		});
+      // 	}, function ( reason ) {
+      // 		console.error( reason );
+      // 	}
+      // );
+
+      // pdfjsLib.GlobalWorkerOptions.workerSrc =
+      //   "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.worker.min.js";
+
+      pdfjsLib
+        .getDocument("B-71_V04_東元資融特約商DUDUPAY合作契約書.pdf")
+        .promise.then(function (pdf) {
+          console.log("this file has" + pdf._pdfInfo.numPages);
+          // console.log("PDF loaded");
+          // const viewer = pdf.querySelector("#viewer");
+          console.log(pdf);
+        });
+
+      const viewer = document.querySelector("#viewer");
+
+      const iframe = document.querySelector("iframe ");
+      const container = document.querySelector("#viewerContainer");
+      const sizer = container.querySelector("#sizer");
+      console.log(sizer.scrollHeight);
+
+      console.log(iframe);
     </script>
   </body>
 </html>
