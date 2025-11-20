@@ -8,6 +8,8 @@ $(document).ready(function () {
       const filteredData = data.filter(function (item) {
         return item.CityName !== "釣魚臺" && item.CityName !== "南海島";
       });
+
+      // 把資料渲染在ul中
       $.each(filteredData, function (key, value) {
         $("#city-select").append(
           '<li class="dropdown-item" data-value="' +
@@ -16,6 +18,16 @@ $(document).ready(function () {
             filteredData[key].CityName +
             "</li>"
         );
+      });
+
+      //將選取值顯示在按鈕上
+      $("#city-select").on("click", ".dropdown-item", function () {
+        let cityvalue = $(this).text(); //縣市
+        let $parent = $(this).closest(".select");
+        let $btn = $parent.find(".form-select");
+
+        $btn.text(cityvalue);
+        $btn.addClass("filled");
       });
     },
     error: function (data) {
@@ -37,6 +49,7 @@ $(document).ready(function () {
       success: function (data) {
         eachval = data[cityvalue].AreaList; //鄉鎮
 
+        // 把資料渲染在ul中
         $.each(eachval, function (key, value) {
           $("#area-select").append(
             '<li class="dropdown-item" data-value="' +
@@ -46,35 +59,22 @@ $(document).ready(function () {
               "</li>"
           );
         });
+
+        //將選取值顯示在按鈕上
+        $("#area-select").on("click", ".dropdown-item", function () {
+          let areavalue = $(this).text();
+          let $parent = $(this).closest(".select");
+          let $btn = $parent.find(".form-select");
+
+          $btn.text(areavalue);
+          $btn.addClass("filled");
+        });
       },
       error: function () {
         alert("fail");
       },
     });
   });
-});
-
-//選完後跳出選擇值(市)
-$("#city-select").click(function () {
-  if (event.target.nodeName == "LI") {
-    let cityvalue = $(event.target).text(); //縣市
-    let $parent = $(event.target).closest(".select");
-    let $btn = $parent.find(".form-select");
-
-    $("#form-select-city").text(cityvalue);
-    $btn.addClass("filled");
-  }
-});
-
-$("#area-select").click(function () {
-  if (event.target.nodeName == "LI") {
-    let areavalue = $(event.target).text();
-    let $parent = $(event.target).closest(".select");
-    let $btn = $parent.find(".form-select");
-
-    $("#form-select-area").text(areavalue);
-    $btn.addClass("filled");
-  }
 });
 
 // ----------------select 開始---------------------
@@ -102,10 +102,8 @@ function handleFilledClass(select) {
   }
 
   parent.addEventListener("click", () => {
-    console.log("click");
-    // console.log(btn);
     btn.classList.add("filled");
-    parent.classList.add("filled");
+    // parent.classList.add("filled");
 
     //click後依然沒選
     if (btn.innerText.trim() == "") {
@@ -116,6 +114,7 @@ function handleFilledClass(select) {
 
 function handleFocusClass(select) {
   const wrapper = select.closest(".select");
+  const btn = wrapper.querySelector("button");
 
   wrapper.addEventListener("focusin", () => {
     wrapper.classList.add("focus");
