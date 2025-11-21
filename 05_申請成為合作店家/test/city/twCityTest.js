@@ -38,24 +38,26 @@ $(document).ready(function () {
   // 第二層選單
   // 綁在父層 #city-select 上，針對未來加入的 .dropdown-item
   $("#city-select").on("click", ".dropdown-item", function () {
-    const cityvalue = $(this).data("value"); // 取得 data-value
-    // const cityvalue = $(this).text(); // 縣市
-    // console.log(cityvalue);
+    const cityvalue = $(this).data("value");
     $("#area-select").empty(); //清空上次的值
     $.ajax({
       url: "https://raw.githubusercontent.com/donma/TaiwanAddressCityAreaRoadChineseEnglishJSON/master/CityCountyData.json",
       type: "get",
       dataType: "json",
       success: function (data) {
-        eachval = data[cityvalue].AreaList; //鄉鎮
+        const filteredData = data.filter(function (item) {
+          return item.CityName !== "釣魚臺" && item.CityName !== "南海島";
+        });
+
+        const filteredArea = filteredData[cityvalue].AreaList; //鄉鎮
 
         // 把資料渲染在ul中
-        $.each(eachval, function (key, value) {
+        $.each(filteredArea, function (key, value) {
           $("#area-select").append(
             '<li class="dropdown-item" data-value="' +
               key +
               '">' +
-              eachval[key].AreaName +
+              filteredArea[key].AreaName +
               "</li>"
           );
         });

@@ -17,6 +17,7 @@
     <script
       src="https://code.jquery.com/jquery-3.7.1.slim.min.js"
       integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
+      crossorigin="anonymous"
     ></script>
     <script src="twCityTest.js" defer></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -43,6 +44,15 @@
         left: var(--xPadding);
         transform: translate(0);
         font-size: 0.85rem;
+      }
+
+      /* btn按不到問題 */
+      .select .form-select {
+        z-index: 9;
+      }
+
+      .select .label {
+        z-index: 10;
       }
     </style>
   </head>
