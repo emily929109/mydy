@@ -37,11 +37,13 @@ inputID.forEach((inputID) => {
     const parent = inputID.parentElement;
     const errorMsgID = parent.querySelector(".error-message.id");
     const value = inputID.value;
-    console.log(value);
+
+    console.log(taiwanIdValidator.isResidentCertificateNumberValid(value));
 
     if (
       taiwanIdValidator.isNationalIdentificationNumberValid(value) ||
-      value.trim() === ""
+      value.trim() === "" ||
+      taiwanIdValidator.isResidentCertificateNumberValid(value)
     ) {
       errorMsgID.style.display = "none";
     } else {

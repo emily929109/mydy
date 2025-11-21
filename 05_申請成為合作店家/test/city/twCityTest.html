@@ -19,6 +19,7 @@
       integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8="
     ></script>
     <script src="twCityTest.js" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <style>
       .wrapper {
         max-width: 30em;
@@ -46,54 +47,47 @@
     </style>
   </head>
   <body>
-    <html>
-      <head>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-      </head>
-      <body>
-        <div class="wrapper">
-          <!-- <select id="city" name="city">
+    <div class="wrapper">
+      <!-- <select id="city" name="city">
           <option value="">請選擇</option>
         </select> -->
 
-          <!-- 第一層下拉選單 開始-->
-          <div class="select">
-            <button
-              class="form-select"
-              id="form-select-city"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              &nbsp;
-            </button>
-            <ul class="dropdown-menu" id="city-select"></ul>
-            <span class="dropdown-placeholder">請選擇</span>
-            <span class="label">縣市</span>
-          </div>
-          <!-- 第一層下拉選單 結束-->
+      <!-- 第一層下拉選單 開始-->
+      <div class="select">
+        <button
+          class="form-select"
+          id="form-select-city"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          &nbsp;
+        </button>
+        <ul class="dropdown-menu" id="city-select"></ul>
+        <span class="dropdown-placeholder">請選擇</span>
+        <span class="label">縣市</span>
+      </div>
+      <!-- 第一層下拉選單 結束-->
 
-          <!-- 第二層選單(先隱藏，選完第一層後再出現)
+      <!-- 第二層選單(先隱藏，選完第一層後再出現)
           <div id="area" name="area" style="display: none">
             <div value="">請選擇</div>
           </div> -->
-          <!-- 第一層下拉選單 開始-->
-          <div class="select">
-            <button
-              class="form-select"
-              id="form-select-area"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              &nbsp;
-            </button>
-            <ul class="dropdown-menu" id="area-select"></ul>
-            <span class="dropdown-placeholder">請選擇</span>
-            <span class="label">區域</span>
-          </div>
-        </div>
-      </body>
-    </html>
+      <!-- 第一層下拉選單 開始-->
+      <div class="select">
+        <button
+          class="form-select"
+          id="form-select-area"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+        >
+          &nbsp;
+        </button>
+        <ul class="dropdown-menu" id="area-select"></ul>
+        <span class="dropdown-placeholder">請選擇</span>
+        <span class="label">區域</span>
+      </div>
+    </div>
   </body>
 </html>
