@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+      body {
+        background: #f7f7f7;
+        font-family: sans-serif;
+        padding: 50px;
+      }
+
+      .core-values {
+        width: 600px;
+        margin: auto;
+        position: relative;
+      }
+
+      .center-logo {
+        width: 200px;
+        margin: auto;
+      }
+
+      .icons {
+        position: relative;
+      }
+
+      .icon {
+        width: 60px;
+        height: 60px;
+        background: #fff;
+        border: 3px solid #c71622;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        font-weight: bold;
+        position: absolute;
+        opacity: 0;
+        transform: scale(0.5);
+      }
+
+      /* 6 個 icon 的位置 */
+      .icon1 {
+        top: -20px;
+        left: 60px;
+      }
+      .icon2 {
+        top: -20px;
+        right: 60px;
+      }
+      .icon3 {
+        top: 90px;
+        left: -10px;
+      }
+      .icon4 {
+        top: 90px;
+        right: -10px;
+      }
+      .icon5 {
+        top: 200px;
+        left: 60px;
+      }
+      .icon6 {
+        top: 200px;
+        right: 60px;
+      }
+
+      /* 線條 */
+      .line {
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: visible;
+      }
+
+      .line line {
+        stroke-dasharray: 200;
+        stroke-dashoffset: 200;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="core-values">
+      <div class="center-logo">
+        <svg width="200" height="200" viewBox="0 0 200 200">
+          <!-- 外圈旋轉 -->
+          <circle
+            class="outer-ring"
+            cx="100"
+            cy="100"
+            r="90"
+            stroke="#c71622"
+            stroke-width="10"
+            fill="none"
+          />
+
+          <!-- 中心 Logo (假) -->
+          <circle cx="100" cy="100" r="45" fill="#c71622" opacity="0.85" />
+          <text
+            x="100"
+            y="108"
+            text-anchor="middle"
+            fill="#fff"
+            font-size="32"
+            font-weight="bold"
+          >
+            L
+          </text>
+        </svg>
+      </div>
+
+      <!-- 小圖示 + 線條 -->
+      <div class="icons">
+        <!-- 左上 -->
+        <div class="icon icon1"><span>🤝</span></div>
+        <svg class="line line1" width="150" height="150">
+          <line
+            x1="150"
+            y1="150"
+            x2="20"
+            y2="20"
+            stroke="#c71622"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <!-- 右上 -->
+        <div class="icon icon2"><span>🏅</span></div>
+        <svg class="line line2" width="150" height="150">
+          <line
+            x1="0"
+            y1="150"
+            x2="130"
+            y2="20"
+            stroke="#c71622"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <!-- 左 -->
+        <div class="icon icon3"><span>👥</span></div>
+        <svg class="line line3" width="150" height="150">
+          <line
+            x1="150"
+            y1="75"
+            x2="20"
+            y2="75"
+            stroke="#c71622"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <!-- 右 -->
+        <div class="icon icon4"><span>⚙️</span></div>
+        <svg class="line line4" width="150" height="150">
+          <line
+            x1="0"
+            y1="75"
+            x2="130"
+            y2="75"
+            stroke="#c71622"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <!-- 左下 -->
+        <div class="icon icon5"><span>📦</span></div>
+        <svg class="line line5" width="150" height="150">
+          <line
+            x1="150"
+            y1="0"
+            x2="20"
+            y2="130"
+            stroke="#c71622"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        <!-- 右下 -->
+        <div class="icon icon6"><span>⏱️</span></div>
+        <svg class="line line6" width="150" height="150">
+          <line
+            x1="0"
+            y1="0"
+            x2="130"
+            y2="130"
+            stroke="#c71622"
+            stroke-width="4"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+    </div>
+    <script>
+      // 外圈 360 度旋轉
+      gsap.to(".outer-ring", {
+        rotate: 360,
+        transformOrigin: "center",
+        duration: 10,
+        repeat: -1,
+        ease: "none",
+      });
+
+      // Icon 淡入 + 放大
+      gsap.to(".icon", {
+        opacity: 1,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.2,
+        ease: "back.out(1.7)",
+      });
+
+      // 線條抽線動畫
+      gsap.to(".line line", {
+        strokeDashoffset: 0,
+        duration: 0.8,
+        stagger: 0.2,
+        ease: "power2.out",
+        delay: 0.2,
+      });
+
+      // 中心 Logo pulse
+      gsap.to(".center-logo", {
+        scale: 1.05,
+        duration: 1.2,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut",
+      });
+    </script>
+  </body>
+</html>
