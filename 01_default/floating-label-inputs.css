@@ -1,0 +1,190 @@
+/* --------------inputs和下拉 開始-------------- */
+.basic-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 1rem;
+}
+
+.input-underlined,
+.select {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  /*        z-index: 0;*/
+}
+
+.input-underlined input[type="text"],
+.select .form-select {
+  width: 100%;
+  padding: 1.5rem var(--xPadding) 0.25rem;
+  border: none;
+  border-bottom: 1px solid var(--color-gray-4);
+  border-radius: 0;
+  outline: none;
+  text-align: left;
+  box-shadow: none;
+}
+
+.input-underlined .label,
+.select .label {
+  position: absolute;
+  top: 1.85rem;
+  left: var(--xPadding);
+  transform: translateY(-50%);
+  pointer-events: none;
+  transition: 0.2s ease;
+  transition-property: transform, top, font-size;
+}
+
+.input-underlined input[type="text"]:focus ~ .label,
+.input-underlined input[type="text"].filled ~ .label,
+.form-select:focus ~ .label,
+.form-select.filled ~ .label,
+.select.focus .label,
+.select.filled .label,
+.dropdown-menu.show ~ .label {
+  top: 0;
+  left: var(--xPadding);
+  transform: translate(0);
+  font-size: 0.85rem;
+}
+
+.input-underlined input[type="text"]:focus,
+.form-select:focus {
+  border-bottom: 2px solid var(--color-green);
+}
+
+.input-underlined.required .label:before,
+.select .label:before,
+.type-container .label::before {
+  content: "*";
+  position: absolute;
+  left: calc(var(--xPadding) * -0.5);
+  top: calc(50% + 0.1rem);
+  transform: translateY(-50%);
+  color: var(--color-danger);
+}
+
+/* .dropdown */
+.dropdown-placeholder {
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  color: #8e9294;
+  opacity: 0;
+}
+
+.form-select:focus option:first-of-type,
+.form-select.filled option:first-of-type {
+  display: none;
+}
+
+.dropdown-menu.show {
+  display: block;
+  background: #fff;
+  color: #495057;
+  border: 0;
+  box-shadow: 0 2px 4px -1px #0003, 0 4px 5px 0 #00000024,
+    0 1px 10px 0 #0000001f;
+  margin-top: 0.5rem !important;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+.input-underlined.address,
+.type-container {
+  grid-column: 1 / span 2;
+}
+
+.type-container {
+  gap: 40px;
+  margin-top: 2rem;
+  padding: 1.5rem var(--xPadding) 0.25rem;
+}
+
+.type-container .label {
+  position: relative;
+}
+
+/* btn按不到問題 */
+/*    .select .form-select {
+        z-index: 9;
+    }
+
+    .select .label {
+        z-index: 10;
+    }*/
+
+.dropdown-placeholder {
+  pointer-events: none !important;
+}
+
+/* --------------inputs和下拉 結束-------------- */
+
+/* --------------error-message 開始-------------- */
+.error-message {
+  display: none;
+  padding: 0 8px;
+  line-height: 1;
+  grid-template-columns: auto 1fr;
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-danger);
+}
+
+span.error-message::before {
+  width: 1rem;
+  height: 1rem;
+  content: "i";
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-danger);
+  color: #fff;
+  font-size: 1em;
+}
+
+/* ===============radio 開始 ===============*/
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 1.25rem;
+}
+
+.field-title {
+  grid-column: span 2;
+}
+
+.form-check-input[type="radio"] {
+  position: relative;
+  border: 1px solid var(--color-gray-4);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.form-check-input[type="radio"]:hover {
+  border-color: var(--color-green);
+}
+
+.form-check-input[type="radio"]:checked::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transition: 0.15s;
+  transition-property: border-color, background-color;
+  top: 45%;
+  transform: translate(-50%, -50%) rotate(45deg);
+  width: 25%;
+  height: 50%;
+  border: 0.1em solid #fff;
+  border-top: none;
+  border-left: none;
+}
+
+/* ===============radio 結束 ===============*/

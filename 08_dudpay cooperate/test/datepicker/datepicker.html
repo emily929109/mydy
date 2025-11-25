@@ -16,12 +16,32 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
+    <!-- falcon -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
   </head>
   <body>
     <div class="wrapper d-flex flex-column align-items-center">
+      <!-- falcon -->
       <div class="item-container">
-        <div class="fs-2 fs">falcon</div>
+        <div class="form-group">
+          <label for="myDate">Start Date</label>
+          <input
+            class="form-control datetimepicker"
+            id="myDate"
+            type="text"
+            placeholder="dd/mm/yy"
+            data-options='{"dateFormat":"d/m/y"}'
+          />
+        </div>
       </div>
+      <!-- falcon優化 -->
     </div>
+    <script>
+      flatpickr("#myDate");
+    </script>
   </body>
 </html>

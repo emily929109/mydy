@@ -1,0 +1,27 @@
+:root {
+  --color-blue: #1779a4;
+  --xPadding: 2rem;
+  --color-gray-4: #d0d4d7;
+  --color-text: #32322e;
+  --color-primary: #e8456b;
+  --color-danger: #f16f63;
+  --color-gray-7: 656b6e;
+  --color-gray-3: #e3e6e8;
+  --color-green: #00af9a;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
