@@ -22,9 +22,60 @@
       href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link
+      rel="stylesheet"
+      href="../../../01_default/floating-label-inputs.css"
+    />
+    <link rel="stylesheet" href="../../../01_default/default.css" />
+    <script
+      src="https://kit.fontawesome.com/7c6bbc6b90.js"
+      crossorigin="anonymous"
+    ></script>
+    <!-- primevue -->
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script>
+    <script src="https://unpkg.com/@primevue/themes/umd/aura.min.js"></script>
+    <!-- 1. 主題（選一個） -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/primevue/resources/themes/aura-dark-blue/theme.css"
+    />
+
+    <!-- 2. PrimeVue 主要樣式 -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/primevue/resources/primevue.min.css"
+    />
+
+    <!-- 3. Icon -->
+    <link rel="stylesheet" href="https://unpkg.com/primeicons/primeicons.css" />
+
+    <!-- <script src="https://unpkg.com/@primeuix/themes/umd/aura.js"></script> -->
+    <script src="https://unpkg.com/primevue/umd/inputtext/inputtext.min.js"></script>
+
+    <script type="module" src="datepicker.js" defer></script>
+    <style>
+      .fa-calendar-alt {
+        position: absolute;
+        top: 1.85rem;
+        right: var(--xPadding);
+        transform: translateY(-50%);
+        /* pointer-events: none; */
+        cursor: pointer;
+      }
+
+      /* 只要點開日曆label就不能掉下來 */
+      .flatpickr-input.active ~ .label {
+        top: 0;
+        left: var(--xPadding);
+        transform: translate(0);
+        font-size: 0.85rem;
+      }
+    </style>
   </head>
   <body>
-    <div class="wrapper d-flex flex-column align-items-center">
+    <div class="wrapper d-flex flex-column align-items-center mt-5">
       <!-- falcon -->
       <div class="item-container">
         <div class="form-group">
@@ -39,9 +90,28 @@
         </div>
       </div>
       <!-- falcon優化 -->
+      <label class="input-underlined required">
+        <input
+          type="text"
+          class="input input-placeholder"
+          id="date"
+          data-placeholder="請選擇日期"
+        />
+        <span class="label">生日</span>
+        <span class="far fa-calendar-alt"></span>
+      </label>
     </div>
-    <script>
-      flatpickr("#myDate");
-    </script>
+
+    <div id="app">
+      <span class="p-float-label" style="display: block; margin-bottom: 2rem">
+        <p-datepicker
+          id="birthday"
+          v-model="birth"
+          dateFormat="yy-mm-dd"
+        ></p-datepicker>
+        <label for="birthday">生日</label>
+      </span>
+      <!-- <p-datepicker v-model="date"></p-datepicker> -->
+    </div>
   </body>
 </html>
