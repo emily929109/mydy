@@ -3,6 +3,6 @@ import vue from "@vitejs/plugin-vue";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "/mydy/vite-project/dost/",
+  base: "/mydy/vite-project/docs/",
   plugins: [vue()],
 });
