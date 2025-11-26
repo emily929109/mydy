@@ -1,64 +1,38 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <!-- 
-    <link
-      href="https://unpkg.com/primevue/resources/themes/saga-blue/theme.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://unpkg.com/primevue/resources/primevue.min.css"
-      rel="stylesheet"
-    />
-    <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vaadin Date Picker Example</title>
 
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script> -->
+    <!-- Vaadin Date Picker CDN -->
+    <script
+      type="module"
+      src="https://cdn.vaadin.com/vaadin-web-components/24.3.7/vaadin-date-picker/vaadin-date-picker.js"
+    ></script>
 
-    <!-- <script src="https://unpkg.com/primevue/utils/utils.min.js"></script>
-    <script src="https://unpkg.com/primevue/ripple/ripple.min.js"></script>
-    <script src="https://unpkg.com/primevue/inputtext/inputtext.min.js"></script>
-    <script src="https://unpkg.com/primevue/button/button.min.js"></script> -->
-    <script src="//unpkg.com/vue@3.2.33/dist/vue.global.js"></script>
-    <script src="//unpkg.com/primevue@3.52.0/core/core.min.js"></script>
-    <link
-      href="//unpkg.com/primevue@3.52.0/resources/themes/lara-light-indigo/theme.css"
-      rel="stylesheet"
-    />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 40px;
+        background: #f7f7fb;
+      }
+      .container {
+        max-width: 300px;
+        margin: 0 auto;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="app">
-      <h1>{{ text }}</h1>
-      <p-inputtext id="model-text" v-model="text"></p-inputtext>
-      <p-button icon="pi pi-check" @click="upper"></p-button>
+    <div class="container">
+      <h3>Vaadin Date Picker (CDN)</h3>
+
+      <!-- Datepicker -->
+      <vaadin-date-picker
+        label="Select a date"
+        placeholder="YYYY-MM-DD"
+      ></vaadin-date-picker>
     </div>
-
-    <script>
-      const { createApp, ref } = Vue;
-
-      const App = {
-        setup() {
-          const text = ref(null);
-
-          const upper = () => {
-            text.value = text.value.toUpperCase();
-          };
-
-          return {
-            text,
-            upper,
-          };
-        },
-
-        components: {
-          "p-inputtext": primevue.inputtext,
-          "p-button": primevue.button,
-        },
-      };
-
-      createApp(App).mount("#app");
-    </script>
   </body>
 </html>
