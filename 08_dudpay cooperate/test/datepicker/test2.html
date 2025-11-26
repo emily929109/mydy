@@ -1,0 +1,49 @@
+<!--
+Source - https://stackoverflow.com/q/78450945
+Posted by Archimedes Trajano, modified by community. See post 'Timeline' for change history
+Retrieved 2025-11-25, License - CC BY-SA 4.0
+-->
+
+<html>
+  <head>
+    <link
+      href="//unpkg.com/primevue@3.52.0/resources/themes/lara-light-indigo/theme.css"
+      rel="stylesheet"
+    />
+    <script src="//unpkg.com/vue@3.2.33/dist/vue.global.js"></script>
+    <script src="//unpkg.com/primevue@3.52.0/core/core.min.js"></script>
+    <!-- <script src="//unpkg.com/primevue@3.52.0/inputtext/inputtext.min.js"></script> -->
+  </head>
+
+  <body>
+    <div id="app">
+      <p-inputtext v-model="text"></p-inputtext>
+      <p-floatlabel style="display: block; margin-top: 3rem">
+        <p-datepicker
+          id="birthday"
+          v-model="birthday"
+          date-format="yy-mm-dd"
+        ></p-datepicker>
+        <label for="birthday">生日</label>
+      </p-floatlabel>
+      <h1>{{ text }}</h1>
+    </div>
+  </body>
+  <script>
+    const { createApp, ref } = Vue;
+    const App = {
+      setup() {
+        const text = ref("");
+        const birthday = ref(null);
+
+        return { text, birthday };
+      },
+    };
+    createApp(App)
+      .use(primevue.config.default)
+      .component("p-inputtext", primevue.inputtext)
+      //   .component("p-floatlabel", primevue.floatlabel)
+      //   .component("p-datepicker", primevue.datepicker)
+      .mount("#app");
+  </script>
+</html>

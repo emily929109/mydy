@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <!-- 
+    <link
+      href="https://unpkg.com/primevue/resources/themes/saga-blue/theme.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/primevue/resources/primevue.min.css"
+      rel="stylesheet"
+    />
+    <link href="https://unpkg.com/primeicons/primeicons.css" rel="stylesheet" />
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/primevue/umd/primevue.min.js"></script> -->
+
+    <!-- <script src="https://unpkg.com/primevue/utils/utils.min.js"></script>
+    <script src="https://unpkg.com/primevue/ripple/ripple.min.js"></script>
+    <script src="https://unpkg.com/primevue/inputtext/inputtext.min.js"></script>
+    <script src="https://unpkg.com/primevue/button/button.min.js"></script> -->
+    <script src="//unpkg.com/vue@3.2.33/dist/vue.global.js"></script>
+    <script src="//unpkg.com/primevue@3.52.0/core/core.min.js"></script>
+    <link
+      href="//unpkg.com/primevue@3.52.0/resources/themes/lara-light-indigo/theme.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div id="app">
+      <h1>{{ text }}</h1>
+      <p-inputtext id="model-text" v-model="text"></p-inputtext>
+      <p-button icon="pi pi-check" @click="upper"></p-button>
+    </div>
+
+    <script>
+      const { createApp, ref } = Vue;
+
+      const App = {
+        setup() {
+          const text = ref(null);
+
+          const upper = () => {
+            text.value = text.value.toUpperCase();
+          };
+
+          return {
+            text,
+            upper,
+          };
+        },
+
+        components: {
+          "p-inputtext": primevue.inputtext,
+          "p-button": primevue.button,
+        },
+      };
+
+      createApp(App).mount("#app");
+    </script>
+  </body>
+</html>
