@@ -112,33 +112,22 @@
           d="M63 172c9,-5 11,-20 12,-37 2,-17 7,-33 34,-36 -11,9 -20,20 -16,41 -1,31 -24,29 -30,32l0 0z"
         ></path>
       </g>
+      <text
+        font-size="24"
+        fill="#ffffffcc"
+        x="55"
+        y="140"
+        text-anchor="middle"
+        font-weight="bold"
+      >
+        HOT
+      </text>
     </svg>
+
     <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.1.2/TweenMax.min.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
     <script>
       const sparks = Array.from(document.querySelectorAll(".spark"));
-      // sparks.forEach(function (s) {
-      //   let tl = new TimelineMax({
-      //     repeat: -1,
-      //     onRepeat: function () {
-      //       this.duration(Math.random() + 0.2);
-      //     },
-      //   }).fromTo(
-      //     s,
-      //     0.2,
-      //     {
-      //       scale: 2,
-      //       y: 40,
-      //       transformOrigin: "center bottom",
-      //     },
-      //     {
-      //       scale: 0,
-      //       y: -60,
-      //     }
-      //   );
-      // });
-
-      // const sparks = document.querySelectorAll(".spark");
 
       sparks.forEach((s) => {
         let tl = gsap.timeline({
@@ -166,18 +155,20 @@
 
       const flames = Array.from(document.querySelectorAll(".flame"));
       flames.forEach(function (f, idx) {
-        let tl = new TimelineMax({
-          repeat: -1,
-          onRepeat: function () {
-            this.duration(Math.random() * 0.4 + 0.2);
-          },
-        }).to(f, 0.2, {
-          scaleY: 1.1 + (idx ? 0.2 : 0),
-          scaleX: idx ? 1 : 0.8,
-          transformOrigin: "center bottom",
-          repeat: 1,
-          yoyo: true,
-        });
+        let tl = gsap
+          .timeline({
+            repeat: -1,
+            onRepeat: function () {
+              this.duration(Math.random() * 0.4 + 0.2);
+            },
+          })
+          .to(f, 0.2, {
+            scaleY: 1.1 + (idx ? 0.2 : 0),
+            scaleX: idx ? 1 : 0.8,
+            transformOrigin: "center bottom",
+            repeat: 1,
+            yoyo: true,
+          });
       });
     </script>
   </body>
