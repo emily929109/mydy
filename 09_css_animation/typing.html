@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    />
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .discount-wrap {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        font-family: "Noto Sans TC", sans-serif;
+      }
+
+      /* 左邊文字 */
+      .discount-code-text {
+        font-size: 16px;
+        color: #7a6048;
+        white-space: nowrap;
+      }
+
+      /* 折扣碼框 */
+      .discount-code-box {
+        display: flex;
+        align-items: center;
+        border: 1.5px solid #f3a743;
+        border-radius: 6px;
+        padding: 4px 10px;
+        background: #fff;
+        font-size: 16px;
+        color: #444;
+        gap: 6px;
+      }
+
+      .discount-code-box .code {
+        letter-spacing: 1px;
+      }
+
+      .copy-icon {
+        font-size: 16px;
+        cursor: pointer;
+        opacity: 0.7;
+      }
+      .copy-icon:hover {
+        opacity: 1;
+      }
+
+      /* 右邊圓圈「立即享93折起」 */
+      .discount-pill {
+        display: flex;
+        gap: 0; /* 圓圈緊貼 */
+      }
+
+      .discount-pill span {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #f3a743;
+        color: #fff;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 0;
+      }
+
+      /* 如果覺得圓跟圓太黏，可以改成 2px 看看效果 */
+      /* .discount-pill span + span { margin-left: 2px; } */
+
+      .typewriter h1 {
+        overflow: hidden;
+        border-right: 0.15em solid orange;
+        white-space: nowrap;
+        margin: 0 auto;
+        letter-spacing: 0.15em;
+        /* transform-origin: left; */
+        animation: typing 3.5s steps(40, end),
+          blink-caret 0.75s step-end infinite;
+      }
+
+      /* The typing effect */
+      @keyframes typing {
+        from {
+          /* transform: scaleX(0); */
+          width: 0;
+        }
+        to {
+          /* transform: scaleX(100%); */
+          width: 100%;
+        }
+      }
+
+      /* The typewriter cursor effect */
+      @keyframes blink-caret {
+        from,
+        to {
+          border-color: transparent;
+        }
+        50% {
+          border-color: orange;
+        }
+      }
+
+      /* 純css */
+      :root {
+        --steps: 16;
+      }
+
+      .typing {
+        font-family: "Inconsolata", Consolas, monospace;
+        font-size: 6vw;
+        color: #d7b94c;
+        position: relative;
+      }
+
+      .typing::after {
+        content: "|";
+        position: absolute;
+        right: 0;
+        width: 100%;
+        color: red;
+        background: #fff;
+        animation: typing 4s steps(var(--steps)) forwards, caret 1s infinite;
+      }
+
+      @keyframes typing {
+        to {
+          width: 0;
+        }
+      }
+      @keyframes caret {
+        50% {
+          color: transparent;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="discount-wrap">
+      <div class="discount-code-text">結帳時輸入折扣碼：</div>
+
+      <div class="discount-code-box">
+        <span class="code">dudupay93</span>
+        <span class="copy-icon">📋</span>
+      </div>
+
+      <!-- 右邊一顆一顆圓圈 -->
+      <div class="discount-pill">
+        <span>立</span>
+        <span>即</span>
+        <span>享</span>
+        <span>9</span>
+        <span>3</span>
+        <span>折</span>
+        <span>起</span>
+      </div>
+    </div>
+
+    <div class="typewriter">
+      <h1>哈囉妳好嗎</h1>
+    </div>
+
+    <h1 class="typing">Hello CodePen!!!</h1>
+  </body>
+</html>
