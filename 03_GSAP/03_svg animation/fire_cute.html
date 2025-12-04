@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cute Flame GSAP</title>
+
+    <style>
+      body {
+        background: #fff;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      svg {
+        width: 150px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 🔥 SVG 火焰 -->
+    <svg viewBox="0 0 200 240">
+      <!-- 小火花 -->
+      <circle class="spark" cx="70" cy="130" r="4" fill="#ffd56b" />
+      <circle class="spark" cx="130" cy="120" r="5" fill="#ffe690" />
+      <circle class="spark" cx="100" cy="90" r="4" fill="#ffd56b" />
+
+      <!-- 外層紅色火焰 -->
+      <path
+        class="flame-outer"
+        fill="#e2453b"
+        d="M100 20
+       C130 60, 170 90, 160 135
+       C150 180, 120 210, 100 220
+       C70 210, 50 185, 40 145
+       C30 95, 60 55, 100 20Z"
+      />
+
+      <!-- 中層橘火焰 -->
+      <path
+        class="flame-mid"
+        fill="#ff8e39"
+        d="M100 60
+       C125 90, 145 115, 135 150
+       C125 180, 110 200, 100 205
+       C80 195, 70 175, 65 150
+       C55 120, 70 85, 100 60Z"
+      />
+
+      <!-- 內層黃火苗 -->
+      <path
+        class="flame-inner"
+        fill="#ffd75d"
+        d="M100 100
+       C115 120, 125 140, 120 160
+       C115 180, 105 190, 100 192
+       C87 185, 80 172, 80 158
+       C78 140, 85 120, 100 100Z"
+      />
+    </svg>
+
+    <!-- GSAP -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+
+    <script>
+      // 🔥 主火焰跳動（整體彈動）
+      gsap.to(".flame-outer", {
+        scaleY: 1.08,
+        duration: 0.6,
+        yoyo: true,
+        repeat: -1,
+        transformOrigin: "center bottom",
+        ease: "sine.inOut",
+      });
+
+      gsap.to(".flame-mid", {
+        scaleY: 1.1,
+        duration: 0.5,
+        yoyo: true,
+        repeat: -1,
+        transformOrigin: "center bottom",
+        ease: "sine.inOut",
+      });
+
+      gsap.to(".flame-inner", {
+        scaleY: 1.2,
+        scaleX: 0.95,
+        duration: 0.4,
+        yoyo: true,
+        repeat: -1,
+        transformOrigin: "center bottom",
+        ease: "sine.inOut",
+      });
+
+      // ✨ 火花上飄
+      document.querySelectorAll(".spark").forEach((spark) => {
+        gsap.fromTo(
+          spark,
+          {
+            y: 0,
+            opacity: 1,
+            scale: 1,
+          },
+          {
+            y: -50 - Math.random() * 50,
+            opacity: 0,
+            scale: 0,
+            repeat: -1,
+            duration: 1 + Math.random(),
+            delay: Math.random() * 0.5,
+          }
+        );
+      });
+    </script>
+  </body>
+</html>
