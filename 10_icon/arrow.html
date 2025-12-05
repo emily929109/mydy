@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .arrow-line {
+        width: 80px;
+        height: 1px;
+        background: red;
+        position: relative;
+        cursor: pointer;
+        transform-origin: left center;
+        transition: transform 0.4s ease;
+      }
+
+      .arrow-line::after {
+        content: "";
+        position: absolute;
+        right: 2px;
+        top: -4px;
+        width: 8px;
+        height: 8px;
+        border-top: 1px solid red;
+        transform: rotate(45deg);
+      }
+
+      .arrow-btn {
+        width: 40px;
+        height: 40px;
+        background-color: #07a89d; /* 綠色 */
+        border-radius: 8px;
+        position: relative;
+      }
+
+      /* 箭頭 */
+      .arrow-btn::after {
+        content: "";
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-right: 3px solid white;
+        border-bottom: 3px solid white;
+        transform: rotate(-45deg);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="arrow-line"></div>
+    <div class="arrow-btn"></div>
+  </body>
+</html>
