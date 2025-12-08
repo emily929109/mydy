@@ -22,44 +22,6 @@
         max-width: 500px;
       }
 
-      /* .dot-path {
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 20px;
-        height: 20px;
-      }
-
-      .dot-path::before {
-        content: "";
-        width: 75px;
-        height: 3px;
-        background: red;
-        display: inline-block;
-        position: absolute;
-        transform: rotate(-45deg);
-        top: -11px;
-        left: -10px;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%) rotate(-45deg);
-        transform-origin: left center;
-        transform: translate(0, -50%) rotate(-45deg);
-      }
-      .dot-path::after {
-        content: "";
-        width: 10px;
-        height: 10px;
-        background: red;
-        display: inline-block;
-        border-radius: 50%;
-        position: absolute;
-        /* top: 50%; */
-      /* left: 50%; */
-      /* transform-origin: left center;
-        transform: translate(40px, -50px);
-      } */
-
       #dot1,
       #dot2,
       #dot3,
@@ -67,32 +29,38 @@
         position: absolute;
       }
 
-      .dot-img {
+      .img-wrapper {
+        position: relative;
         width: 200px;
         height: 200px;
       }
 
-      /* #dot1 .dot {
+      #dot1 .dot {
         position: absolute;
-        left: -4%;
-        bottom: 15%;
-      } */
-
-      #dot2 .dot {
-        position: absolute;
-      }
-
-      #dot1,
-      #dot2 {
-        position: absolute;
-      }
-
-      #dot1 .dot,
-      #dot2 .dot {
-        position: absolute;
-        top: 0;
         left: 0;
+        bottom: 0;
+        transform: translate(-50%, 50%);
+      }
+
+      #dot2 .dot {
+        position: absolute;
+        left: 0;
+        top: 0;
         transform: translate(-50%, -50%);
+      }
+
+      #dot3 .dot {
+        position: absolute;
+        right: 0;
+        top: 0;
+        transform: translate(50%, -50%);
+      }
+
+      #dot4 .dot {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        transform: translate(50%, 50%);
       }
     </style>
   </head>
@@ -120,71 +88,180 @@
 
       <!---------------- dot1 開始------------------>
       <div id="dot1">
-        <svg class="dot" width="20" height="20">
-          <circle cx="10" cy="10" r="10" fill="#E15050" />
-        </svg>
-        <div class="dot-img">
-          <img src="img/Profession.png" style="width: 100%; max-width: 200px" />
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Profession.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                left: 0;
+                bottom: -8%;
+              "
+            />
+          </div>
         </div>
       </div>
 
       <!---------------- dot1 結束------------------>
       <!---------------- dot2 開始------------------>
-      <!-- <div id="dot2">
-        <svg class="dot" width="20" height="20">
-          <circle cx="10" cy="10" r="10" fill="#E15050" />
-        </svg>
-        <div class="dit-img">
-          <img src="img/Efficiency.png" style="width: 100%; max-width: 200px" />
+      <div id="dot2">
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Efficiency.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                left: 0;
+                top: -2%;
+              "
+            />
+          </div>
         </div>
-      </div> -->
+      </div>
 
       <!---------------- dot2 結束------------------>
+      <!---------------- dot3 開始------------------>
+      <div id="dot3">
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Service.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                right: 0;
+                top: -2%;
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      <!---------------- dot3 結束------------------>
+      <!---------------- dot4 開始------------------>
+      <div id="dot4">
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Integrity.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                right: 0;
+                bottom: -8%;
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      <!---------------- dot4 結束------------------>
     </div>
 
     <script>
       gsap.registerPlugin(MotionPathPlugin);
 
-      const dots = [
-        { id: "#dot1", end: 0.166666 },
-        { id: "#dot2", end: 0.333333 },
-        // { id: "#dot3", end: 0.666666 },
-        // { id: "#dot4", end: 0.833333 },
-      ];
-
-      //   dots.forEach((dot) => {
-      gsap.to("#dot1", {
-        duration: 1,
-        //   duration: 5,
+      let t1 = gsap.to("#dot1", {
+        duration: 0.996, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
         ease: "none",
         motionPath: {
           path: "#path",
           align: "#path",
           start: 0,
           end: 0.166666,
-          //   alignOrigin: [-0.04, 0.85],
-          //   offsetX: -10,
+          alignOrigin: [0, 1],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t1.progress();
 
-          alignOrigin: [0.5, 0.5], // 讓 #dot1 中心對齊軌道
-          offsetX: 150, // 微調位置（你原本的目的）
-          offsetY: 0,
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -60, 0, p);
+
+          gsap.set("#dot1", { rotation });
         },
       });
-      //   });
 
-      //   gsap.to("#dot2", {
-      //     duration: 1,
-      //     //   duration: 5,
-      //     ease: "none",
-      //     motionPath: {
-      //       path: "#path",
-      //       align: "#path",
-      //       start: 0,
-      //       end: 0.333333,
-      //       alignOrigin: [0.5, 0.9444],
-      //       //   alignOrigin: [0.05, 0.5],
-      //     },
-      //   });
+      let t2 = gsap.to("#dot2", {
+        duration: 1.998, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.333333,
+          alignOrigin: [0, 0],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t2.progress();
+
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -120, 0, p);
+
+          gsap.set("#dot2", { rotation });
+        },
+      });
+
+      let t3 = gsap.to("#dot3", {
+        duration: 3.96, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.66666,
+          alignOrigin: [1, 0],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t3.progress();
+
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -240, 0, p);
+
+          gsap.set("#dot3", { rotation });
+        },
+      });
+
+      let t4 = gsap.to("#dot4", {
+        duration: 4.998, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.83333,
+          alignOrigin: [1, 1],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t4.progress();
+
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -300, 0, p);
+
+          gsap.set("#dot4", { rotation });
+        },
+      });
     </script>
   </body>
 </html>

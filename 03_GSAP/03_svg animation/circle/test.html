@@ -3,8 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>GSAP circle RWD</title>
-
+    <title>gsap circle RWD</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
 
@@ -13,112 +12,197 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        margin: 0;
         padding: 0;
+        margin: 0;
+        height: 100vh;
       }
 
-      /* 外層容器：所有元素必須放在同一個定位空間 */
       .wrapper {
         position: relative;
-        width: 100%;
+        width: 90vw;
         max-width: 500px;
+        margin: auto;
       }
 
-      .wrapper svg.main-circle {
+      svg {
         width: 100%;
         height: auto;
-        display: block;
       }
 
-      /* dot 容器（MotionPath 會套在這層） */
-      .dot-container {
-        position: absolute;
-        width: 140px; /* 每個ICON的大小 (可調整) */
-        height: 140px;
-        transform: translate(-50%, -50%); /* 讓容器中心成為基準點 */
+      /*---------------------------------------------------
+        dot + icon 的 RWD 版本
+      ----------------------------------------------------*/
+      .img-wrapper {
+        position: relative;
+        width: 25vw;
+        max-width: 150px;
+        aspect-ratio: 1/1;
       }
 
-      /* 小圓點 */
-      .dot-circle {
-        width: 18px;
+      .dot {
         position: absolute;
-        left: 50%;
-        top: 80%; /* 可以自由調整：icon 下方的小圓點位置 */
+        width: 4vw;
+        max-width: 20px;
+        height: auto;
+      }
+
+      /* dot1 : 左下 */
+      #dot1 .dot {
+        left: 0;
+        bottom: 0;
+        transform: translate(-50%, 50%);
+      }
+
+      /* dot2 : 左上 */
+      #dot2 .dot {
+        left: 0;
+        top: 0;
         transform: translate(-50%, -50%);
       }
 
-      /* icon */
-      .dot-icon {
+      /* dot3 : 右上 */
+      #dot3 .dot {
+        right: 0;
+        top: 0;
+        transform: translate(50%, -50%);
+      }
+
+      /* dot4 : 右下 */
+      #dot4 .dot {
+        right: 0;
+        bottom: 0;
+        transform: translate(50%, 50%);
+      }
+
+      /* icon：永遠固定在外側位置，不因裝置大小而偏移 */
+      .dot-img img {
+        position: absolute;
         width: 100%;
-        height: auto;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      /* dot1 icon 放 circle 右下 */
+      #dot1 .dot-img img {
+        left: 0;
+        bottom: 0;
+        transform: translate(-10%, 30%);
+      }
+
+      /* dot2 icon 放 circle 左下 */
+      #dot2 .dot-img img {
+        left: 0;
+        top: 0;
+        transform: translate(-10%, -30%);
+      }
+
+      /* dot3 icon 放 circle 左上 */
+      #dot3 .dot-img img {
+        right: 0;
+        top: 0;
+        transform: translate(10%, -30%);
+      }
+
+      /* dot4 icon 放 circle 右上 */
+      #dot4 .dot-img img {
+        right: 0;
+        bottom: 0;
+        transform: translate(10%, 30%);
       }
     </style>
   </head>
 
   <body>
     <div class="wrapper">
-      <!-- 大圓 Path -->
-      <svg class="main-circle" viewBox="0 0 300 300">
+      <!-- Responsive 圓形 -->
+      <svg viewBox="0 0 300 300">
         <path
           id="path"
-          d="M150 1.5
-         A148.5 148.5 0 1 1 149.999 298.5
-         A148.5 148.5 0 1 1 150 1.5"
+          d="M150 1.5 A148.5 148.5 0 1 1 149.999 298.5 A148.5 148.5 0 1 1 150 1.5"
           stroke="#E15050"
           stroke-width="3"
           fill="none"
         />
       </svg>
 
-      <!-- dot1 -->
-      <div id="dot1" class="dot-container">
-        <img
-          class="dot-icon"
-          src="icon11.png"
-          style="width: 100%; max-width: 200px"
-        />
-        <svg class="dot-circle">
-          <circle cx="9" cy="9" r="9" fill="#E15050"></circle>
-        </svg>
+      <!-------------- dot1 ---------------->
+      <div id="dot1">
+        <div class="img-wrapper">
+          <svg class="dot" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img src="img/Profession.png" />
+          </div>
+        </div>
       </div>
 
-      <!-- dot2 -->
-      <div id="dot2" class="dot-container">
-        <img
-          class="dot-icon"
-          src="https://via.placeholder.com/140x140/ddffdd/00aa00?text=Icon2"
-        />
-        <svg class="dot-circle">
-          <circle cx="9" cy="9" r="9" fill="#E15050"></circle>
-        </svg>
+      <!-------------- dot2 ---------------->
+      <div id="dot2">
+        <div class="img-wrapper">
+          <svg class="dot" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img src="img/Efficiency.png" />
+          </div>
+        </div>
+      </div>
+
+      <!-------------- dot3 ---------------->
+      <div id="dot3">
+        <div class="img-wrapper">
+          <svg class="dot" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img src="img/Service.png" />
+          </div>
+        </div>
+      </div>
+
+      <!-------------- dot4 ---------------->
+      <div id="dot4">
+        <div class="img-wrapper">
+          <svg class="dot" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img src="img/Integrity.png" />
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- ------- GSAP -------- -->
     <script>
       gsap.registerPlugin(MotionPathPlugin);
 
-      // 4 個 icon 的分佈，可以自己加
-      const dots = [
-        { id: "#dot1", end: 0.166 },
-        { id: "#dot2", end: 0.333 },
-      ];
-
-      // 依序套用動畫
-      dots.forEach((dot) => {
-        gsap.to(dot.id, {
-          duration: dot.end * 6,
+      function setupMotion(target, start, end, rotationAngle, dur) {
+        let tween = gsap.to(target, {
+          duration: dur,
           ease: "none",
           motionPath: {
             path: "#path",
             align: "#path",
-            start: 0,
-            end: dot.end,
-            // alignOrigin: [0.5, 0.5] → 代表容器中心為基準點 (RWD 最穩定)
+            start,
+            end,
             alignOrigin: [0.5, 0.5],
           },
+          onUpdate() {
+            let p = tween.progress();
+            gsap.set(target, {
+              rotation: gsap.utils.mapRange(0, 1, rotationAngle, 0, p),
+            });
+          },
         });
-      });
+        return tween;
+      }
+
+      setupMotion("#dot1", 0, 0.166666, -60, 1);
+      setupMotion("#dot2", 0, 0.333333, -120, 2);
+      setupMotion("#dot3", 0, 0.666666, -240, 4);
+      setupMotion("#dot4", 0, 0.833333, -300, 5);
     </script>
   </body>
 </html>
