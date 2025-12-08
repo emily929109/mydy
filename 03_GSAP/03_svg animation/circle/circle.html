@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gsap circle</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .wrapper {
+        position: relative;
+        width: 100%;
+        max-width: 500px;
+      }
+
+      /* .dot-path {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 20px;
+        height: 20px;
+      }
+
+      .dot-path::before {
+        content: "";
+        width: 75px;
+        height: 3px;
+        background: red;
+        display: inline-block;
+        position: absolute;
+        transform: rotate(-45deg);
+        top: -11px;
+        left: -10px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) rotate(-45deg);
+        transform-origin: left center;
+        transform: translate(0, -50%) rotate(-45deg);
+      }
+      .dot-path::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        background: red;
+        display: inline-block;
+        border-radius: 50%;
+        position: absolute;
+        /* top: 50%; */
+      /* left: 50%; */
+      /* transform-origin: left center;
+        transform: translate(40px, -50px);
+      } */
+
+      #dot1,
+      #dot2,
+      #dot3,
+      #dot4 {
+        position: absolute;
+      }
+
+      .dot-img {
+        width: 200px;
+        height: 200px;
+      }
+
+      /* #dot1 .dot {
+        position: absolute;
+        left: -4%;
+        bottom: 15%;
+      } */
+
+      #dot2 .dot {
+        position: absolute;
+      }
+
+      #dot1,
+      #dot2 {
+        position: absolute;
+      }
+
+      #dot1 .dot,
+      #dot2 .dot {
+        position: absolute;
+        top: 0;
+        left: 0;
+        transform: translate(-50%, -50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- path 開始-->
+      <svg
+        viewBox="0 0 300 300"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style="width: 100%; max-width: 450px; height: auto"
+      >
+        <path
+          d="M150 1.5
+       A148.5 148.5 0 1 1 149.999 298.5
+       A148.5 148.5 0 1 1 150 1.5"
+          stroke="#E15050"
+          stroke-width="3"
+          fill="none"
+          id="path"
+        />
+      </svg>
+
+      <!-- path 結束 -->
+
+      <!---------------- dot1 開始------------------>
+      <div id="dot1">
+        <svg class="dot" width="20" height="20">
+          <circle cx="10" cy="10" r="10" fill="#E15050" />
+        </svg>
+        <div class="dot-img">
+          <img src="img/Profession.png" style="width: 100%; max-width: 200px" />
+        </div>
+      </div>
+
+      <!---------------- dot1 結束------------------>
+      <!---------------- dot2 開始------------------>
+      <!-- <div id="dot2">
+        <svg class="dot" width="20" height="20">
+          <circle cx="10" cy="10" r="10" fill="#E15050" />
+        </svg>
+        <div class="dit-img">
+          <img src="img/Efficiency.png" style="width: 100%; max-width: 200px" />
+        </div>
+      </div> -->
+
+      <!---------------- dot2 結束------------------>
+    </div>
+
+    <script>
+      gsap.registerPlugin(MotionPathPlugin);
+
+      const dots = [
+        { id: "#dot1", end: 0.166666 },
+        { id: "#dot2", end: 0.333333 },
+        // { id: "#dot3", end: 0.666666 },
+        // { id: "#dot4", end: 0.833333 },
+      ];
+
+      //   dots.forEach((dot) => {
+      gsap.to("#dot1", {
+        duration: 1,
+        //   duration: 5,
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.166666,
+          //   alignOrigin: [-0.04, 0.85],
+          //   offsetX: -10,
+
+          alignOrigin: [0.5, 0.5], // 讓 #dot1 中心對齊軌道
+          offsetX: 150, // 微調位置（你原本的目的）
+          offsetY: 0,
+        },
+      });
+      //   });
+
+      //   gsap.to("#dot2", {
+      //     duration: 1,
+      //     //   duration: 5,
+      //     ease: "none",
+      //     motionPath: {
+      //       path: "#path",
+      //       align: "#path",
+      //       start: 0,
+      //       end: 0.333333,
+      //       alignOrigin: [0.5, 0.9444],
+      //       //   alignOrigin: [0.05, 0.5],
+      //     },
+      //   });
+    </script>
+  </body>
+</html>
