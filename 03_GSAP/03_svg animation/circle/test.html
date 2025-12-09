@@ -26,22 +26,45 @@
         /* GSAP 會自動設置 transform: translate(...) */
       }
 
-      /* 點的視覺大小。如果希望點也縮放，可以考慮使用 vw/vh/vmin */
       .img-wrapper {
         position: relative;
-        /* 為了 RWD，可以嘗試用 vw 或 vmin 來定義大小 */
-        width: 20px;
-        height: 20px;
+        width: 12vw;
+        height: 12vw;
+        max-width: 150px;
+        max-height: 150px;
+        /* 確保 GSAP 的 alignOrigin: [0.5, 0.5] 能正確對準中心 */
       }
 
-      /* 點的圖片定位 */
+      /* 點內的紅色圓圈 SVG */
+      .dot {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* 圖片容器 */
+      .dot-img {
+        position: absolute;
+        /* 確保 dot-img 的尺寸足夠大，以便圖片定位 */
+        width: 100%;
+        height: 100%;
+        /* 將 dot-img 的定位中心與 .img-wrapper 的中心對齊 */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      /* 圖片本身：響應式寬度、絕對定位修正 */
       .dot-img img {
-        /* 保持您的 inline style，因為它們已經使用百分比 */
-        /* width: 100%; */
-        /* max-width: 200px; */
-        /* position: absolute; */
-        /* left: 0; */
-        /* bottom: -8%; */
+        width: 100%; /* 寬度佔滿父容器 (.dot-img) */
+        height: auto;
+
+        /* 移除 inline style 的 max-width 限制，讓它跟著縮放 */
+        max-width: none !important;
+
+        /* 調整圖片在 dot-img 內的位置 */
+        position: absolute;
+        left: 0;
+        bottom: -8%;
       }
     </style>
   </head>
@@ -73,7 +96,7 @@
             <img
               src="img/Profession.png"
               alt="Profession icon"
-              style="max-width: 200px; position: absolute; left: 0; bottom: -8%"
+              style="max-width: 200px"
             />
           </div>
         </div>
