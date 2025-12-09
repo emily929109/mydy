@@ -3,206 +3,106 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>gsap circle RWD</title>
+    <title>GSAP RWD Circle</title>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
 
     <style>
-      body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 0;
-        margin: 0;
-        height: 100vh;
+      /* 讓整個容器居中並設定最大寬度 */
+      #svg-container {
+        /* ⚠️ 這裡的寬度設定非常重要，決定了 SVG 實際顯示的大小 */
+        width: 90vw; /* 例如，佔視窗寬度的 90% */
+        max-width: 450px; /* 但不超過 450px */
+        margin: 20px auto; /* 置中 */
+        position: relative; /* 必須是 relative，因為 dot1 會基於它定位 */
       }
 
-      .wrapper {
-        position: relative;
-        width: 90vw;
-        max-width: 500px;
-        margin: auto;
+      /* 確保 dot1 相對於 svg-container 的定位 */
+      #dot1 {
+        position: absolute;
+        top: 0;
+        left: 0;
+        /* GSAP 會自動設置 transform: translate(...) */
       }
 
-      svg {
-        width: 100%;
-        height: auto;
-      }
-
-      /*---------------------------------------------------
-        dot + icon 的 RWD 版本
-      ----------------------------------------------------*/
+      /* 點的視覺大小。如果希望點也縮放，可以考慮使用 vw/vh/vmin */
       .img-wrapper {
         position: relative;
-        width: 25vw;
-        max-width: 150px;
-        aspect-ratio: 1/1;
+        /* 為了 RWD，可以嘗試用 vw 或 vmin 來定義大小 */
+        width: 20px;
+        height: 20px;
       }
 
-      .dot {
-        position: absolute;
-        width: 4vw;
-        max-width: 20px;
-        height: auto;
-      }
-
-      /* dot1 : 左下 */
-      #dot1 .dot {
-        left: 0;
-        bottom: 0;
-        transform: translate(-50%, 50%);
-      }
-
-      /* dot2 : 左上 */
-      #dot2 .dot {
-        left: 0;
-        top: 0;
-        transform: translate(-50%, -50%);
-      }
-
-      /* dot3 : 右上 */
-      #dot3 .dot {
-        right: 0;
-        top: 0;
-        transform: translate(50%, -50%);
-      }
-
-      /* dot4 : 右下 */
-      #dot4 .dot {
-        right: 0;
-        bottom: 0;
-        transform: translate(50%, 50%);
-      }
-
-      /* icon：永遠固定在外側位置，不因裝置大小而偏移 */
+      /* 點的圖片定位 */
       .dot-img img {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-      }
-
-      /* dot1 icon 放 circle 右下 */
-      #dot1 .dot-img img {
-        left: 0;
-        bottom: 0;
-        transform: translate(-10%, 30%);
-      }
-
-      /* dot2 icon 放 circle 左下 */
-      #dot2 .dot-img img {
-        left: 0;
-        top: 0;
-        transform: translate(-10%, -30%);
-      }
-
-      /* dot3 icon 放 circle 左上 */
-      #dot3 .dot-img img {
-        right: 0;
-        top: 0;
-        transform: translate(10%, -30%);
-      }
-
-      /* dot4 icon 放 circle 右上 */
-      #dot4 .dot-img img {
-        right: 0;
-        bottom: 0;
-        transform: translate(10%, 30%);
+        /* 保持您的 inline style，因為它們已經使用百分比 */
+        /* width: 100%; */
+        /* max-width: 200px; */
+        /* position: absolute; */
+        /* left: 0; */
+        /* bottom: -8%; */
       }
     </style>
   </head>
-
   <body>
-    <div class="wrapper">
-      <!-- Responsive 圓形 -->
-      <svg viewBox="0 0 300 300">
+    <div id="svg-container">
+      <svg
+        viewBox="0 0 300 300"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style="width: 100%; max-width: 450px; height: auto"
+      >
         <path
-          id="path"
-          d="M150 1.5 A148.5 148.5 0 1 1 149.999 298.5 A148.5 148.5 0 1 1 150 1.5"
+          d="M150 1.5
+       A148.5 148.5 0 1 1 149.999 298.5
+       A148.5 148.5 0 1 1 150 1.5"
           stroke="#E15050"
           stroke-width="3"
           fill="none"
+          id="path"
         />
       </svg>
 
-      <!-------------- dot1 ---------------->
       <div id="dot1">
         <div class="img-wrapper">
-          <svg class="dot" viewBox="0 0 20 20">
+          <svg class="dot" width="20" height="20">
             <circle cx="10" cy="10" r="10" fill="#E15050" />
           </svg>
           <div class="dot-img">
-            <img src="img/Profession.png" />
-          </div>
-        </div>
-      </div>
-
-      <!-------------- dot2 ---------------->
-      <div id="dot2">
-        <div class="img-wrapper">
-          <svg class="dot" viewBox="0 0 20 20">
-            <circle cx="10" cy="10" r="10" fill="#E15050" />
-          </svg>
-          <div class="dot-img">
-            <img src="img/Efficiency.png" />
-          </div>
-        </div>
-      </div>
-
-      <!-------------- dot3 ---------------->
-      <div id="dot3">
-        <div class="img-wrapper">
-          <svg class="dot" viewBox="0 0 20 20">
-            <circle cx="10" cy="10" r="10" fill="#E15050" />
-          </svg>
-          <div class="dot-img">
-            <img src="img/Service.png" />
-          </div>
-        </div>
-      </div>
-
-      <!-------------- dot4 ---------------->
-      <div id="dot4">
-        <div class="img-wrapper">
-          <svg class="dot" viewBox="0 0 20 20">
-            <circle cx="10" cy="10" r="10" fill="#E15050" />
-          </svg>
-          <div class="dot-img">
-            <img src="img/Integrity.png" />
+            <img
+              src="img/Profession.png"
+              alt="Profession icon"
+              style="max-width: 200px; position: absolute; left: 0; bottom: -8%"
+            />
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ------- GSAP -------- -->
     <script>
       gsap.registerPlugin(MotionPathPlugin);
 
-      function setupMotion(target, start, end, rotationAngle, dur) {
-        let tween = gsap.to(target, {
-          duration: dur,
-          ease: "none",
-          motionPath: {
-            path: "#path",
-            align: "#path",
-            start,
-            end,
-            alignOrigin: [0.5, 0.5],
-          },
-          onUpdate() {
-            let p = tween.progress();
-            gsap.set(target, {
-              rotation: gsap.utils.mapRange(0, 1, rotationAngle, 0, p),
-            });
-          },
-        });
-        return tween;
-      }
+      // 製作 dot1 沿圓形移動 + 自轉
+      let t1 = gsap.to("#dot1", {
+        duration: 1,
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.166666, // 跑六分之一圓
+          alignOrigin: [0.5, 0.5], // 確保 wrapper 中心貼著 path
+        },
+        onUpdate() {
+          let p = t1.progress();
 
-      setupMotion("#dot1", 0, 0.166666, -60, 1);
-      setupMotion("#dot2", 0, 0.333333, -120, 2);
-      setupMotion("#dot3", 0, 0.666666, -240, 4);
-      setupMotion("#dot4", 0, 0.833333, -300, 5);
+          // 旋轉範圍 -60° → 0°
+          let rotation = gsap.utils.mapRange(0, 1, -60, 0, p);
+
+          gsap.set("#dot1", { rotation });
+        },
+      });
     </script>
   </body>
 </html>

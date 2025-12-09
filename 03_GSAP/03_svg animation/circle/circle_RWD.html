@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gsap circle RWD</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+
+      .wrapper {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        max-width: 900px;
+      }
+
+      .img-wrapper {
+        position: relative;
+        width: 200px;
+        height: 200px;
+      }
+
+      #dot1 .dot {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        transform: translate(-50%, 50%);
+      }
+
+      #dot2 .dot {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform: translate(-50%, -50%);
+      }
+
+      #dot3 .dot {
+        position: absolute;
+        right: 0;
+        top: 0;
+        transform: translate(50%, -50%);
+      }
+
+      #dot4 .dot {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        transform: translate(50%, 50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper">
+      <!-- path 開始-->
+      <svg
+        viewBox="0 0 300 300"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        style="width: 100%; max-width: 450px; height: auto"
+      >
+        <path
+          d="M150 1.5
+       A148.5 148.5 0 1 1 149.999 298.5
+       A148.5 148.5 0 1 1 150 1.5"
+          stroke="#E15050"
+          stroke-width="3"
+          fill="none"
+          id="path"
+        />
+      </svg>
+
+      <!-- path 結束 -->
+
+      <!---------------- dot1 開始------------------>
+      <div id="dot1">
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Profession.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                left: 0;
+                bottom: -8%;
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      <!---------------- dot1 結束------------------>
+      <!---------------- dot2 開始------------------>
+      <div id="dot2">
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Efficiency.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                left: 0;
+                top: -2%;
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      <!---------------- dot2 結束------------------>
+      <!---------------- dot3 開始------------------>
+      <div id="dot3">
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Service.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                right: 0;
+                top: -2%;
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      <!---------------- dot3 結束------------------>
+      <!---------------- dot4 開始------------------>
+      <div id="dot4">
+        <div class="img-wrapper">
+          <svg class="dot" width="20" height="20">
+            <circle cx="10" cy="10" r="10" fill="#E15050" />
+          </svg>
+          <div class="dot-img">
+            <img
+              src="img/Integrity.png"
+              style="
+                width: 100%;
+                max-width: 200px;
+                position: absolute;
+                right: 0;
+                bottom: -8%;
+              "
+            />
+          </div>
+        </div>
+      </div>
+
+      <!---------------- dot4 結束------------------>
+    </div>
+
+    <script>
+      gsap.registerPlugin(MotionPathPlugin);
+
+      let t1 = gsap.to("#dot1", {
+        duration: 0.996, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.166666,
+          alignOrigin: [0, 1],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t1.progress();
+
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -60, 0, p);
+
+          gsap.set("#dot1", { rotation });
+        },
+      });
+
+      let t2 = gsap.to("#dot2", {
+        duration: 1.998, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.333333,
+          alignOrigin: [0, 0],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t2.progress();
+
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -120, 0, p);
+
+          gsap.set("#dot2", { rotation });
+        },
+      });
+
+      let t3 = gsap.to("#dot3", {
+        duration: 3.96, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.66666,
+          alignOrigin: [1, 0],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t3.progress();
+
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -240, 0, p);
+
+          gsap.set("#dot3", { rotation });
+        },
+      });
+
+      let t4 = gsap.to("#dot4", {
+        duration: 4.998, // 🔥 移動 + 旋轉 同一段動畫 → 自然同步
+        ease: "none",
+        motionPath: {
+          path: "#path",
+          align: "#path",
+          start: 0,
+          end: 0.83333,
+          alignOrigin: [1, 1],
+        },
+        onUpdate() {
+          // 同一個 tween 的 progress → 0~1 時間軸完全一致
+          let p = t4.progress();
+
+          // -60° → 0° 的線性映射
+          let rotation = gsap.utils.mapRange(0, 1, -300, 0, p);
+
+          gsap.set("#dot4", { rotation });
+        },
+      });
+    </script>
+  </body>
+</html>
