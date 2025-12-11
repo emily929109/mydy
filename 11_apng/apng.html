@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>APNG Canvas Controller</title>
+
+    <!-- APNG Player Library -->
+    <!-- <script src="https://unpkg.com/apng-canvas/dist/apng-canvas.min.js"></script> -->
+    <!-- <script src="https://cdn.bootcdn.net/ajax/libs/apng-canvas/2.1.2/apng-canvas.min.js"></script> -->
+    <script src="apng-canvas-master/build/apng-canvas.min.js"></script>
+
+    <style>
+      body {
+        background: #111;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        color: white;
+        font-family: Arial;
+      }
+      canvas {
+        border: 2px solid white;
+        border-radius: 10px;
+      }
+      .controls {
+        margin-top: 20px;
+        display: flex;
+        gap: 12px;
+      }
+      button {
+        padding: 8px 18px;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 6px;
+        border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="apngCanvas" style="width: 20%"></canvas>
+
+    <script>
+      // === 設定 APNG 路徑 ===
+      //   const apngUrl = "./img/3d2.png";
+      const apngUrl = "./img/apng2.png";
+
+      let preloaded = false; // 是否已預載
+      let animation = null; // APNG 動畫物件
+      const canvas = document.getElementById("apngCanvas");
+      const ctx = canvas.getContext("2d");
+
+      // === 預載函式 ===
+      function preloadAPNG() {
+        if (preloaded) return;
+        preloaded = true;
+
+        APNG.parseURL(apngUrl); // 預載，不會畫
+      }
+
+      preloadAPNG(); // 頁面載入即預載
+
+      // === 重新播放 APNG ===
+      function repeatShow() {
+        APNG.parseURL(apngUrl)
+          .then((anim) => {
+            animation = anim;
+            // 依照 APNG 尺寸設定 Canvas 大小
+            canvas.width = animation.width;
+            canvas.height = animation.height;
+
+            animation.rewind(); // 重置在第 0 幀
+            animation.addContext(ctx); // 綁定 canvas
+            animation.play(); // 播放動畫
+
+            // 動畫結束後移除 context（避免疊影）
+            setTimeout(() => {
+              animation.removeContext(ctx);
+            }, animation.playTime);
+          })
+          .catch(() => {
+            console.error("瀏覽器不支援 APNG");
+          });
+      }
+      repeatShow();
+    </script>
+  </body>
+</html>

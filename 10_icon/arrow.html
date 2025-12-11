@@ -53,10 +53,78 @@
         left: 50%;
         transform: translate(-50%, -50%) rotate(-45deg);
       }
+
+      /*=============== checkbox ===============*/
+      .checkbox-wrapper {
+        position: relative;
+        padding-left: 28px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        user-select: none;
+      }
+
+      /* 隱藏原生 checkbox */
+      .custom-checkbox {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      /* 自訂外框 */
+      .checkmark {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 18px;
+        width: 18px;
+        border: 2px solid red;
+        border-radius: 4px;
+        background: white;
+        transition: 0.2s;
+      }
+
+      /* Checked 狀態 */
+      .custom-checkbox:checked + .checkmark {
+        background-color: #16a34a; /* 勾選顏色 */
+        border-color: #16a34a;
+      }
+
+      /* Disabled 狀態 → 你想改顏色就改這裡 */
+      .custom-checkbox:disabled + .checkmark {
+        background-color: #e5e7eb; /* 自訂灰色，也可以改成你想要的 */
+        border-color: red;
+        cursor: not-allowed;
+      }
+
+      /* Disabled + checked 時 */
+      .custom-checkbox:disabled:checked + .checkmark {
+        background-color: #9ca3af; /* 深灰 */
+        border-color: #9ca3af;
+      }
+
+      /* 勾勾（預設隱藏） */
+      .checkmark::after {
+        content: "";
+        position: absolute;
+        /* display: none; */
+        left: 5px;
+        top: 1px;
+        width: 4px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        transform: rotate(45deg);
+      }
     </style>
   </head>
   <body>
     <div class="arrow-line"></div>
     <div class="arrow-btn"></div>
+    <label class="checkbox-wrapper">
+      <input type="checkbox" class="custom-checkbox" />
+      <span class="checkmark"></span>
+      禁用的選項
+    </label>
   </body>
 </html>
