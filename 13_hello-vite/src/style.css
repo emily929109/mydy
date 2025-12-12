@@ -1,0 +1,44 @@
+@import "tailwindcss";
+@import "flowbite/src/themes/default";
+/* @plugin "flowbite/plugin";
+@source "node_modules/flowbite"; */
+
+.radio-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* 外圈 */
+.radio-dot {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #9ca3af; /* gray-400 */
+  border-radius: 50%;
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+/* 內圈（預設隱藏） */
+.radio-dot::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  background-color: #2563eb; /* brand / blue-600 */
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.2s ease;
+}
+
+/* 選取狀態 */
+.radio-tab[aria-selected="true"] .radio-dot {
+  border-color: #2563eb;
+}
+
+.radio-tab[aria-selected="true"] .radio-dot::after {
+  transform: translate(-50%, -50%) scale(1);
+}
