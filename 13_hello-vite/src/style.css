@@ -1,7 +1,8 @@
 @import "tailwindcss";
 @import "flowbite/src/themes/default";
-/* @plugin "flowbite/plugin";
-@source "node_modules/flowbite"; */
+@plugin "flowbite/plugin";
+/* @source "node_modules/flowbite"; */
+@source "../node_modules/flowbite";
 
 .radio-tab {
   display: inline-flex;
@@ -41,4 +42,28 @@
 
 .radio-tab[aria-selected="true"] .radio-dot::after {
   transform: translate(-50%, -50%) scale(1);
+}
+
+.basic-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 1rem;
+}
+
+.subtitle {
+  grid-column: 1 / span 2;
+}
+
+.dropdown-menu {
+  max-height: 200px;
+  overflow: auto;
+}
+
+li.dropdown-item {
+  padding: 5px 0 5px 10px;
+  cursor: pointer;
+}
+
+li.dropdown-item:hover {
+  background-color: #f0f1f1;
 }
