@@ -2,17 +2,18 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>hello-vite</title>
     <script type="module" src="/src/main.js"></script>
+    <!-- <link rel="stylesheet" href="/default.css" /> -->
   </head>
   <body>
-    <div class="section pt-8 max-w-5xl mx-auto">
-      <div class="title text-3xl font-bold">商家資訊填寫</div>
+    <div id="app"></div>
+    <!-- <div class="section pt-8 max-w-5xl mx-auto">
+      <div class="title text-3xl font-bold">商家資訊填寫</div> -->
 
-      <!---------- radio切換 開始 ------------>
-      <div class="mb-3 border-b border-default">
+    <!---------- radio切換 開始 ------------>
+    <!-- <div class="mb-3 border-b border-default">
         <ul
           class="flex flex-wrap -mb-px text-sm font-medium text-center"
           id="default-tab"
@@ -48,20 +49,20 @@
             </button>
           </li>
         </ul>
-      </div>
-      <!---------- radio切換 結束 ------------>
+      </div> -->
+    <!---------- radio切換 結束 ------------>
 
-      <div id="default-tab-content">
-        <!---------- 公司法人 panel 開始 ------------>
-        <div
+    <!-- <div id="default-tab-content"> -->
+    <!---------- 公司法人 panel 開始 ------------>
+    <!-- <div
           class="hidden rounded-base"
           id="company"
           role="tabpanel"
           aria-labelledby="company-tab"
         >
-          <div class="basic-info">
-            <!-- 公司統編 開始 -->
-            <div class="relative z-0 mt-8">
+          <div class="basic-info"> -->
+    <!-- 公司統編 開始 -->
+    <!-- <div class="relative z-0 mt-8">
               <input
                 type="text"
                 id="floating_standard"
@@ -70,13 +71,13 @@
               />
               <label
                 for="floating_standard"
-                class="absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                class="absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 peer-focus:start-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
                 >公司統編</label
               >
-            </div>
-            <!-- 公司統編 結束 -->
-            <!-- 公司登記名稱 開始 -->
-            <div class="relative z-0 mt-8">
+            </div> -->
+    <!-- 公司統編 結束 -->
+    <!-- 公司登記名稱 開始 -->
+    <!-- <div class="relative z-0 mt-8">
               <input
                 type="text"
                 id="floating_standard"
@@ -85,13 +86,13 @@
               />
               <label
                 for="floating_standard"
-                class="absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                class="absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 peer-focus:start-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
                 >公司登記名稱</label
               >
-            </div>
-            <!-- 公司登記名稱 結束 -->
-            <!-- 公司電話 開始 -->
-            <div class="relative z-0 mt-8">
+            </div> -->
+    <!-- 公司登記名稱 結束 -->
+    <!-- 公司電話 開始 -->
+    <!-- <div class="relative z-0 mt-8">
               <input
                 type="text"
                 id="floating_standard"
@@ -100,13 +101,13 @@
               />
               <label
                 for="floating_standard"
-                class="absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 origin-[0] peer-focus:start-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
+                class="absolute text-sm text-body duration-300 transform -translate-y-6 scale-75 top-3 -z-10 peer-focus:start-0 peer-focus:text-fg-brand peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6 rtl:peer-focus:translate-x-1/4 rtl:peer-focus:left-auto"
                 >公司電話</label
               >
-            </div>
-            <!-- 公司電話 結束 -->
-            <!-- 公司產品類別 開始 -->
-            <div class="mx-auto w-full mt-8">
+            </div> -->
+    <!-- 公司電話 結束 -->
+    <!-- 公司產品類別 開始 -->
+    <!-- <div class="mx-auto w-full mt-8">
               <label for="underline_select" class="sr-only">產品類別</label>
               <select
                 id="underline_select"
@@ -118,15 +119,15 @@
                 <option value="FR">France</option>
                 <option value="DE">Germany</option>
               </select>
-            </div>
-            <!-- 公司產品類別 結束 -->
-            <div class="subtitle text-2xl font-bold mt-8">公司登記地址</div>
-            <!-- 公司登記地址 開始 -->
-            <div class="flex select">
-              <!-- 縣市 開始 -->
+            </div> -->
+    <!-- 公司產品類別 結束 -->
+    <!-- <div class="subtitle text-2xl font-bold mt-8">公司登記地址</div> -->
+    <!-- 公司登記地址 開始 -->
+    <!-- <div class="flex select"> -->
+    <!-- 縣市 開始 -->
 
-              <button
-                id="dropdownButton"
+    <!-- <button
+                id="dropdownDefaultButton"
                 data-dropdown-toggle="dropdown"
                 class="inline-flex items-center justify-center box-border font-medium leading-5 text-sm px-4 py-2.5 focus:outline-none border-0 border-b-2 border-default-medium cursor-pointer"
                 type="button"
@@ -150,10 +151,10 @@
                     d="m19 9-7 7-7-7"
                   />
                 </svg>
-              </button>
+              </button> -->
 
-              <!-- Dropdown menu -->
-              <div
+    <!-- Dropdown menu -->
+    <!-- <div
                 id="dropdown"
                 class="z-10 hidden bg-neutral-primary-medium border border-default-medium rounded-base shadow-lg w-44"
               >
@@ -161,16 +162,16 @@
                   class="dropdown-menu text-sm text-body font-medium py-3 overflow-hidden"
                   aria-labelledby="dropdownDefaultButton"
                 ></ul>
-              </div>
+              </div> -->
 
-              <!-- 縣市 結束 -->
-            </div>
-            <!-- 公司登記地址 結束 -->
-          </div>
-        </div>
-        <!---------- 公司法人 panel 結束 ------------>
-        <!---------- 個人商家 panel 開始 ------------>
-        <div
+    <!-- 縣市 結束 -->
+    <!-- </div> -->
+    <!-- 公司登記地址 結束 -->
+    <!-- </div>
+        </div> -->
+    <!---------- 公司法人 panel 結束 ------------>
+    <!---------- 個人商家 panel 開始 ------------>
+    <!-- <div
           class="hidden p-4 rounded-base bg-neutral-secondary-soft"
           id="dashboard"
           role="tabpanel"
@@ -184,14 +185,15 @@
             the next. The tab JavaScript swaps classes to control the content
             visibility and styling.
           </p>
-        </div>
-        <!---------- 個人商家 panel 結束 ------------>
-      </div>
-      <!---------- default-tab-content 結束 ------------>
-    </div>
+        </div> -->
+    <!---------- 個人商家 panel 結束 ------------>
+    <!-- </div> -->
+    <!---------- default-tab-content 結束 ------------>
+    <!-- </div> -->
     <!---------- section 結束 ------------>
 
     <!-- <script src="node_modules/flowbite/dist/flowbite.min.js"></script> -->
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   </body>
 </html>
