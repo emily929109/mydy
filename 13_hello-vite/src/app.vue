@@ -1,9 +1,46 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { initFlowbite } from "flowbite";
 
-// initialize components based on data attribute selectors
+// --- 狀態變數 ---
+const cities = ref([]); // 空陣列，儲存fetch後的資料
+const selectedCityIndex = ref(null); // 原本未定義
+const isDropdownOpen = ref(false); // 控制下拉選單開關
+
+// --- 計算屬性 ---
+const selectedCityLabel = computed(() => {
+  if (selectedCityIndex.value === null) return "縣市";
+  return cities.value[selectedCityIndex.value].CityName;
+});
+
+// --- 方法 ---
+async function loadCityData() {
+  try {
+    const url =
+      "https://raw.githubusercontent.com/donma/TaiwanAddressCityAreaRoadChineseEnglishJSON/master/CityCountyData.json";
+    const res = await fetch(url);
+    const data = await res.json();
+
+    cities.value = data.filter(
+      (item) => item.CityName !== "釣魚臺" && item.CityName !== "南海島"
+    );
+  } catch (error) {
+    console.error("無法讀取資料", error);
+  }
+}
+
+function pickCity(index) {
+  selectedCityIndex.value = index;
+  isDropdownOpen.value = false; // 選完後關閉選單
+}
+
+function toggleDropdown() {
+  isDropdownOpen.value = !isDropdownOpen.value;
+}
+
+// --- 初始化 ---
 onMounted(() => {
+  loadCityData(); // 修正：原本忘了呼叫
   initFlowbite();
 });
 </script>
@@ -121,6 +158,50 @@ onMounted(() => {
           </div>
           <!-- 公司產品類別 結束 -->
           <div class="subtitle text-2xl font-bold mt-8">公司登記地址</div>
+          <!---------- 縣市 開始 ---------->
+          <div class="relative mt-4">
+            <button
+              @click="toggleDropdown"
+              class="inline-flex items-center justify-center box-border font-medium leading-5 text-sm px-4 py-2.5 focus:outline-none border-0 border-b-2 border-default-medium cursor-pointer"
+              type="button"
+            >
+              <span>{{ selectedCityLabel }}</span>
+              <svg
+                class="w-4 h-4 ms-1.5 -me-0.5"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="m19 9-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            <div
+              v-if="isDropdownOpen"
+              class="absolute z-10 bg-white border border-gray-200 rounded-lg shadow-lg w-44 max-h-60 overflow-y-auto mt-1"
+            >
+              <ul class="text-sm text-gray-700 font-medium py-3 cursor-pointer">
+                <li
+                  v-for="(c, idx) in cities"
+                  :key="c.CityName"
+                  class="px-4 py-2 hover:bg-gray-100"
+                  @click="pickCity(idx)"
+                >
+                  {{ c.CityName }}
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!---------- 縣市 結束 ---------->
         </div>
       </div>
       <!---------- 個人商家 panel 開始 ------------>
