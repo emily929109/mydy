@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dudu_footer_demo</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+    <style>
+      a {
+        text-decoration: none;
+      }
+      /*========footer修改=========*/
+      footer a,
+      footer a:hover {
+        color: #fff;
+      }
+
+      .footer img {
+        max-width: 200px;
+      }
+
+      .footer ul li {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+      }
+
+      .social-icon-wrapper {
+        padding-left: 2rem;
+      }
+
+      .social-icon-wrapper img {
+        max-width: 50px;
+      }
+
+      .footer p[data-bs-toggle] {
+        border-bottom: 1px solid #ffffff8c;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .footer-dropdown-icon {
+        position: relative;
+        display: block;
+        width: 20px;
+        height: 20px;
+        border: 1px solid #fff;
+        border-radius: 50%;
+        background-color: #fff;
+      }
+
+      .footer-dropdown-icon::before,
+      .footer-dropdown-icon::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        top: 50%;
+        right: 3px;
+        left: 3px;
+        height: 1px;
+        content: "";
+        background-color: currentColor;
+        transition: transform 0.3s ease;
+        transform: translateY(-50%);
+        background-color: rgb(0 171 152);
+      }
+
+      .footer-dropdown-icon::after {
+        transform: rotate(-90deg);
+      }
+
+      /*旋轉效果*/
+      .footer p[aria-expanded="true"] .footer-dropdown-icon::after {
+        content: none;
+      }
+
+      .footer p[aria-expanded="true"] .footer-dropdown-icon::before {
+        transform: rotate(-180deg);
+      }
+
+      /* icon hover效果*/
+      .social-icon-container {
+        position: relative;
+        width: 50px;
+        height: 50px;
+      }
+
+      .social-icon-container img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        object-fit: cover;
+        transition: opacity 0.3s ease;
+      }
+
+      .social-icon-container:hover .default,
+      .social-icon-container .hover {
+        opacity: 0;
+      }
+
+      .social-icon-container:hover .hover {
+        opacity: 1;
+      }
+
+      .social-icon-container:hover::after {
+        content: "";
+        display: block;
+        background-image: url(img/footer/sparkle.png);
+        width: 23px;
+        height: 13px;
+        position: absolute;
+        top: -14px;
+        right: -11px;
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+
+      @media (max-width: 768px) {
+        .social-icon-wrapper {
+          justify-content: center;
+        }
+      }
+
+      @media (min-width: 576px) {
+        .text-sm-left {
+          text-align: left !important;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .footer ul {
+          list-style-position: inside;
+          padding: 0;
+          text-align: center;
+        }
+
+        .footer ul li {
+          font-size: 1rem;
+        }
+
+        .ean-margin-bottom {
+          margin-bottom: 2.5rem;
+        }
+      }
+
+      /*=========copyright=========*/
+      .copyright {
+        letter-spacing: 2px;
+      }
+
+      .copyright ul {
+        list-style: none;
+        margin-bottom: 8px;
+      }
+
+      .copyright a {
+        color: inherit;
+      }
+
+      .copyright ul a:hover {
+        color: #00ab98;
+      }
+
+      .copyright .nav-item.seperate::after {
+        height: 20px;
+      }
+
+      .nav-item.seperate {
+        padding: 0 4px;
+      }
+
+      .nav-item.seperate::after {
+        content: "";
+        display: block;
+        width: 1px;
+        height: 24px;
+        background-color: #777;
+        margin: 0 auto;
+      }
+
+      @media (max-width: 992px) {
+        #headerapp.headerfixed .login-icon {
+          position: absolute;
+        }
+      }
+
+      .footer-wrapper {
+        height: 382px;
+      }
+
+      .footer-inner-wrapper {
+        width: 100%;
+        pointer-events: none;
+        visibility: visible;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 0;
+        /* opacity: 0; */
+      }
+
+      .index-demo {
+        z-index: 1;
+      }
+    </style>
+  </head>
+
+  <body class="overflow-x-hidden">
+    <div
+      class="index-demo d-flex justify-content-center align-items-center fs-2 w-100"
+      style="min-height: 800px; letter-spacing: 2px"
+    >
+      其他文字內容...
+    </div>
+    <div class="footer-wrapper">
+      <div class="footer-inner-wrapper">
+        <footer
+          class="footer"
+          style="
+            position: relative;
+            background-color: #00ab98;
+            margin-right: -1rem !important;
+            margin-left: -1rem;
+            width: unset;
+          "
+        >
+          <div class="row g-0">
+            <div
+              class="container-fluid container_ean p-4 py-md-6 text-white"
+              style="max-width: 1400px"
+            >
+              <!--============網頁版============-->
+              <div class="d-md-flex d-none row">
+                <div class="col-12 col-md-3 text-center mb-3">
+                  <a href="~/Home/Index"
+                    ><img class="w-100" src="img/footer/footerlogo.png"
+                  /></a>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                  <p class="fs-3 fw-bold text-sm-left">關於我們</p>
+                  <ul class="text-start">
+                    <li>近期優惠</li>
+                    <li>最新公告</li>
+                    <li>關於DUDUPAY</li>
+                    <li>關於東元</li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                  <p class="fs-3 fw-bold text-sm-left">商家專區</p>
+                  <ul class="text-start">
+                    <li><a href="~/Home/Dealer">已合作商家</a></li>
+                    <li>
+                      <a
+                        href="https://www.mydy.com.tw/Home/Contact_us"
+                        target="_blank"
+                        >成為合作商家</a
+                      >
+                    </li>
+                    <li>商家常見問題與答</li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-3 mb-3">
+                  <p class="fs-3 fw-bold text-sm-left">聯絡我們</p>
+                  <ul class="mb-4 text-start">
+                    <li>
+                      <a href="mailto:pschang@mydy.com.tw">業務合作洽談</a>
+                    </li>
+                    <li>新北市中和區建八路202號2樓</li>
+                  </ul>
+                  <div class="social-icon-wrapper d-flex gap-3">
+                    <div class="social-icon-container fb">
+                      <a
+                        href="https://www.facebook.com/profile.php?id=61575723575479"
+                        target="_blank"
+                        ><img
+                          class="default"
+                          src="img/footer/fb1.png"
+                          alt="fb-icon"
+                      /></a>
+                      <a
+                        href="https://www.facebook.com/profile.php?id=61575723575479"
+                        target="_blank"
+                        ><img
+                          class="hover"
+                          src="img/footer/fb2.png"
+                          alt="fb-icon-hover"
+                      /></a>
+                    </div>
+                    <div class="social-icon-container ig">
+                      <a
+                        href="https://www.instagram.com/dudu_pay520/"
+                        target="_blank"
+                        ><img
+                          class="default"
+                          src="img/footer/ig1.png"
+                          alt="ig-icon"
+                      /></a>
+                      <a
+                        href="https://www.instagram.com/dudu_pay520/"
+                        target="_blank"
+                        ><img
+                          class="hover"
+                          src="img/footer/ig2.png"
+                          alt="ig-icon-hover"
+                      /></a>
+                    </div>
+                    <div class="social-icon-container line">
+                      <a href="https://lin.ee/74qJkfR" target="_blank"
+                        ><img
+                          class="default"
+                          src="img/footer/line1.png"
+                          alt="line-icon"
+                      /></a>
+                      <a href="https://lin.ee/74qJkfR" target="_blank"
+                        ><img
+                          class="hover"
+                          src="img/footer/line2.png"
+                          alt="line-icon-hover"
+                      /></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!--============手機版收合============-->
+              <div class="flex-column flex-md-row row d-block d-md-none">
+                <div class="col-12 col-md-3 px-md-1 mb-4">
+                  <p
+                    class="fs-2 fs-md-3 fw-bold text-sm-left"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#footer-1"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="collapseExample"
+                  >
+                    關於我們
+                    <span class="footer-dropdown-icon"></span>
+                  </p>
+
+                  <ul class="text-start collapse" id="footer-1">
+                    <li>近期優惠</li>
+                    <li>最新公告</li>
+                    <li>關於DUDUPAY</li>
+                    <li>關於東元</li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-3 px-md-1 mb-4">
+                  <p
+                    class="fs-2 fs-md-3 fw-bold text-sm-left"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#footer-2"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="collapseExample"
+                  >
+                    商家專區
+                    <span class="footer-dropdown-icon"></span>
+                  </p>
+                  <ul class="text-start collapse" id="footer-2">
+                    <li><a href="~/Home/Dealer">已合作商家</a></li>
+                    <li>成為合作商家</li>
+                    <li>商家常見問題與答</li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-3 px-md-1 mb-4">
+                  <p
+                    class="fs-2 fs-md-3 fw-bold text-sm-left"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#footer-3"
+                    role="button"
+                    aria-expanded="false"
+                    aria-controls="collapseExample"
+                  >
+                    聯絡我們
+                    <span class="footer-dropdown-icon"></span>
+                  </p>
+                  <ul class="text-start collapse" id="footer-3">
+                    <li>
+                      <a href="mailto:pschang@mydy.com.tw">業務合作洽談</a>
+                    </li>
+                    <li>新北市中和區建八路202號2樓</li>
+                  </ul>
+                </div>
+                <div class="col-12 col-md-3 text-center mb-4">
+                  <a href="~/Home/Index"
+                    ><img class="w-100" src="img/footer/footerlogo.png"
+                  /></a>
+                </div>
+                <div class="social-icon-wrapper d-flex">
+                  <a
+                    href="https://www.facebook.com/profile.php?id=61575723575479"
+                    target="_blank"
+                    ><img src="img/footer/line1.png"
+                  /></a>
+                  <a
+                    href="https://www.instagram.com/dudu_pay520/"
+                    target="_blank"
+                    ><img src="img/footer/ig1.png"
+                  /></a>
+                  <a href="https://lin.ee/74qJkfR" target="_blank"
+                    ><img src="img/footer/fb1.png"
+                  /></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </footer>
+
+        <!-- copyright -->
+        <div class="copyright fs-0 fs-md-1 p-4">
+          <ul class="align-items-center d-flex gap-2 justify-content-center">
+            <a href="~/Home/privacy" target="_blank">
+              <li class="copyright-item">隱私權保護政策</li>
+            </a>
+            <li class="nav-item seperate"></li>
+            <a href="https://165.npa.gov.tw/#/" target="_blank">
+              <li class="copyright-item">反詐騙專區</li>
+            </a>
+          </ul>
+          <div class="col-12 col-sm-auto text-center">
+            <p class="mb-0">
+              Copyright&copy;2025 DUDUPAY-東元資融股份有限公司 All Rights
+              Reserved.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

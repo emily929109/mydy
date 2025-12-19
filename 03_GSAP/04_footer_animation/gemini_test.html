@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>gemini</title>
+    <style>
+      body {
+        /* background-color: red; */
+      }
+      footer {
+        position: relative;
+        width: 100%;
+        overflow: hidden; /* 避免光圈溢出 */
+        cursor: none; /* 隱藏原本的滑鼠 */
+      }
+
+      .footer_cursor {
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          50% 50% at 50% 50%,
+          rgba(255, 255, 255, 0.3) 0%,
+          rgba(255, 255, 255, 0.1) 72%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        position: fixed;
+        top: 0;
+        left: 0;
+        border-radius: 50%;
+        pointer-events: none; /* 關鍵：讓滑鼠可以點擊穿過光圈，讓滑鼠事件正常觸發*/
+        z-index: 999;
+
+        transform: translate(-50%, -50%) scale(0); /* 元素的中心點會對準滑鼠，而不是左上角 */
+        opacity: 0;
+      }
+
+      @media (max-width: 991px) {
+        footer .footer_cursor {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <footer>
+      <div class="footer_cursor"></div>
+
+      <div
+        class="footer_content"
+        style="min-height: 500px; background-color: black"
+      >
+        <h1>GET IN TOUCH NOW!</h1>
+      </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script>
+      const cursor = document.querySelector(".footer_cursor");
+      const footer = document.querySelector("footer");
+
+      // gsap.quickTo (這是效能最好的跟隨方式)
+      // 建立 x 和 y 的快速設定器，設定 duration 可以製造一點點延遲(lag)感，比較滑順
+      const xTo = gsap.quickTo(cursor, "x", { duration: 0.6, ease: "power3" });
+      const yTo = gsap.quickTo(cursor, "y", { duration: 0.6, ease: "power3" });
+
+      // 監聽整個視窗的滑鼠移動
+      footer.addEventListener("mousemove", (e) => {
+        console.log(e.clientX);
+        // 將滑鼠座標傳給 quickTo
+        xTo(e.clientX);
+        yTo(e.clientY);
+      });
+
+      // --- 只在 Footer 區域內顯示光圈 ---
+      footer.addEventListener("mouseenter", () => {
+        gsap.to(cursor, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.2,
+        });
+      });
+
+      footer.addEventListener("mouseleave", () => {
+        console.log("hi");
+        gsap.to(cursor, {
+          scale: 0,
+          opacity: 0,
+          duration: 0.3,
+        });
+      });
+    </script>
+  </body>
+</html>
