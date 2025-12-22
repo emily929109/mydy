@@ -5,45 +5,65 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MDB Input 範例</title>
     <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
-      rel="stylesheet"
-    />
-    <link
       href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.min.css"
       rel="stylesheet"
     />
+    <style>
+      body {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .form-outline {
+        max-width: 200px;
+      }
+    </style>
   </head>
   <body>
-    <div class="container mt-5" style="max-width: 500px">
-      <h4 class="mb-4">MDB 表單欄位範例</h4>
+    <div class="form-outline" data-mdb-input-init>
+      <input type="text" id="form12" class="form-control" />
+      <label class="form-label" for="form12">Example label</label>
+    </div>
 
-      <div class="form-outline mb-4" data-mdb-input-init>
-        <input type="text" id="nameInput" class="form-control" />
-        <label class="form-label" for="nameInput">姓名 (標準)</label>
-      </div>
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="radio"
+        name="flexRadioDefault"
+        id="flexRadioDefault1"
+      />
+      <label class="form-check-label" for="flexRadioDefault1">
+        Default radio
+      </label>
+    </div>
+    <!-- Default checkbox -->
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        value=""
+        id="flexCheckDefault"
+      />
+      <label class="form-check-label" for="flexCheckDefault"
+        >Default checkbox</label
+      >
+    </div>
 
-      <div class="form-outline mb-4" data-mdb-input-init>
-        <i class="fas fa-envelope trailing"></i>
-        <input type="email" id="emailInput" class="form-control" />
-        <label class="form-label" for="emailInput">電子郵件地址</label>
-      </div>
-
-      <div class="form-outline mb-4" data-mdb-input-init>
-        <input type="password" id="passInput" class="form-control" />
-        <label class="form-label" for="passInput">密碼</label>
-      </div>
-
-      <div class="form-outline mb-4" data-mdb-input-init>
-        <input type="text" id="phoneInput" class="form-control is-invalid" />
-        <label class="form-label" for="phoneInput">手機號碼</label>
-        <div class="invalid-feedback">請輸入正確的格式</div>
-      </div>
-
-      <button type="button" class="btn btn-primary btn-block">提交資料</button>
+    <!-- Checked checkbox -->
+    <div class="form-check">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        value=""
+        id="flexCheckChecked"
+        checked
+      />
+      <label class="form-check-label" for="flexCheckChecked"
+        >Checked checkbox</label
+      >
     </div>
 
     <script
