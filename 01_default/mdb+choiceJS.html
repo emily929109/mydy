@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MDB + Choices.js 美化範例</title>
+
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.min.css"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
+    />
+
+    <style>
+      /* --- 頁面基本設定 --- */
+      body {
+        background-color: #fbfbfb;
+        display: flex;
+        justify-content: center;
+        padding-top: 50px;
+        min-height: 100vh;
+      }
+      .container-box {
+        width: 100%;
+        max-width: 450px;
+        padding: 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      /* --- 重點：將 Choices.js 改造成 MDB 風格 --- */
+
+      /* 1. 調整外框與背景 */
+      .choices__inner {
+        background-color: transparent !important;
+        border: 1px solid #bdbdbd !important; /* MDB 預設灰 */
+        border-radius: 0.25rem !important; /* MDB 圓角 */
+
+        min-height: auto;
+        padding-top: 0.32rem;
+        padding-bottom: 0.32rem;
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
+        transition: all 0.2s linear;
+      }
+
+      /* 2. 聚焦時的狀態 (MDB Primary Blue) */
+      .is-focused .choices__inner {
+        border-color: #3b71ca !important; /* MDB 主要藍色 */
+        box-shadow: inset 0 0 0 1px #3b71ca !important; /* 模擬加粗邊框 */
+      }
+
+      /* 3. 下拉選單樣式 */
+      .choices__list--dropdown {
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 0.25rem !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* 增加陰影立體感 */
+        margin-top: 5px;
+        z-index: 1050; /* 確保蓋過其他元素 */
+      }
+
+      /* 4. 選項 Hover 效果 */
+      .choices__list--dropdown .choices__item--selectable.is-highlighted {
+        background-color: #f5f5f5 !important; /* 淺灰背景 */
+        color: #000 !important;
+      }
+
+      /* 5. 修正右側箭頭 */
+      .choices[data-type*="select-one"]::after {
+        border-color: #757575 transparent transparent transparent;
+        transition: 0.2s;
+      }
+      .choices.is-open[data-type*="select-one"]::after {
+        /* margin-top: -2.5px; */
+        border-color: transparent transparent #3b71ca transparent; /* 開啟時變藍色 */
+      }
+
+      /* 6. 模擬 Floating Label (選填，為了更有 MDB Pro 的感覺) */
+      .field-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+      .custom-label {
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        background-color: white;
+        padding: 0 5px;
+        font-size: 12px;
+        color: #3b71ca;
+        z-index: 5;
+        font-weight: 500;
+      }
+
+      .choices__list--single {
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-box">
+      <h4 class="text-center mb-4">MDB + Select Plugin</h4>
+
+      <div class="field-wrapper">
+        <label class="custom-label">選擇產品</label>
+
+        <select class="form-control" id="myMdbSelect">
+          <option value="" placeholder>請選擇...</option>
+          <option value="iphone">Apple iPhone 15</option>
+          <option value="samsung">Samsung Galaxy S24</option>
+          <option value="pixel">Google Pixel 8</option>
+          <option value="xiaomi">Xiaomi 14 Ultra</option>
+        </select>
+      </div>
+      <div class="form-outline" data-mdb-input-init>
+        <input type="text" id="form12" class="form-control" />
+        <label class="form-label" for="form12">Example label</label>
+      </div>
+
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="flexRadioDefault"
+          id="flexRadioDefault1"
+        />
+        <label class="form-check-label" for="flexRadioDefault1">
+          Default radio
+        </label>
+      </div>
+      <!-- Default checkbox -->
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="flexCheckDefault"
+        />
+        <label class="form-check-label" for="flexCheckDefault"
+          >Default checkbox</label
+        >
+      </div>
+
+      <!-- Checked checkbox -->
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="flexCheckChecked"
+          checked
+        />
+        <label class="form-check-label" for="flexCheckChecked"
+          >Checked checkbox</label
+        >
+      </div>
+    </div>
+
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+    ></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // 1. 初始化單選 Select
+        const element = document.getElementById("myMdbSelect");
+        const choices = new Choices(element, {
+          searchEnabled: false,
+          itemSelectText: "",
+          shouldSort: false,
+          // placeholder: false,
+          // placeholderValue: null,
+        });
+      });
+    </script>
+  </body>
+</html>

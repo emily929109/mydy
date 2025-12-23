@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choices.js 仿 MDB Pro 樣式</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        padding: 50px;
+        background-color: #fbfbfb;
+        font-family: "Roboto", sans-serif;
+      }
+
+      /* --- MDB Pro 風格容器 --- */
+      .mdb-select-wrapper {
+        position: relative;
+        margin-bottom: 1.5rem;
+        max-width: 400px; /* 範例寬度 */
+      }
+
+      /* --- 1. 改造 Choices.js 外觀 --- */
+      .choices__inner {
+        background-color: transparent !important;
+        border: 1px solid #bdbdbd !important; /* MDB 預設灰 */
+        border-radius: 0.25rem !important;
+        min-height: 45px !important;
+        padding: 5px 10px !important;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s linear;
+      }
+
+      /* 聚焦時變色 (MDB Primary Blue) */
+      .is-focused .choices__inner {
+        border-color: #3b71ca !important; /* MDB Blue */
+        box-shadow: inset 0 0 0 1px #3b71ca !important; /* 讓邊框變粗一點 */
+      }
+
+      /* --- 2. 浮動標籤 (Floating Label) --- */
+      .mdb-label {
+        position: absolute;
+        top: 12px;
+        left: 10px;
+        color: #757575;
+        font-size: 1rem;
+        pointer-events: none; /* 讓點擊穿透標籤 */
+        transition: 0.2s ease-out;
+        background-color: #fbfbfb; /* 背景色需跟 Body 一樣，用來遮住邊框 */
+        padding: 0 5px;
+        z-index: 5;
+      }
+
+      /* 當 Choices 被聚焦 OR 已經有選值時，標籤往上浮 */
+      /* .choices.is-focused ~ .mdb-label : 聚焦時 */
+      /* .choices.has-value ~ .mdb-label : 有值時 */
+      .choices.is-focused ~ .mdb-label,
+      .choices[data-type*="select-one"].has-value ~ .mdb-label {
+        top: -10px; /* 往上浮 */
+        left: 8px;
+        font-size: 0.8rem; /* 字變小 */
+        color: #3b71ca; /* 字變藍 */
+        font-weight: 500;
+      }
+
+      /* 如果沒聚焦但有值，顏色維持灰色，但位置要在上面 */
+      .choices:not(.is-focused)[data-type*="select-one"].has-value
+        ~ .mdb-label {
+        color: #757575;
+      }
+
+      /* --- 3. 下拉選單美化 --- */
+      .choices__list--dropdown {
+        border: none !important;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* 漂亮的陰影 */
+        border-radius: 0.25rem;
+        margin-top: 5px;
+        z-index: 10;
+      }
+
+      .choices__list--dropdown .choices__item--selectable.is-highlighted {
+        background-color: #eee !important; /* Hover 顏色 */
+        color: #000 !important;
+      }
+
+      /* 修正右邊箭頭 */
+      .choices[data-type*="select-one"]::after {
+        border-color: #757575 transparent transparent transparent;
+        transition: 0.2s;
+      }
+      .choices.is-open[data-type*="select-one"]::after {
+        margin-top: -2.5px;
+        border-color: transparent transparent #3b71ca transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>Choices.js + CSS = MDB Pro Style</h3>
+    <p class="text-muted">支援浮動標籤與動畫，無須購買 Pro 版</p>
+    <br />
+
+    <div class="mdb-select-wrapper">
+      <select id="myMdbSelect">
+        <option value="" placeholder>請選擇...</option>
+        <option value="1">選項一 (Option One)</option>
+        <option value="2">選項二 (Option Two)</option>
+        <option value="3">選項三 (Option Three)</option>
+      </select>
+
+      <label class="mdb-label">選擇範例 (Example Label)</label>
+    </div>
+
+    <div id="output" style="margin-top: 20px; color: green"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const element = document.getElementById("myMdbSelect");
+
+        const choices = new Choices(element, {
+          searchEnabled: false, // MDB 通常預設不搜尋
+          itemSelectText: "", // 移除 "Press to select"
+          shouldSort: false,
+          placeholder: true,
+          placeholderValue: "", // 重要：清空 placeholder 文字，讓我們的 Label 發揮作用
+        });
+
+        // 監聽變更 (模擬 Vue v-model 接收資料)
+        element.addEventListener("change", function (e) {
+          document.getElementById("output").innerText =
+            "您選擇了 Value: " + e.target.value;
+        });
+      });
+    </script>
+  </body>
+</html>
