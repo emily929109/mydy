@@ -221,7 +221,7 @@ function pickArea(which, index) {
                   class="text-sm text-gray-700 font-medium py-3 cursor-pointer"
                 >
                   <li
-                    v-for="(class, index) in cities"
+                    v-for="(c, index) in cities"
                     :key="c.CityName"
                     class="px-4 py-2 hover:bg-gray-100"
                     @click="pickCity(1, idx)"
