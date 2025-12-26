@@ -1,0 +1,258 @@
+1. 建立vite環境
+2. 製作區域選單:Vue 資料更新了，但 UI 套件 (Choices.js) 沒有跟上
+
+                    <div class="fs-4 fw-bold subtitle">公司登記地址</div>
+                    <div class="d-flex">
+                        @*縣市*@
+                        <div class="field-wrapper mt-4">
+                            <select class="form-control js-choice"  @@change="handleCityChange(1)">
+                                <option value="" placeholder>請選擇縣市</option>
+                                <option v-for="(c, index) in cities"
+                                        :key="c.CityName"
+                                        class="px-4 py-2 hover:bg-gray-100">
+                                    {{ c.CityName }}
+                                </option>
+
+                            </select>
+                        </div>
+                        @*區域*@
+                        <div class="field-wrapper mt-4">
+                            <select class="form-control js-choice" id="area-select">
+                                <option value="" placeholder>請選擇區域</option>
+                                <option v-for="(a, idx) in (cities[selectedCityIndex1] ? cities[selectedCityIndex1].AreaList : [])"
+                                        :key="a.AreaName"
+                                        :value="a.AreaName"
+                                        class="px-4 py-2 hover:bg-gray-100">
+                                    {{ a.AreaName }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                    const { nextTick } = Vue;
+
+const App = {
+
+
+
+    setup() {
+        const u = ref({});
+        const msg = reactive({
+            c_city: false,
+            c_town: false,
+            c_address: false,
+            c_contact_city: false,
+            c_contact_town: false,
+            c_contact_addr: false,
+            c_dealer_desc: false,
+            c_dealer_type1: false,
+            c_dealer_type2: false,
+            c_name: false,
+            c_phone: false,
+            c_product_class: false,
+            c_taxid_no: false,
+            p_city: false,
+            p_town: false,
+            p_address: false,
+            p_contact_city: false,
+            p_contact_town: false,
+            p_contact_addr: false,
+            p_dealer_desc: false,
+            p_dealer_type1: false,
+            p_dealer_type2: false,
+            p_idno: false,
+            p_name: false,
+            p_phone: false,
+            p_product_class: false,
+
+        });
+        //依穎
+        const prd_class = ref([]); // 空陣列，儲存class
+        let cities = ref([]); // 空陣列，儲存cities
+        const ddCityBtn1 = ref(null);
+        const ddCityBtn2 = ref(null);
+        const ddAreaBtn1 = ref(null);
+        const ddAreaBtn2 = ref(null);
+        const selectedCityIndex1 = ref(null);
+        const selectedCityIndex2 = ref(null);
+        const selectedAreaIndex1 = ref(null);
+        const selectedAreaIndex2 = ref(null);
+        //const selectedCity1 = computed(() => {
+        //    if (selectedCityIndex1.value === null) return "請選擇縣市";
+        //    return cities.value[selectedCityIndex1.value].CityName;
+        //});
+
+        //const selectedArea1 = computed(() => {
+        //    if (selectedAreaIndex1.value === null) return "請選擇區域";
+        //    return cities.value[selectedCityIndex1.value].AreaList[
+        //        selectedAreaIndex1.value
+        //    ].AreaName;
+        //});
+        const selectedCity2 = computed(() => {
+            if (selectedCityIndex2.value === null) return "請選擇縣市";
+            return cities.value[selectedCityIndex2.value].CityName;
+        });
+        const selectedArea2 = computed(() => {
+            if (selectedAreaIndex2.value === null) return "請選擇區域";
+            return cities.value[selectedCityIndex2.value].AreaList[
+                selectedAreaIndex2.value
+            ].AreaName;
+        });
+        const MAX = 200;
+        const message = ref("");
+        const used = computed(() => message.value.length);
+        const remaining = computed(() => MAX - used.value);
+
+
+        onMounted(() => {
+            nextTick();
+            _initLoad();
+        });
+
+
+        _initLoad = async () => {
+            //init           
+            u.value = {};
+            u.value.dealer_type = '公司法人';
+            //u.value.c_dealer_type1 = []; u.value.c_dealer_type2 = []; u.value.p_dealer_type1 = []; u.value.p_dealer_type2 = [];
+            //u.value.c_city = '\u00A0';
+            //u.value.c_town = '\u00A0';
+            //u.value.c_contact_city = '\u00A0';
+            //u.value.c_contact_town = '\u00A0';
+            //u.value.p_city = '\u00A0';
+            //u.value.p_town = '\u00A0';
+            //u.value.p_contact_city = '\u00A0';
+            //u.value.p_contact_town = '\u00A0';
+            //u.value.c_product_class = '\u00A0';
+            //u.value.p_product_class = '\u00A0';
+
+            var res = await _getProductClass();
+            if (res.success) {
+                prd_class.value = res.list;
+            }
+
+            cities.value = await _loadCityData();
+            cities.value = cities.value.filter(
+                    (item) => item.CityName !== "釣魚臺" && item.CityName !== "南海島"
+            )
+            //set data
+            var dudu_dealerContact = JSON.parse(localStorage.getItem('dudu_dealerContact'));
+            //console.log(dudu_dealerContact);
+            if (dudu_dealerContact != null) u.value = dudu_dealerContact;
+
+
+
+        }
+
+
+        _getProductClass = () => {
+            return axios({
+                method: 'get',
+                url: '/api/Dealer/GetProductClass/',
+                headers: { 'Content-Type': 'application/json' },
+            }).then((response) => {
+                return response.data;
+            }).catch((function (error) {
+                console.log(error);
+            })).finally(() => {
+                console.log('完成');
+            });
+        }
+
+        _loadCityData = () => {
+
+            return axios({
+                method: 'get',
+                url: '/js/cityData.json',
+            }).then((response) => {
+                return response.data;
+            }).catch((error) => {
+                console.log(error);
+            }).finally(() => {
+                console.log('完成');
+            });
+
+
+        }
+
+        //_loadCityData = () => {
+        //    return axios.get('../assets/cityData.json')
+        //        .then(res => {
+        //            return res.data; 
+        //        })
+        //        .catch(err => {
+        //            console.error(err);
+        //        });
+        //}
+
+
+        handleCityChange = (which) => {
+            if (which === 1) {
+                const selectedCityName = event.target.value;
+                selectedCityIndex1.value = cities.value.findIndex(item => item.CityName === selectedCityName);
+                console.log("selectedCityIndex1", selectedCityIndex1.value);
+                nextTick(() => updateAreaChoices())   
+
+            } else if (which === 2) {
+                selectedCityIndex2.value = index;
+            }
+        }
+
+        pickArea = (which, index) => {
+            if (which == 1) {
+                selectedAreaIndex1.value = index;
+            } else if (which === 2) {
+                selectedAreaIndex2.value = index;
+            }
+        }
+
+        updateAreaChoices= () => {
+            const areaSelectDom = document.getElementById('area-select');
+
+            if (!areaSelectDom) return;
+
+            // 1. 如果舊的 Choices 實例存在，先銷毀它 (Destroy)
+            // 這樣它會把隱藏的 <select> 還原，並移除舊的假選單
+            if (areaSelectDom._choicesInstance) {
+                areaSelectDom._choicesInstance.destroy();
+                areaSelectDom._choicesInstance = null;
+            }
+
+            // 2. 重新初始化 (Re-init)
+            // 這時候 Choices.js 會看到 Vue 剛剛產生好的新 option，並建立正確的選單
+            const newInstance = new Choices(areaSelectDom, {
+                searchEnabled: false,
+                itemSelectText: "",
+                shouldSort: false, // 建議關閉排序，不然區域會亂跳
+            });
+
+            // 3. 把新實例存回去
+            areaSelectDom._choicesInstance = newInstance;
+        }
+
+        return {
+            u, msg, prd_class, cities, handleCityChange, selectedCityIndex1
+        
+        };
+
+
+    }
+
+}
+
+Vue.createApp(App).mount('#app');
+
+$(window).on('load', function () {
+
+
+
+
+})
+
+
+

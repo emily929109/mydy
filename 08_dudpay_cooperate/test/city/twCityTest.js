@@ -5,9 +5,10 @@ $(document).ready(function () {
     type: "get",
     dataType: "json",
     success: function (data) {
-      const filteredData = data.filter(function (item) {
-        return item.CityName !== "釣魚臺" && item.CityName !== "南海島";
-      });
+      console.log(typeof data);
+      // const filteredData = data.filter(function (item) {
+      //   return item.CityName !== "釣魚臺" && item.CityName !== "南海島";
+      // });
 
       // 把資料渲染在ul中
       $.each(filteredData, function (key, value) {
