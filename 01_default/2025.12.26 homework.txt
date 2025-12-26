@@ -2,39 +2,39 @@
 2. 製作區域選單:Vue 資料更新了，但 UI 套件 (Choices.js) 沒有跟上
 
                     <div class="fs-4 fw-bold subtitle">公司登記地址</div>
-                    <div class="d-flex">
-                        @*縣市*@
-                        <div class="field-wrapper mt-4">
-                            <select class="form-control js-choice"  @@change="handleCityChange(1)">
-                                <option value="" placeholder>請選擇縣市</option>
-                                <option v-for="(c, index) in cities"
-                                        :key="c.CityName"
-                                        class="px-4 py-2 hover:bg-gray-100">
-                                    {{ c.CityName }}
-                                </option>
+                                     <div class="d-flex">
+                      @*縣市*@
+                      <div class="field-wrapper mt-4">
+                          <select class="form-control js-choice"  @@change="handleCityChange(1)">
+                              <option value="" placeholder>請選擇縣市</option>
+                              <option v-for="(c, index) in cities"
+                                      :key="c.CityName"
+                                      class="px-4 py-2 hover:bg-gray-100">
+                                  {{ c.CityName }}
+                              </option>
 
-                            </select>
-                        </div>
-                        @*區域*@
-                        <div class="field-wrapper mt-4">
-                            <select class="form-control js-choice" id="area-select">
-                                <option value="" placeholder>請選擇區域</option>
-                                <option v-for="(a, idx) in (cities[selectedCityIndex1] ? cities[selectedCityIndex1].AreaList : [])"
-                                        :key="a.AreaName"
-                                        :value="a.AreaName"
-                                        class="px-4 py-2 hover:bg-gray-100">
-                                    {{ a.AreaName }}
-                                </option>
-                            </select>
-                        </div>
-                    </div>
-
-
+                          </select>
+                      </div>
+                      @*區域*@
+                      <div class="field-wrapper mt-4">
+                          <select class="form-control js-choice" id="area-select">
+                              <option value="" placeholder>請選擇區域</option>
+                              <option v-for="(a, idx) in (cities[selectedCityIndex1] ? cities[selectedCityIndex1].AreaList : [])"
+                                      :key="a.AreaName"
+                                      :value="a.AreaName"
+                                      class="px-4 py-2 hover:bg-gray-100">
+                                  {{ a.AreaName }}
+                              </option>
+                          </select>
+                      </div>
+                  </div>
 
 
 
 
-                    const { nextTick } = Vue;
+
+
+                 const { nextTick } = Vue;
 
 const App = {
 
@@ -192,13 +192,13 @@ const App = {
 
 
         handleCityChange = (which) => {
-            if (which === 1) {
+            if (which == 1) {
                 const selectedCityName = event.target.value;
                 selectedCityIndex1.value = cities.value.findIndex(item => item.CityName === selectedCityName);
                 console.log("selectedCityIndex1", selectedCityIndex1.value);
                 nextTick(() => updateAreaChoices())   
 
-            } else if (which === 2) {
+            } else if (which == 2) {
                 selectedCityIndex2.value = index;
             }
         }
@@ -211,17 +211,35 @@ const App = {
             }
         }
 
-        updateAreaChoices= () => {
+        updateAreaChoices = () => {
+            
             const areaSelectDom = document.getElementById('area-select');
+            const newAreaList = cities.value[selectedCityIndex1.value].AreaList;
+            console.log("newAreaList", newAreaList);
 
             if (!areaSelectDom) return;
 
+
+            // 3. 使用 setChoices 更新選項
+            // 參數解釋: (資料陣列, value欄位, label欄位, 是否取代舊資料)
+            areaSelectDom.setChoices(
+                newAreaList,
+                'AreaName', // 你的資料結構中，value 是 AreaName
+                'AreaName', // 你的資料結構中，顯示文字也是 AreaName
+                true        // ★關鍵：設為 true 代表「先清空舊選項，再加入新的」
+            );
+
+
+            //areaSelectDom.destroy();
+            //console.log("destroy")
+
             // 1. 如果舊的 Choices 實例存在，先銷毀它 (Destroy)
             // 這樣它會把隱藏的 <select> 還原，並移除舊的假選單
-            if (areaSelectDom._choicesInstance) {
-                areaSelectDom._choicesInstance.destroy();
-                areaSelectDom._choicesInstance = null;
-            }
+            //if (areaSelectDom._choicesInstance) {
+                
+            //    areaSelectDom._choicesInstance = null;
+                
+            //}
 
             // 2. 重新初始化 (Re-init)
             // 這時候 Choices.js 會看到 Vue 剛剛產生好的新 option，並建立正確的選單
