@@ -15,13 +15,93 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/choices.js@11.1.0/public/assets/styles/choices.min.css"
     />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.min.css"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div
       id="app"
       class="d-flex flex-column align-items-center gap-3 mt-3"
     ></div>
+
+    <div class="basic-info">
+      <!--公司統編-->
+      <div class="form-outline mt-4" data-mdb-input-init>
+        <input
+          type="text"
+          class="form-control"
+          maxlength="8"
+          id="GUI"
+          v-model.trim="u.c_taxid_no"
+        />
+        <label class="form-label" for="GUI">公司統編</label>
+      </div>
+      <!--公司登記名稱-->
+      <div class="form-outline mt-4" data-mdb-input-init>
+        <input
+          type="text"
+          id="c_name"
+          class="form-control"
+          v-model.trim="u.c_name"
+        />
+        <label class="form-label" for="c_name">公司登記名稱</label>
+      </div>
+      <!--公司電話-->
+      <div class="form-outline mt-4" data-mdb-input-init>
+        <input
+          type="text"
+          id="c_phone"
+          class="form-control"
+          v-model.trim="u.c_phone"
+        />
+        <label class="form-label" for="c_phone">公司電話</label>
+      </div>
+      <!--fake-->
+      <div
+        class="form-outline mt-4"
+        data-mdb-input-init
+        style="min-height: 60px"
+      >
+        <input
+          type="text"
+          id="c_phone"
+          class="form-control"
+          v-model.trim="u.c_phone"
+        />
+        <label class="form-label" for="c_phone">公司電話</label>
+      </div>
+    </div>
+    <div class="d-flex gap-4">
+      <div class="mt-4">營業型態(複選)</div>
+      <div class="form-check mt-4">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="flexCheck1"
+        />
+        <label class="form-check-label" for="flexCheck1"
+          >實體商店(offline)</label
+        >
+      </div>
+      <div class="form-check mt-4">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          value=""
+          id="flexCheck2"
+        />
+        <label class="form-check-label" for="flexCheck2">網路(online)</label>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/choices.js@11.1.0/public/assets/scripts/choices.min.js"></script>
     <script type="module" src="/src/main.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+    ></script>
   </body>
 </html>

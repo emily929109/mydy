@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick, onUnmounted } from "vue";
+import { ref, onMounted, nextTick, watch } from "vue";
 import axios from "axios";
 
 const cities = ref([]);
@@ -9,10 +9,36 @@ const selectedCityIndex1 = ref(null);
 
 let cityChoicesInstance = null; // 存放 Choices 實體
 let areaChoicesInstance = null;
+const currentTab = ref("profile");
 
 onMounted(() => {
   _initLoad();
 });
+
+// 4. 監聽 Tab 變動
+// 使用 async/await 寫法，邏輯由上而下非常直觀
+watch(
+  currentTab,
+  async (newValue, oldValue) => {
+    // A. 等待 Vue 完成 DOM 的切換 (舊的 v-if 消失，新的 v-if 出現)
+    await nextTick();
+
+    // B. 此時 DOM 已經存在了，執行 MDB 初始化
+    reinitMDB();
+  },
+  { immediate: true }
+);
+
+const reinitMDB = () => {
+  // 1. 抓出所有原本應該要有特效的 Input 包裹層
+  const inputWrappers = document.querySelectorAll(".form-outline");
+
+  inputWrappers.forEach((wrapper) => {
+    // 2. 直接用全域變數 mdb 實例化 Input 並執行 init()
+    // 這行程式碼 = 告訴 MDB "這裡有個 Input，請幫我把 Label 浮上去"
+    new mdb.Input(wrapper).init();
+  });
+};
 
 const _initLoad = async () => {
   cities.value = await _loadCityData();
@@ -129,6 +155,63 @@ const handleCityChange = async (which) => {
           {{ a.AreaName }}
         </option>
       </select>
+    </div>
+  </div>
+  <div class="container mt-5">
+    <div class="mb-4">
+      <input
+        type="radio"
+        class="form-check-input"
+        name="tab-options"
+        id="radio-tab-1"
+        autocomplete="off"
+        value="profile"
+        v-model="currentTab"
+      />
+      <label class="form-check-label" for="radio-tab-1">個人資料</label>
+
+      <input
+        type="radio"
+        class="form-check-input"
+        name="tab-options"
+        id="radio-tab-2"
+        autocomplete="off"
+        value="settings"
+        v-model="currentTab"
+      />
+      <label class="form-check-label" for="radio-tab-2">設定</label>
+
+      <input
+        type="radio"
+        class="form-check-input"
+        name="tab-options"
+        id="radio-tab-3"
+        autocomplete="off"
+        value="logs"
+        v-model="currentTab"
+      />
+      <label class="form-check-label" for="radio-tab-3">紀錄</label>
+    </div>
+
+    <div class="tab-content-wrapper p-4 border rounded">
+      <transition>
+        <div v-if="currentTab === 'profile'">
+          <div class="form-outline" data-mdb-input-init>
+            <input type="text" id="form12" class="form-control" />
+            <label class="form-label" for="form12">Example label</label>
+          </div>
+        </div>
+
+        <div v-else-if="currentTab === 'settings'">
+          <h4>系統設定</h4>
+          <p>這裡是 Radio Button 2 的內容。</p>
+        </div>
+
+        <div v-else-if="currentTab === 'logs'">
+          <h4>操作紀錄</h4>
+          <p>這裡是 Radio Button 3 的內容。</p>
+        </div>
+      </transition>
     </div>
   </div>
 </template>

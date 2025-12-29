@@ -1,0 +1,137 @@
+:root {
+  --mdb-primary: #00ab98;
+  --mdb-primary-rgb: 0, 171, 152; /* 只要數字，用逗號分開 */
+  --mdb-primary-text: #fff;
+}
+
+.v-enter-active {
+  transition: opacity 1s;
+}
+
+.v-enter-from {
+  opacity: 0;
+}
+
+.v-enter-to {
+  opacity: 1;
+}
+
+.v-leave-from,
+.v-leave-to {
+  display: none;
+}
+
+.basic-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 3rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/*------主題色 覆蓋mdb------*/
+/*radio*/
+.form-check-input:checked[type="radio"] {
+  border-color: var(--mdb-primary);
+  background-color: #fff;
+}
+
+.form-check-input:checked[type="radio"]:after {
+  border-color: var(--mdb-primary);
+  background-color: var(--mdb-primary);
+}
+
+.form-check-input:checked[type="checkbox"] {
+  border-color: var(--mdb-primary);
+  background-color: var(--mdb-primary);
+}
+
+.form-check-input:checked:focus:before {
+  box-shadow: 0px 0px 0px 13px hsl(173.33deg 100% 15.53% / 41%);
+}
+
+/*input*/
+.form-outline .form-control:focus {
+  border-color: var(--mdb-primary);
+  box-shadow: inset 0 0 0 1px var(--mdb-primary);
+  box-shadow: inset 0 0 0 1px var(--mdb-primary) !important; /* 模擬加粗邊框 */
+}
+
+.form-outline .form-control:focus ~ .form-label {
+  color: var(--mdb-primary);
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-leading,
+.form-outline .form-control:focus ~ .form-notch .form-notch-middle,
+.form-outline .form-control:focus ~ .form-notch .form-notch-trailing {
+  border-color: var(--mdb-primary);
+  /*        box-shadow: none;*/
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-middle {
+  border-top: none;
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-leading {
+  border-color: #3b71ca;
+  box-shadow: -1px 0 0 0 var(--mdb-primary), 0 1px 0 0 var(--mdb-primary),
+    0 -1px 0 0 var(--mdb-primary);
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-middle {
+  box-shadow: 0 1px 0 0 var(--mdb-primary);
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-trailing {
+  box-shadow: 1px 0 0 0 var(--mdb-primary), 0 -1px 0 0 var(--mdb-primary),
+    0 1px 0 0 var(--mdb-primary);
+}
+/*下拉*/
+/* --- 將 Choices.js 改造成 MDB 風格 --- */
+/* 1. 調整外框與背景 */
+.choices__inner {
+  background-color: transparent !important;
+  border: 1px solid #bdbdbd !important; /* MDB 預設灰 */
+  border-radius: 0.25rem !important; /* MDB 圓角 */
+  min-height: auto;
+  padding-top: 0.32rem;
+  padding-bottom: 0.32rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  transition: all 0.2s linear;
+}
+
+/* 2. 聚焦時的狀態 (MDB Primary Blue) */
+.is-focused .choices__inner {
+  border-color: var(--mdb-primary) !important; /* MDB 主要藍色 */
+  box-shadow: inset 0 0 0 1px var(--mdb-primary) !important; /* 模擬加粗邊框 */
+}
+
+/* 3. 下拉選單樣式 */
+.choices__list--dropdown {
+  border: 1px solid #e0e0e0 !important;
+  border-radius: 0.25rem !important;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); /* 增加陰影立體感 */
+  margin-top: 5px;
+  z-index: 1050; /* 確保蓋過其他元素 */
+}
+
+/* 4. 選項 Hover 效果 */
+.choices__list--dropdown .choices__item--selectable.is-highlighted {
+  background-color: #f5f5f5 !important; /* 淺灰背景 */
+  color: #000 !important;
+}
+
+/* 5. 修正右側箭頭 */
+.choices[data-type*="select-one"]::after {
+  border-color: #757575 transparent transparent transparent;
+  transition: 0.2s;
+}
+
+.choices.is-open[data-type*="select-one"]::after {
+  border-color: transparent transparent #3b71ca transparent; /* 開啟時變藍色 */
+}
+
+.choices__list--single {
+  padding: 0;
+}
