@@ -126,7 +126,6 @@ const handleBlur = (e) => {
     input.classList.remove("is-invalid");
     input.classList.add("is-valid"); // (選用) 加上綠框
   }
-  console.log("handleBlur");
 };
 
 const handleInput = (e) => {
@@ -238,49 +237,47 @@ const handleInput = (e) => {
 
   <div class="basic-info">
     <!--公司統編-->
-    <div class="form-outline mt-4" data-mdb-input-init>
-      <input
-        type="text"
-        class="form-control"
-        maxlength="8"
-        id="GUI"
-        v-model.trim="u.c_taxid_no"
-        @blur="handleBlur"
-        @input="handleInput"
-        required
-      />
-      <label class="form-label" for="GUI">公司統編</label>
-      <div class="invalid-feedback">此欄位為必填</div>
+    <div>
+      <div class="form-outline mt-4" data-mdb-input-init>
+        <input
+          type="text"
+          class="form-control"
+          maxlength="8"
+          id="GUI"
+          v-model.trim="u.c_taxid_no"
+          @blur="handleBlur"
+          @focus="handleInput"
+          required
+        />
+        <label class="form-label" for="GUI">公司統編</label>
+        <div class="invalid-feedback">此欄位為必填</div>
+      </div>
     </div>
+
     <!--公司登記名稱-->
-    <div class="form-outline mt-4" data-mdb-input-init>
-      <input
-        type="text"
-        id="c_name"
-        class="form-control"
-        v-model.trim="u.c_name"
-      />
-      <label class="form-label" for="c_name">公司登記名稱</label>
+    <div>
+      <div class="form-outline mt-4" data-mdb-input-init>
+        <input
+          type="text"
+          id="c_name"
+          class="form-control"
+          v-model.trim="u.c_name"
+        />
+        <label class="form-label" for="c_name">公司登記名稱</label>
+      </div>
     </div>
+
     <!--公司電話-->
-    <div class="form-outline mt-4" data-mdb-input-init>
-      <input
-        type="text"
-        id="c_phone"
-        class="form-control"
-        v-model.trim="u.c_phone"
-      />
-      <label class="form-label" for="c_phone">公司電話</label>
-    </div>
-    <!--fake-->
-    <div class="form-outline mt-4" data-mdb-input-init style="min-height: 60px">
-      <input
-        type="text"
-        id="c_phone"
-        class="form-control"
-        v-model.trim="u.c_phone"
-      />
-      <label class="form-label" for="c_phone">公司電話</label>
+    <div>
+      <div class="form-outline mt-4" data-mdb-input-init>
+        <input
+          type="text"
+          id="c_phone"
+          class="form-control"
+          v-model.trim="u.c_phone"
+        />
+        <label class="form-label" for="c_phone">公司電話</label>
+      </div>
     </div>
   </div>
   <div class="d-flex gap-4">
