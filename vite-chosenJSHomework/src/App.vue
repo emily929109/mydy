@@ -6,10 +6,10 @@ const cities = ref([]);
 const citySelectRef = ref(null);
 const areaSelectRef = ref(null);
 const selectedCityIndex1 = ref(null);
-
 let cityChoicesInstance = null; // 存放 Choices 實體
 let areaChoicesInstance = null;
 const currentTab = ref("profile");
+const u = ref({});
 
 onMounted(() => {
   _initLoad();
@@ -114,6 +114,27 @@ const handleCityChange = async (which) => {
   await nextTick();
   initAreaChoices();
 };
+
+const handleBlur = (e) => {
+  const input = e.target;
+
+  // 使用 HTML5 原生檢查 (會讀取 required 屬性)
+  if (!input.checkValidity()) {
+    input.classList.add("is-invalid"); // 加上這個 class，MDB 就會顯示紅框和錯誤訊息
+    input.classList.remove("is-valid");
+  } else {
+    input.classList.remove("is-invalid");
+    input.classList.add("is-valid"); // (選用) 加上綠框
+  }
+  console.log("handleBlur");
+};
+
+const handleInput = (e) => {
+  const input = e.target;
+  if (input.classList.contains("is-invalid")) {
+    input.classList.remove("is-invalid");
+  }
+};
 </script>
 
 <template>
@@ -212,6 +233,75 @@ const handleCityChange = async (which) => {
           <p>這裡是 Radio Button 3 的內容。</p>
         </div>
       </transition>
+    </div>
+  </div>
+
+  <div class="basic-info">
+    <!--公司統編-->
+    <div class="form-outline mt-4" data-mdb-input-init>
+      <input
+        type="text"
+        class="form-control"
+        maxlength="8"
+        id="GUI"
+        v-model.trim="u.c_taxid_no"
+        @blur="handleBlur"
+        @input="handleInput"
+        required
+      />
+      <label class="form-label" for="GUI">公司統編</label>
+      <div class="invalid-feedback">此欄位為必填</div>
+    </div>
+    <!--公司登記名稱-->
+    <div class="form-outline mt-4" data-mdb-input-init>
+      <input
+        type="text"
+        id="c_name"
+        class="form-control"
+        v-model.trim="u.c_name"
+      />
+      <label class="form-label" for="c_name">公司登記名稱</label>
+    </div>
+    <!--公司電話-->
+    <div class="form-outline mt-4" data-mdb-input-init>
+      <input
+        type="text"
+        id="c_phone"
+        class="form-control"
+        v-model.trim="u.c_phone"
+      />
+      <label class="form-label" for="c_phone">公司電話</label>
+    </div>
+    <!--fake-->
+    <div class="form-outline mt-4" data-mdb-input-init style="min-height: 60px">
+      <input
+        type="text"
+        id="c_phone"
+        class="form-control"
+        v-model.trim="u.c_phone"
+      />
+      <label class="form-label" for="c_phone">公司電話</label>
+    </div>
+  </div>
+  <div class="d-flex gap-4">
+    <div class="mt-4">營業型態(複選)</div>
+    <div class="form-check mt-4">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        value=""
+        id="flexCheck1"
+      />
+      <label class="form-check-label" for="flexCheck1">實體商店(offline)</label>
+    </div>
+    <div class="form-check mt-4">
+      <input
+        class="form-check-input"
+        type="checkbox"
+        value=""
+        id="flexCheck2"
+      />
+      <label class="form-check-label" for="flexCheck2">網路(online)</label>
     </div>
   </div>
 </template>
