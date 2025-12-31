@@ -70,10 +70,20 @@ const initChoices = () => {
     itemSelectText: "",
     shouldSort: false,
   });
+
+  //mdb validation和choice.js結合
+  const el = citySelectRef.value;
+  el.addEventListener("showDropdown", () => {
+    //必須使用showDropdown不能使用focus 因為原生select已經掛了
+    handleRequiredAtFocus(el);
+  });
+
+  el.addEventListener("hideDropdown", () => {
+    handleRequiredAtBlur(el);
+  });
 };
 
 const initAreaChoices = () => {
-  // A. 如果舊的實體存在，必須先銷毀！否則會重複綁定導致錯誤
   if (areaChoicesInstance) {
     areaChoicesInstance.destroy();
     areaChoicesInstance = null;
@@ -115,23 +125,26 @@ const handleCityChange = async (which) => {
   initAreaChoices();
 };
 
-const handleBlur = (e) => {
-  const input = e.target;
+const handleRequiredAtBlur = (eventOrSelect) => {
+  const element = eventOrSelect.target || eventOrSelect;
+  const targetToStyle = element.closest(".select-wrapper") || element; //找不到select-wrapper就退回用element
 
-  // 使用 HTML5 原生檢查 (會讀取 required 屬性)
-  if (!input.checkValidity()) {
-    input.classList.add("is-invalid"); // 加上這個 class，MDB 就會顯示紅框和錯誤訊息
-    input.classList.remove("is-valid");
+  if (!element.checkValidity()) {
+    // checkValidity為瀏覽器原生檢查
+    targetToStyle.classList.add("is-invalid"); // 此為MDBclass:顯示紅框和錯誤訊息
+    targetToStyle.classList.remove("is-valid");
   } else {
-    input.classList.remove("is-invalid");
-    input.classList.add("is-valid"); // (選用) 加上綠框
+    targetToStyle.classList.remove("is-invalid");
+    targetToStyle.classList.add("is-valid");
   }
 };
 
-const handleInput = (e) => {
-  const input = e.target;
-  if (input.classList.contains("is-invalid")) {
-    input.classList.remove("is-invalid");
+const handleRequiredAtFocus = (eventOrSelect) => {
+  const element = eventOrSelect.target || eventOrSelect;
+  const targetToStyle = element.closest(".select-wrapper") || element;
+
+  if (targetToStyle.classList.contains("is-invalid")) {
+    targetToStyle.classList.remove("is-invalid");
   }
 };
 </script>
@@ -140,11 +153,12 @@ const handleInput = (e) => {
   <div class="fs-4 fw-bold subtitle mb-3">公司登記地址</div>
   <div class="d-flex">
     <!-- 縣市 -->
-    <div class="field-wrapper mt-4">
+    <div class="select-wrapper mt-4">
       <select
         class="form-control js-choice"
         ref="citySelectRef"
         @change="handleCityChange(1)"
+        required
       >
         <option value="" placeholder>請選擇縣市</option>
         <option
@@ -155,9 +169,10 @@ const handleInput = (e) => {
           {{ c.CityName }}
         </option>
       </select>
+      <div class="invalid-feedback">此欄位為必填</div>
     </div>
     <!-- 區域 -->
-    <div class="field-wrapper mt-4">
+    <div class="select-wrapper mt-4">
       <select
         class="form-control js-choice"
         id="area-select"
@@ -245,8 +260,8 @@ const handleInput = (e) => {
           maxlength="8"
           id="GUI"
           v-model.trim="u.c_taxid_no"
-          @blur="handleBlur"
-          @focus="handleInput"
+          @blur="handleRequiredAtBlur"
+          @focus="handleRequiredAtFocus"
           required
         />
         <label class="form-label" for="GUI">公司統編</label>
