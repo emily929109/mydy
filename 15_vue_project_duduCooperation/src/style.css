@@ -8,29 +8,72 @@
   padding: 20px 0 200px 0;
 }
 
-.v-enter-active {
-  transition: opacity 1s;
+/* 共用文字 */
+.title {
+  margin: 1.5rem 0;
+  color: var(--color-primary);
 }
 
-.v-enter-from {
-  opacity: 0;
-}
-
-.v-enter-to {
-  opacity: 1;
-}
-
-.v-leave-from,
-.v-leave-to {
-  display: none;
+.subtitle {
+  margin: 1rem 0;
+  color: var(--color-primary);
+  grid-column: 1 / span 2;
 }
 
 .basic-info {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   column-gap: 3rem;
-  max-width: 900px;
-  margin: 0 auto;
+}
+
+/* ===============覆蓋mdb ===============*/
+.nav-tabs {
+  border-bottom: var(--mdb-nav-tabs-border-width) solid
+    var(--mdb-nav-tabs-border-color);
+}
+
+.choices[data-type*="select-one"] .choices__input {
+  display: none;
+}
+
+#headerapp {
+  padding: 1rem 2rem;
+}
+
+#headerapp.headerfixed .login-icon {
+  width: 140px;
+}
+
+.btn-primary {
+  --mdb-btn-bg: #00ab98;
+  --mdb-btn-color: #ffffff;
+  --mdb-btn-box-shadow: 0 4px 9px -4px rgba(0, 171, 152, 0.6);
+  --mdb-btn-hover-bg: #008f85;
+  --mdb-btn-focus-bg: #008f85;
+  --mdb-btn-active-bg: #008f85;
+  --mdb-btn-box-shadow-state: 0 8px 9px -4px rgba(0, 171, 152, 0.6),
+    0 4px 18px 0 rgba(0, 171, 152, 0.6);
+  display: block;
+  margin-left: auto;
+  max-width: 15rem;
+  width: 100%;
+  padding: 0.6rem 0;
+  font-size: 1rem;
+}
+
+label {
+  font-size: 1rem;
+}
+
+/*tab切換過度效果*/
+
+.tab-content > .tab-pane {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.tab-content > .active {
+  opacity: 1;
 }
 
 /*------主題色 覆蓋mdb------*/
@@ -157,16 +200,151 @@
 
 .choices .choices__inner {
   font-size: 0.875rem;
+  padding-left: 1.3rem;
 }
 
 .choices__placeholder {
   opacity: 1;
 }
 
-.field-wrapper {
+.select-wrapper {
   flex: 1 0 0;
 }
+/* ===============進度條 開始 ===============*/
+.section-progress {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  width: 100%;
+  height: 64px;
+  font-size: 12px;
+  background-color: rgb(255, 255, 255);
+  padding: 10px 15px;
+  box-shadow: rgb(221, 224, 235) 0px -1px 2px 0px;
+  box-sizing: border-box;
+  border-top: 1px solid rgb(227, 227, 227);
+  z-index: 10;
+}
 
+.progress-container {
+  display: flex;
+  -webkit-box-pack: justify;
+  -webkit-box-align: center;
+  align-items: center;
+  width: 100%;
+  max-width: 60rem;
+  margin: 0px auto;
+  padding: 0px;
+  height: 100%;
+  gap: 10px;
+}
+
+.progress {
+  width: 320px;
+}
+
+.progress-text {
+  color: var(--mdb-primary);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+  min-height: 0.01px;
+  margin: 0px 0px 0px 10px;
+  flex: 1 1 5%;
+  font-weight: bold;
+}
+
+.progress-container .progress-bar {
+  background-color: var(--mdb-primary);
+}
+
+.notice-message {
+  display: grid;
+  padding: 0 8px;
+  line-height: 150%;
+  /* grid-template-columns: auto 1fr; */
+  margin-top: 0.5rem;
+  color: var(--mdb-primary);
+}
+
+.verification-btn {
+  position: absolute;
+  top: 1.85rem;
+  right: 0;
+  transform: translateY(-50%);
+  border: none;
+  border-radius: 8px;
+  background-color: var(--color-green);
+  color: #fff;
+}
+
+/*    .btn-custom*/
+.btn-custom {
+  margin-left: auto;
+}
+
+button.btn.btn-custom {
+  width: 100%;
+  max-width: 150px;
+  margin: 1rem 0;
+  margin-left: auto;
+  display: block;
+  background-color: #00ab98;
+  color: #fff;
+  border-radius: 8px;
+}
+
+button.btn.btn-custom:focus {
+  box-shadow: none;
+}
+
+button.btn-custom:hover,
+button.btn-custom:focus {
+  background-color: #008f85;
+  color: #fff;
+  text-decoration: none;
+}
+
+/*==============rwd修正==============*/
+.section {
+  max-width: 1000px;
+}
+
+.copyright {
+  padding-bottom: 80px !important;
+}
+
+/*==============手機版==============*/
+
+@@media (max-width:576px) {
+  .basic-info > * {
+    grid-column: 1 / -1;
+  }
+
+  button.btn.btn-custom {
+    margin-right: auto;
+  }
+}
+
+/*transtion tab切換效果*/
+.v-enter-active {
+  transition: opacity 1s;
+}
+
+.v-enter-from {
+  opacity: 0;
+}
+
+.v-enter-to {
+  opacity: 1;
+}
+
+.v-leave-from,
+.v-leave-to {
+  display: none;
+}
+
+/*mdb validation*/
 .invalid-feedback::before {
   width: 1rem;
   height: 1rem;
@@ -183,7 +361,11 @@
   font-size: 1em;
 }
 
-/* 當 Choices 容器有 is-invalid 時，邊框變紅 */
+.select-wrapper .choices {
+  margin-bottom: 0;
+  transition: all 0.2s linear;
+}
+
 .select-wrapper.is-invalid .choices__inner {
   border-color: #dc3545 !important;
 }
@@ -192,17 +374,35 @@
   margin-bottom: 1rem;
 }
 
-/* 當 Choices 容器有 is-invalid 時，顯示下方的錯誤訊息 */
 .select-wrapper.is-invalid .invalid-feedback {
   display: block;
 }
 
-/* (選用) Valid 綠色樣式 */
-/* .choices.is-valid .choices__inner {
-  border-color: #198754; 
+.required-icon {
+  color: #dc4c64;
+  margin-right: 2px;
+}
+
+.select-wrapper .required-icon {
+  position: absolute;
+  top: 20%;
+  z-index: 0;
+  pointer-events: none;
+  margin-left: 12px;
+}
+
+/* 定義一個空的動畫，名字叫 onAutoFillStart */
+/* @keyframes onAutoFillStart {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
 } */
 
-.select-wrapper .choices {
-  margin-bottom: 0;
-  transition: all 0.2s linear;
-}
+/* 當 input 處於 autofill 狀態時，執行這個動畫 */
+/* input:-webkit-autofill {
+  animation-name: onAutoFillStart;
+  animation-duration: 0.1s; /* 時間極短，人眼無感 */
+/* } */
