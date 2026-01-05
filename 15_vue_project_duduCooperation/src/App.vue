@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, nextTick, watch, reactive } from "vue";
+import { ref, onMounted, nextTick, watch, reactive, computed } from "vue";
 import axios from "axios";
 
 const u = ref({});
@@ -33,14 +33,50 @@ const msg = reactive({
 });
 const prd_class = ref([]); //儲存回傳的產品類別資料
 const cities = ref([]); // 儲存api回傳的縣市資料
-const selectedCityIndex1 = ref(null);
-const selectedCityIndex2 = ref(null);
-const selectedCityIndex3 = ref(null);
-const selectedCityIndex4 = ref(null);
-const selectedAreaIndex1 = ref(null);
-const selectedAreaIndex2 = ref(null);
-const selectedAreaIndex3 = ref(null);
-const selectedAreaIndex4 = ref(null);
+const selectedCityIndex1 = computed(() =>
+  cities.value.findIndex((item) => item.CityName === u.value.c_city)
+);
+watch(selectedCityIndex1, async (newIndex) => {
+  await nextTick();
+  areaChoicesInstance = _initSingleChoice(
+    areaChoicesInstance,
+    areaSelectRef.value
+  );
+});
+
+const selectedCityIndex2 = computed(() =>
+  cities.value.findIndex((item) => item.CityName === u.value.c_contact_city)
+);
+watch(selectedCityIndex2, async (newIndex) => {
+  await nextTick();
+  areaChoicesInstance2 = _initSingleChoice(
+    areaChoicesInstance2,
+    areaSelectRef2.value
+  );
+});
+
+const selectedCityIndex3 = computed(() =>
+  cities.value.findIndex((item) => item.CityName === u.value.p_city)
+);
+watch(selectedCityIndex3, async (newIndex) => {
+  await nextTick();
+  areaChoicesInstance3 = _initSingleChoice(
+    areaChoicesInstance3,
+    areaSelectRef3.value
+  );
+});
+
+const selectedCityIndex4 = computed(() =>
+  cities.value.findIndex((item) => item.CityName === u.value.p_contact_city)
+);
+watch(selectedCityIndex4, async (newIndex) => {
+  await nextTick();
+  areaChoicesInstance4 = _initSingleChoice(
+    areaChoicesInstance4,
+    areaSelectRef4.value
+  );
+});
+
 const citySelectRef = ref(null);
 const areaSelectRef = ref(null);
 const citySelectRef2 = ref(null);
@@ -62,6 +98,7 @@ let areaChoicesInstance4 = null;
 let prdChoicesInstance = null;
 let prdChoicesInstance2 = null;
 const ubnErrorStatus = ref("");
+const idErrorStatus = ref("");
 
 onMounted(() => {
   nextTick();
@@ -206,11 +243,12 @@ const initChoices = () => {
 };
 
 const _initSingleChoice = (currentInstance, domRef) => {
-  if (!domRef) return null; // A. 【安全機制】如果 DOM 不存在 (例如被 v-if 藏起來)，直接回傳 null 避免報錯
+  if (!domRef) return null;
 
   if (currentInstance) {
-    currentInstance.destroy(); // B. 【銷毀機制】如果實體已經存在，先銷毀它，避免 "Already initialised" 錯誤
+    currentInstance.destroy();
   }
+
   const DEFAULT_CHOICES_OPTIONS = {
     searchEnabled: false,
     itemSelectText: "",
@@ -220,7 +258,6 @@ const _initSingleChoice = (currentInstance, domRef) => {
 
   domRef.addEventListener("showDropdown", () => handleRequiredAtFocus(domRef));
   domRef.addEventListener("hideDropdown", () => handleRequiredAtBlur(domRef));
-
   return newInstance;
 };
 
@@ -260,7 +297,6 @@ const next = async (_u) => {
   console.log(_u);
   if (Object.keys(_u).length === 0) {
     alert("請填寫資料");
-    console.log("hi");
     return;
   }
 
@@ -312,7 +348,6 @@ const next = async (_u) => {
       // !msg.c_product_class
       validateUBN(_u.c_taxid_no) === true
     ) {
-      console.log("here is the right way");
       // console.log(validateUBN(_u.c_taxid_no));
       // var result = await _checkApplyed("公司法人", _u.c_taxid_no);
       // console.log(result);
@@ -320,7 +355,6 @@ const next = async (_u) => {
       //   _u.random_id = generateRandomString(16);
       //   localStorage.removeItem("dudu_dealerContact");
       //   localStorage.setItem("dudu_dealerContact", JSON.stringify(_u));
-
       //var _r = getUrlParameter('r');//隨機碼
       //if (_r !== 'null')//補件
       //    window.location.href = '../Home/DealerContact_PinCharge?r=' + _r;
@@ -432,15 +466,15 @@ const handleRequiredAtBlur = (eventOrSelect) => {
   const element = eventOrSelect.target || eventOrSelect;
   const targetToStyle = element.closest(".select-wrapper") || element; //找不到select-wrapper就退回用element
 
-  if (!element.checkValidity() && element.id !== "GUI") {
+  if (!element.checkValidity() && element.id !== "GUI" && element.id !== "ID") {
     // checkValidity為瀏覽器原生檢查
     targetToStyle.classList.add("is-invalid"); // 此為MDBclass:顯示紅框和錯誤訊息
-  } else if (element.id !== "GUI") {
+  } else if (element.id !== "GUI" && element.id !== "ID") {
     targetToStyle.classList.remove("is-invalid");
   } else if (element.id === "GUI") {
     validateUBN(element.value);
   } else if (element.id === "ID") {
-    validateID(eventOrSelect);
+    validateID(element.value);
   }
 };
 
@@ -451,13 +485,11 @@ const handleRequiredAtFocus = (eventOrSelect) => {
   if (targetToStyle.classList.contains("is-invalid")) {
     targetToStyle.classList.remove("is-invalid");
 
-    // 2. 新增判斷：若同時包含 form-check，則遍歷所有兄弟元素並移除 is-invalid
+    // checkbox打勾一個就全部有效
     if (targetToStyle.classList.contains("form-check-input")) {
-      // 取得父元素下的所有子元素 (HTMLCollection)
       const siblings = targetToStyle.parentElement.children;
 
       for (let sibling of siblings) {
-        // 這裡不需要特別排除 targetToStyle 自己，因為多 remove 一次也不會報錯，且程式碼更簡潔
         sibling.classList.remove("is-invalid");
       }
     }
@@ -490,7 +522,6 @@ const handleRequiredAtFocus = (eventOrSelect) => {
 // };
 
 const validateUBN = (value) => {
-  // 先檢查是否為空
   if (value === "") {
     ubnErrorStatus.value = "case1";
     return false;
@@ -527,13 +558,9 @@ const validateUBN = (value) => {
   }
 };
 
-const validateID = (e) => {
-  const value = e.target.value.trim();
-  const error = e.target.parentElement.querySelector(".invalid-feedback");
-
+const validateID = (value) => {
   if (value === "") {
-    e.target.classList.add("is-invalid");
-    error.textContent = "此欄位為必填";
+    idErrorStatus.value = "case1";
     return;
   }
 
@@ -543,13 +570,11 @@ const validateID = (e) => {
     ) ||
     taiwanIdValidator.isResidentCertificateNumberValid(value.toUpperCase())
   ) {
-    e.target.classList.remove("is-invalid");
-    error.textContent = "";
-    console.log("ID格式正確");
+    idErrorStatus.value = "";
+    return;
   } else {
-    e.target.classList.add("is-invalid");
-    error.textContent = "身分證字號格式錯誤";
-    console.log("ID格式錯誤");
+    idErrorStatus.value = "case2";
+    return;
   }
 };
 </script>
@@ -609,10 +634,7 @@ const validateID = (e) => {
                   @focus="ubnErrorStatus = ''"
                   @keyup.enter="$event.target.blur()"
                 />
-                <label
-                  class="form-label"
-                  for="GUI"
-                  :class="{ active: u.c_taxid_no }"
+                <label class="form-label" for="GUI"
                   ><span class="required-icon">*</span>公司統編</label
                 >
                 <!-- <div class="invalid-feedback">此欄位為必填</div> -->
@@ -728,12 +750,7 @@ const validateID = (e) => {
                 class="select-wrapper position-relative"
                 :class="{ 'is-invalid': msg.c_city }"
               >
-                <select
-                  ref="citySelectRef"
-                  @change="handleCityChange(1)"
-                  v-model="u.c_city"
-                  required
-                >
+                <select ref="citySelectRef" v-model="u.c_city" required>
                   <option value="" placeholder>請選擇縣市</option>
                   <option
                     v-for="(c, index) in cities"
@@ -800,7 +817,6 @@ const validateID = (e) => {
               >
                 <select
                   ref="citySelectRef2"
-                  @change="handleCityChange(2)"
                   v-model="u.c_contact_city"
                   required
                 >
@@ -1016,20 +1032,27 @@ const validateID = (e) => {
                 <input
                   type="text"
                   class="form-control"
-                  :class="{ 'is-invalid': msg.p_idno }"
+                  :class="{
+                    'is-invalid': idErrorStatus !== '',
+                    active: u.p_idno,
+                  }"
                   id="ID"
                   maxlength="10"
                   v-model="u.p_idno"
                   @blur="handleRequiredAtBlur"
-                  @focus="handleRequiredAtFocus"
+                  @focus="idErrorStatus = ''"
                   required
                   @keyup.enter="$event.target.blur()"
-                  @change="validateID"
                 />
                 <label class="form-label" for="ID"
                   ><span class="required-icon">*</span>身分證字號</label
                 >
-                <div class="invalid-feedback">此欄位為必填</div>
+                <div class="invalid-feedback" v-if="idErrorStatus === 'case1'">
+                  此欄位為必填
+                </div>
+                <div class="invalid-feedback" v-if="idErrorStatus === 'case2'">
+                  身分證字號格式錯誤
+                </div>
               </div>
             </div>
             <!-- 姓名 -->
@@ -1038,7 +1061,7 @@ const validateID = (e) => {
                 <input
                   type="text"
                   class="form-control"
-                  :class="{ 'is-invalid': msg.p_name }"
+                  :class="{ 'is-invalid': msg.p_name, active: u.p_name }"
                   id="idno"
                   maxlength="10"
                   v-model="u.p_name"
@@ -1059,7 +1082,7 @@ const validateID = (e) => {
                 <input
                   type="text"
                   class="form-control"
-                  :class="{ 'is-invalid': msg.p_phone }"
+                  :class="{ 'is-invalid': msg.p_phone, active: u.p_phone }"
                   id="p_phone"
                   v-model="u.p_phone"
                   @blur="handleRequiredAtBlur"
@@ -1105,12 +1128,7 @@ const validateID = (e) => {
                 class="select-wrapper position-relative"
                 :class="{ 'is-invalid': msg.p_city }"
               >
-                <select
-                  ref="citySelectRef3"
-                  @change="handleCityChange(3)"
-                  v-model="u.p_city"
-                  required
-                >
+                <select ref="citySelectRef3" v-model="u.p_city" required>
                   <option value="" placeholder>請選擇縣市</option>
                   <option
                     v-for="(c, index) in cities"
@@ -1152,7 +1170,7 @@ const validateID = (e) => {
                   type="text"
                   id="c_address2"
                   class="form-control"
-                  :class="{ 'is-invalid': msg.p_address }"
+                  :class="{ 'is-invalid': msg.p_address, active: u.p_address }"
                   v-model.trim="u.p_address"
                   @blur="handleRequiredAtBlur"
                   @focus="handleRequiredAtFocus"
@@ -1177,7 +1195,6 @@ const validateID = (e) => {
               >
                 <select
                   ref="citySelectRef4"
-                  @change="handleCityChange(4)"
                   v-model="u.p_contact_city"
                   required
                 >
@@ -1225,7 +1242,10 @@ const validateID = (e) => {
                   type="text"
                   id="c_contact_addr2"
                   class="form-control"
-                  :class="{ 'is-invalid': msg.p_contact_addr }"
+                  :class="{
+                    'is-invalid': msg.p_contact_addr,
+                    active: u.p_contact_addr,
+                  }"
                   v-model.trim="u.p_contact_addr"
                   @blur="handleRequiredAtBlur"
                   @focus="handleRequiredAtFocus"
@@ -1359,7 +1379,10 @@ const validateID = (e) => {
           <div class="form-outline mt-4" data-mdb-input-init>
             <textarea
               class="form-control"
-              :class="{ 'is-invalid': msg.p_dealer_desc }"
+              :class="{
+                'is-invalid': msg.p_dealer_desc,
+                active: u.p_dealer_desc,
+              }"
               id="textAreaExample"
               rows="4"
               v-model.trim="u.p_dealer_desc"
