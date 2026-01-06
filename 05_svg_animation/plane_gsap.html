@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plane with Dashed Trail</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/MotionPathPlugin.min.js"></script>
+    <style>
+      footer {
+        background-color: #006643;
+        padding: 50px 0 0 0;
+        background-image: linear-gradient(to top, #006643 0%, #257c5e 100%);
+        height: 200px;
+        position: relative;
+      }
+
+      .footer__plane-h {
+        position: relative;
+        width: 100%;
+        max-width: 672px;
+      }
+
+      .footer__plane-h svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        overflow: visible;
+      }
+    </style>
+  </head>
+  <body>
+    <footer>
+      <div class="footer__plane-h">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="672"
+          height="69"
+          viewBox="0 0 672 69"
+        >
+          <defs>
+            <path
+              id="the-flight-path"
+              d="M671.47,4.66h0s-33,17.79-89,36c-24.58,8-83,22-140,22-29.75,1.27-87.72-7.23-113-13-77-17.33-102.32-22-170-22-89.07,3.29-118,25-158,40"
+              fill="none"
+            />
+
+            <mask id="drawing-mask">
+              <use
+                id="mask-stroke"
+                href="#the-flight-path"
+                stroke="#fff"
+                stroke-width="5"
+                stroke-linecap="round"
+                pathLength="1"
+                stroke-dasharray="1"
+                stroke-dashoffset="1"
+              />
+            </mask>
+          </defs>
+
+          <use
+            href="#the-flight-path"
+            stroke="#769d8a"
+            stroke-width="2"
+            stroke-dasharray="15 10"
+            mask="url(#drawing-mask)"
+          />
+        </svg>
+
+        <div id="plane-h">
+          <svg width="52" height="44" viewBox="0 0 52 44">
+            <g id="plane">
+              <path
+                fill="#769d8a"
+                d="M51.4,4.9a2.41,2.41,0,0,0-1-1c-.3-.1-.5-.2-.8-.3-3-.9-7.2,1.1-10.5,2.8H39c-.1,0-2.2,1-5.4,2.6L17.6.3A3,3,0,0,0,15,.3l-1.7.9a2,2,0,0,0-.9,2.7c.3.1.4.3.6.4l8.6,8.2.2.2,1.5,2.2L16,19.4,7.8,17.9a.75.75,0,0,0-.5.1H7.2a1.37,1.37,0,0,0-.8,1A1.83,1.83,0,0,0,7,20.7l3.1,3a6.6,6.6,0,0,0-1.6,2.8,1.68,1.68,0,0,0,.9,1.8,7.31,7.31,0,0,0,3.3.3l.8,4.3a1.63,1.63,0,0,0,1.1,1.3l.3.1h0c.7.2,1.2-.5,4.9-8.3l7.8-3.6,1,2.5c0,.1.1.2.1.3l2,11.7a2.09,2.09,0,0,0,1.1,1.5,2.12,2.12,0,0,0,1.9,0l1.7-.9a2.63,2.63,0,0,0,1.4-2.1l1.7-18.1,5.3-2.6h0C47.2,13,51,10,51.9,7.1c.1-.3.1-.6.2-.8C51.8,5.8,51.7,5.3,51.4,4.9Zm-28.3,7a.78.78,0,0,0-.4-.4L14.1,3.2a.6.6,0,0,1-.1-.4c0-.1.1-.2.2-.3l1.7-.9a.91.91,0,0,1,1,0L32,9.9l-7.2,4.2Zm-15,7.8,6.1,1.1-2.9,2ZM14.9,32l-.7-3.7L17.4,27C16.4,28.9,15.5,30.8,14.9,32Zm19.9,3.3a.79.79,0,0,1-.5.8l-1.7.9a.44.44,0,0,1-.5-.1v-.2L30,25a1.42,1.42,0,0,0-.2-.6l-1-2.6,7.6-3.7ZM50,6.6c-.7,2.3-4.1,5-7.2,6.6L37.2,16h0l-9.7,4.7h0l-7,3.2-7.4,3a7.08,7.08,0,0,1-2.9,0H10a6.11,6.11,0,0,1,1.3-2.2l6.1-4.2.1-.1,7.4-4.5h0l9.2-5.4h0l.2-.1c3.2-1.7,5.5-2.7,5.5-2.7h.1c2.9-1.4,7-3.4,9.3-2.7.2.1.4.1.5.2l.3.3V6.6Z"
+              />
+              <path
+                fill="#769d8a"
+                d="M11.4,5.2a.84.84,0,0,0-1.1-.4L.8,9.9A.73.73,0,0,0,.5,11a1,1,0,0,0,.5.4H1a.66.66,0,0,0,.6-.1l9.6-5.1A.78.78,0,0,0,11.4,5.2Z"
+              />
+              <path
+                fill="#769d8a"
+                d="M7,12.8a.81.81,0,0,0,.5,1.1.62.62,0,0,0,.7-.1l5.9-3.3a.8.8,0,0,0,.3-1.1A.84.84,0,0,0,13.3,9h0L7.4,12.3A1,1,0,0,0,7,12.8Z"
+              />
+              <path
+                fill="#769d8a"
+                d="M15.8,15l2.1-1.1a.83.83,0,0,0,.2-1.2.78.78,0,0,0-1-.3L15,13.5a1,1,0,0,0-.4.5.8.8,0,0,0,.6,1A.63.63,0,0,0,15.8,15Z"
+              />
+              <path
+                fill="#769d8a"
+                d="M27.8,37.5l-9.6,5.1a1,1,0,0,0-.4.5.83.83,0,0,0,.5,1h0a.66.66,0,0,0,.6-.1l9.6-5.1a.83.83,0,0,0,.3-1.1,1,1,0,0,0-1-.3Z"
+              />
+              <path
+                fill="#769d8a"
+                d="M19.5,36.3a.83.83,0,0,0,.5,1h0a.64.64,0,0,0,.6,0l6.1-3a.83.83,0,0,0,.3-1.1.78.78,0,0,0-1-.3l-6,3C19.8,35.8,19.6,36,19.5,36.3Z"
+              />
+              <path
+                fill="#769d8a"
+                d="M23.9,30.2,26,29.1a.8.8,0,0,0,.3-1.1.84.84,0,0,0-1.1-.4h0l-2.1,1.1a.8.8,0,0,0-.3,1.1,1,1,0,0,0,.5.4C23.5,30.4,23.7,30.3,23.9,30.2Z"
+              />
+            </g>
+          </svg>
+        </div>
+      </div>
+    </footer>
+    <script>
+      gsap.registerPlugin(MotionPathPlugin);
+
+      const tl = gsap.timeline({
+        repeat: -1,
+        defaults: { ease: "power1.inOut", duration: 3 },
+      });
+
+      // 1. 遮罩動畫：讓遮罩裡面的線條從 1 (隱藏) 變成 0 (顯示)
+      tl.to(
+        "#mask-stroke",
+        {
+          strokeDashoffset: 0,
+        },
+        "start"
+      );
+
+      // 2. 飛機動畫：跟隨路徑
+      tl.to(
+        "#plane-h",
+        {
+          motionPath: {
+            path: "#the-flight-path",
+            align: "#the-flight-path",
+            alignOrigin: [0.5, 0.5],
+            autoRotate: true,
+            autoRotate: 20,
+            // 修正：路徑資料是從「右到左」，所以 start:0 (右) -> end:1 (左) 才是順向
+            // 如果你堅持要左到右，需要反轉 SVG 座標或用 scale(-1, 1)
+            start: 0,
+            end: 1,
+          },
+        },
+        "start"
+      );
+    </script>
+  </body>
+</html>
