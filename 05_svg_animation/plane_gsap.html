@@ -94,10 +94,10 @@
       const path = document.querySelector("#plane-path");
       const pathLength = path.getTotalLength();
 
-      gsap.set(path, {
-        strokeDasharray: pathLength,
-        strokeDashoffset: -pathLength,
-      });
+      // gsap.set(path, {
+      //   strokeDasharray: pathLength,
+      //   // strokeDashoffset: -pathLength,
+      // });
 
       const tl = gsap.timeline({
         repeat: 4, //總共跑 5 次
@@ -130,8 +130,7 @@
         path,
         {
           strokeDasharray: pathLength,
-          strokeDashoffset: -pathLength, // 起始：推開實線（隱藏）
-          visibility: "visible", // 確保元素是可見的
+          strokeDashoffset: -pathLength,
         },
         {
           duration: 3,
