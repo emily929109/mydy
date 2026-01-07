@@ -13,7 +13,6 @@
       .plane-wrapper {
         position: relative;
         height: 69px;
-        /* transform: scale(0.5); */
       }
 
       .plane-path {
@@ -97,7 +96,7 @@
 
       gsap.set(path, {
         strokeDasharray: pathLength,
-        strokeDashoffset: -pathLength,
+        strokeDashoffset: pathLength,
       });
 
       const tl = gsap.timeline({
