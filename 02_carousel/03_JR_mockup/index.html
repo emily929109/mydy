@@ -10,6 +10,7 @@
     />
 
     <style>
+      /* 共用css */
       body {
         height: 100vh;
         width: 100%;
@@ -21,6 +22,7 @@
         object-fit: cover;
       }
 
+      /* swiper css */
       .wrapper {
         max-width: 900px;
         margin: 0 auto;
@@ -32,6 +34,212 @@
         height: 100%;
         overflow: visible;
         position: relative;
+      }
+
+      .swiper-slide {
+        transform: scale(1);
+        opacity: 1;
+        background-color: #fff;
+        transition-property: transform, opacity;
+        transition-duration: 0.3s;
+      }
+
+      .swiper-container .swiper-slide a:hover {
+        opacity: 0.7;
+      }
+
+      @media only screen and (max-width: 750px) {
+        .swiper-container .swiper-slide {
+          transition-duration: 0.8s;
+        }
+      }
+      /* .swiper-slide-prev,
+      .swiper-slide-next {
+        transform: scale(0.7);
+        transition-duration: 0.7s;
+        transition-delay: 0.2s;
+      } */
+
+      .swiper-slide-prev,
+      .swiper-slide-next {
+        transform: scale(0.7);
+        opacity: 1;
+        background-color: #fff;
+        transition-property: transform, opacity;
+        transition-duration: 0.3s;
+      }
+
+      .swiper-container .swiper-slide.swiper-slide-next img,
+      .swiper-container .swiper-slide.swiper-slide-prev img {
+        opacity: 0.4;
+      }
+
+      @media only screen and (max-width: 750px) {
+        .swiper-container .swiper-slide.swiper-slide-next,
+        .swiper-container .swiper-slide.swiper-slide-prev {
+          transition-duration: 0.7s;
+          transition-delay: 0.2s;
+        }
+      }
+
+      .swiper-container .swiper-slide.swiper-slide-prev {
+        right: -50px;
+      }
+
+      .swiper-container .swiper-slide.swiper-slide-next {
+        left: -50px;
+      }
+
+      @media only screen and (max-width: 750px) {
+        .swiper-container .swiper-slide.swiper-slide-next {
+          left: 0;
+        }
+        .swiper-container .swiper-slide.swiper-slide-prev {
+          right: 0;
+        }
+      }
+
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-pagination {
+        position: absolute;
+        bottom: max(-5.55555555vw, -50px);
+        left: 0;
+        right: 0;
+        margin: auto;
+        text-align: center;
+      }
+      @media only screen and (max-width: 750px) {
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-pagination {
+          bottom: -8vw;
+          width: calc(100% - 20.2666666666vw);
+        }
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-pagination-bullet {
+        display: inline-block;
+        opacity: 1;
+        background-color: #d2d2d2;
+        border-radius: 50%;
+        width: min(1.5555555556vw, 14px);
+        height: min(1.5555555556vw, 14px);
+        cursor: pointer;
+      }
+      #mtp_mainVisual
+        .mtp_mainVisual_slider
+        .swiper-pagination-bullet
+        + .swiper-pagination-bullet {
+        margin-left: 15px;
+      }
+      @media only screen and (max-width: 750px) {
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-pagination-bullet {
+          width: 2.666666666vw;
+          height: 2.666666666vw;
+        }
+        #mtp_mainVisual
+          .mtp_mainVisual_slider
+          .swiper-pagination-bullet
+          + .swiper-pagination-bullet {
+          margin-left: 15px;
+        }
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-pagination-bullet-active {
+        background-color: #7aba7b;
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev,
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next {
+        z-index: 10;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        margin: auto 0;
+        border-radius: 100%;
+        width: min(7.77777777vw, 70px);
+        height: min(7.77777777vw, 70px);
+        background-color: rgba(255, 255, 255, 0.7);
+        box-shadow: 0px 0px 20px 2px rgba(0, 0, 0, 0.09);
+        cursor: pointer;
+      }
+      @media only screen and (max-width: 750px) {
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev,
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next {
+          bottom: -10.1333333333vw !important;
+          width: 10.1333333333vw;
+          height: 10.1333333333vw;
+        }
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev {
+        left: -100px;
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev::before,
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev::after {
+        content: "";
+        position: absolute;
+        top: calc(50% - min(0.2777777777vw, 2.5px));
+        left: min(2.555555555vw, 23px);
+        width: min(2.7777777778vw, 25px);
+        height: min(0.5555555556vw, 5px);
+        border-radius: 9999px;
+        background-color: #7aba7b;
+        transform-origin: min(0.2777777777vw, 2.5px) 50%;
+        pointer-events: none;
+      }
+      @media only screen and (max-width: 750px) {
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev::before,
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev::after {
+          left: 3.2vw;
+          width: 4vw;
+          height: 0.8vw;
+          transform-origin: 0.4vw 50%;
+        }
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev::before {
+        transform: rotate(45deg);
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev::after {
+        transform: rotate(-45deg);
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next {
+        right: -100px;
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next::before,
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next::after {
+        content: "";
+        position: absolute;
+        top: calc(50% - min(0.2777777777vw, 2.5px));
+        right: min(2.555555555vw, 23px);
+        width: min(2.7777777778vw, 25px);
+        height: min(0.5555555556vw, 5px);
+        border-radius: 9999px;
+        background-color: #7aba7b;
+        transform-origin: calc(100% - min(0.2777777777vw, 2.5px)) 50%;
+      }
+      @media only screen and (max-width: 750px) {
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next::before,
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next::after {
+          right: 3.2vw;
+          width: 4vw;
+          height: 0.8vw;
+          transform-origin: calc(100% - 0.4vw) 50%;
+        }
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next::before {
+        transform: rotate(45deg);
+      }
+      #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next::after {
+        transform: rotate(-45deg);
+      }
+      @media only screen and (max-width: 1120px) {
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev,
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next {
+          z-index: 0;
+          top: auto;
+          bottom: max(-7.777777777vw, -70px);
+          border-radius: 0;
+        }
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-prev {
+          left: 0;
+        }
+        #mtp_mainVisual .mtp_mainVisual_slider .swiper-button-next {
+          right: 0;
+        }
       }
     </style>
   </head>
@@ -63,32 +271,64 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
     <script>
       const swiper = new Swiper(".swiper-container", {
-        slidesPerView: "auto", // 關鍵：讓 Slide 寬度根據 CSS 設定，而非自動等分
-        // centeredSlides: true, // 關鍵：讓 active slide 永遠置中
-        loop: true, // 開啟循環
+        // slidesPerView: "auto", // 關鍵：讓 Slide 寬度根據 CSS 設定，而非自動等分
+        // // centeredSlides: true, // 關鍵：讓 active slide 永遠置中
+        // loop: true, // 開啟循環
 
-        // 這是解決你「下一張是空白」的關鍵參數
-        // 當 slidesPerView 設為 auto 時，Swiper 偶爾會算錯需要複製幾張 slide
-        // 手動設一個數字（例如 2 或 3），強迫它前後多複製幾張 slide 來填補空白
-        // loopedSlides: 3,
+        // // 這是解決你「下一張是空白」的關鍵參數
+        // // 當 slidesPerView 設為 auto 時，Swiper 偶爾會算錯需要複製幾張 slide
+        // // 手動設一個數字（例如 2 或 3），強迫它前後多複製幾張 slide 來填補空白
+        // // loopedSlides: 3,
 
-        spaceBetween: 20, // Slide 之間的間距
+        // spaceBetween: 20, // Slide 之間的間距
 
-        // If we need pagination
-        pagination: {
-          el: ".swiper-pagination",
-        },
+        // // If we need pagination
+        // pagination: {
+        //   el: ".swiper-pagination",
+        // },
 
-        // Navigation arrows
+        // // Navigation arrows
+        // navigation: {
+        //   nextEl: ".swiper-button-next",
+        //   prevEl: ".swiper-button-prev",
+        // },
+
+        // // (選填) 如果需要自動輪播
+        // autoplay: {
+        //   delay: 3000,
+        //   disableOnInteraction: false,
+        // },
+
+        observer: true,
+        observeParents: true,
         navigation: {
           nextEl: ".swiper-button-next",
           prevEl: ".swiper-button-prev",
         },
-
-        // (選填) 如果需要自動輪播
+        pagination: {
+          el: ".swiper-pagination",
+          type: "bullets",
+          clickable: true,
+        },
         autoplay: {
           delay: 3000,
+          pauseOnMouseEnter: true,
           disableOnInteraction: false,
+        },
+        effect: "slide",
+        speed: 1000,
+        spaceBetween: 0,
+        slidesPerGroup: 1,
+        centeredSlides: true,
+        slidesPerView: 1,
+        loop: true,
+        loopAdditionalSlides: 1,
+        simulateTouch: false,
+        breakpoints: {
+          750: {
+            simulateTouch: true,
+            speed: 700,
+          },
         },
       });
     </script>
