@@ -96,7 +96,7 @@
 
       gsap.set(path, {
         strokeDasharray: pathLength,
-        strokeDashoffset: pathLength,
+        strokeDashoffset: -pathLength,
       });
 
       const tl = gsap.timeline({
@@ -115,13 +115,31 @@
           start: 1,
           end: 0,
         },
-      }).to(
+      });
+
+      // to(
+      //   path,
+      //   {
+      //     duration: 3,
+      //     strokeDashoffset: 0,
+      //   },
+      //   0
+      // );
+
+      tl.fromTo(
         path,
         {
-          duration: 3,
-          strokeDashoffset: 0,
+          strokeDasharray: pathLength,
+          strokeDashoffset: -pathLength, // 起始：推開實線（隱藏）
+          visibility: "visible", // 確保元素是可見的
         },
-        0
+        {
+          duration: 3,
+          strokeDashoffset: 0, // 結束：拉回實線（顯示）
+          immediateRender: true, // 重要：強制 GSAP 在第一幀就渲染這個狀態，防止 iOS 閃爍
+          ease: "cubic-bezier(0.17, 0.02, 0.2, 1)",
+        },
+        0 // 與飛機同步開始
       );
     </script>
   </body>
