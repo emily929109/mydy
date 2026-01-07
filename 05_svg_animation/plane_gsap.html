@@ -13,27 +13,15 @@
       .plane-wrapper {
         position: relative;
         height: 69px;
+        /* transform: scale(0.5); */
       }
 
       .plane-path {
         position: absolute;
         top: 0;
         left: 0;
+        width: 80%;
       }
-
-      /* .plane-ani .plane-h {
-        position: absolute;
-        top: 60px;
-        left: 0;
-      }
-
-
-      .plane-ani .plane-h svg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        overflow: visible;
-      } */
 
       #plane-hidden-path {
         stroke-dasharray: 10;
@@ -124,7 +112,7 @@
           path: "#plane-path",
           align: "#plane-path",
           alignOrigin: [0.5, 0.5],
-          autoRotate: true,
+          autoRotate: 20,
           start: 1,
           end: 0,
         },
