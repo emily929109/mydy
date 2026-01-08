@@ -265,6 +265,42 @@
           gsap.set("#dot4", { rotation });
         },
       });
+
+      //       // 1. 定義數據配置 (差異化的部分放在這裡)
+      // const dotsConfig = [
+      //     { id: "#dot1", duration: 0.996, end: 0.166666, alignOrigin: [0, 1], startRot: -60 },
+      //     { id: "#dot2", duration: 1.998, end: 0.333333, alignOrigin: [0, 0], startRot: -120 },
+      //     { id: "#dot3", duration: 3.96,  end: 0.66666,  alignOrigin: [1, 0], startRot: -240 },
+      //     { id: "#dot4", duration: 4.998, end: 0.83333,  alignOrigin: [1, 1], startRot: -300 },
+      // ];
+
+      // // 2. 建立主時間軸 (只需設定一次 ScrollTrigger)
+      // const tl = gsap.timeline({
+      //     scrollTrigger: {
+      //         trigger: ".core-wrapper",
+      //         start: "top 80%",
+      //         toggleActions: "play none none none"
+      //     }
+      // });
+
+      // // 3. 迴圈生成動畫
+      // dotsConfig.forEach(dot => {
+      //     // 優化關鍵：直接設定初始角度，不需要在 onUpdate 裡計算
+      //     gsap.set(dot.id, { rotation: dot.startRot });
+
+      //     tl.to(dot.id, {
+      //         duration: dot.duration,
+      //         ease: "none",
+      //         rotation: 0, // 🔥 直接告訴 GSAP 從初始角度轉回 0 度，取代 onUpdate
+      //         motionPath: {
+      //             path: "#path",
+      //             align: "#path",
+      //             start: 0,
+      //             end: dot.end,
+      //             alignOrigin: dot.alignOrigin,
+      //         }
+      //     }, 0); // 🔥 重點：最後這個 '0' 代表所有動畫在時間軸的「第 0 秒」同時開始
+      // });
     </script>
   </body>
 </html>
