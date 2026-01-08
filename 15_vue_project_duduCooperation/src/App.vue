@@ -123,6 +123,7 @@ const _initLoad = async () => {
   u.value.p_contact_town = "\u00A0";
   u.value.c_product_class = "\u00A0";
   u.value.p_product_class = "\u00A0";
+  u.value.p_idno = "";
 
   // var res = await _getProductClass();
   // if (res.success) {
@@ -301,7 +302,10 @@ const next = async (_u) => {
   }
 
   if (_u.dealer_type == "公司法人") {
-    if (!_u.c_taxid_no || _u.c_taxid_no == "") msg.c_taxid_no = true;
+    console.log(_u.c_taxid_no);
+    validateUBN(_u.c_taxid_no);
+    if (!_u.c_taxid_no || _u.c_taxid_no == "" || !validateUBN(_u.c_taxid_no))
+      msg.c_taxid_no = true;
     else msg.c_taxid_no = false;
     if (!_u.c_city || _u.c_city == "\u00A0") msg.c_city = true;
     else msg.c_city = false;
@@ -370,6 +374,9 @@ const next = async (_u) => {
   }
 
   if (_u.dealer_type == "個人商家") {
+    console.log(u.value.p_idno);
+    validateID(u.p_idno);
+
     if (!_u.p_city || _u.p_city == "\u00A0") msg.p_city = true;
     else msg.p_city = false;
     if (!_u.p_town || _u.p_town == "\u00A0") msg.p_town = true;
@@ -391,7 +398,8 @@ const next = async (_u) => {
     else msg.p_dealer_type1 = false;
     if (_u.p_dealer_type2.length == 0) msg.p_dealer_type2 = true;
     else msg.p_dealer_type2 = false;
-    if (!_u.p_idno || _u.p_idno == "") msg.p_idno = true;
+    if (!_u.p_idno || _u.p_idno == "" || !validateID(_u.p_idno.toUpperCase()))
+      msg.p_idno = true;
     else msg.p_idno = false;
     if (!_u.p_name || _u.p_name == "") msg.p_name = true;
     else msg.p_name = false;
@@ -415,9 +423,11 @@ const next = async (_u) => {
       !msg.p_name &&
       !msg.p_phone &&
       !msg.p_product_class &&
-      taiwanIdValidator.isNationalIdentificationNumberValid(
-        _u.p_idno.toUpperCase()
-      )
+      validateID(_u.p_idno) === true
+      // taiwanIdValidator.isNationalIdentificationNumberValid
+      // (
+      //   _u.p_idno.toUpperCase()
+      // )
     ) {
       var result = await _checkApplyed("個人商家", _u.p_idno);
       console.log(result);
@@ -522,7 +532,7 @@ const handleRequiredAtFocus = (eventOrSelect) => {
 // };
 
 const validateUBN = (value) => {
-  if (value === "") {
+  if (!value || value === "") {
     ubnErrorStatus.value = "case1";
     return false;
   }
@@ -559,9 +569,9 @@ const validateUBN = (value) => {
 };
 
 const validateID = (value) => {
-  if (value === "") {
+  if (!value || value.trim() === "") {
     idErrorStatus.value = "case1";
-    return;
+    return false;
   }
 
   if (
@@ -571,10 +581,10 @@ const validateID = (value) => {
     taiwanIdValidator.isResidentCertificateNumberValid(value.toUpperCase())
   ) {
     idErrorStatus.value = "";
-    return;
+    return true;
   } else {
     idErrorStatus.value = "case2";
-    return;
+    return false;
   }
 };
 </script>
