@@ -14,6 +14,8 @@
       body {
         height: 100vh;
         width: 100%;
+        margin: 0;
+        padding: 0;
       }
 
       img {
@@ -32,7 +34,7 @@
       .swiper-container {
         width: 100%;
         height: 100%;
-        overflow: visible;
+        /* overflow: visible; */
         position: relative;
       }
 
@@ -60,8 +62,8 @@
         transition-delay: 0.2s;
       } */
 
-      .swiper-slide-prev,
-      .swiper-slide-next {
+      .wrapper .swiper-container .swiper-slide-prev,
+      .wrapper .swiper-container .swiper-slide-next {
         transform: scale(0.7);
         opacity: 1;
         background-color: #fff;
