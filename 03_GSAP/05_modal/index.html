@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>modal</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        height: 150vh;
+      }
+
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        width: 100%;
+        height: 100vh;
+        opacity: 0;
+        visibility: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .dimmer {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, 0.7);
+        cursor: pointer;
+        opacity: 0;
+      }
+
+      .modal-window {
+        width: 70%;
+        max-width: 600px;
+        height: 400px;
+        background: white;
+        border-radius: 10px;
+        opacity: 0;
+      }
+
+      button {
+        padding: 0.5rem 2rem;
+        margin: 1rem;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="show">Open</button>
+    <div class="modal">
+      <div class="dimmer"></div>
+      <div class="modal-window">
+        <button id="close">Close</button>
+      </div>
+    </div>
+    <script src="https://unpkg.co/gsap@3/dist/gsap.min.js"></script>
+    <script>
+      const show = document.getElementById("show");
+      const close = document.getElementById("close");
+      const modal = document.querySelector(".modal");
+      const dimmer = document.querySelector(".dimmer");
+      const modalWindow = document.querySelector(".modal-window");
+
+      gsap.set(modalWindow, { y: -100 });
+
+      const modalTl = gsap
+        .timeline({
+          paused: true,
+          onReverseComplete: () => {
+            document.body.style.overflow = "";
+            document.body.style.paddingRight = "";
+          },
+        })
+        .to(modal, { autoAlpha: 1, duration: 0.05 })
+        .to(dimmer, { opacity: 1, duration: 0.15 })
+        .to(modalWindow, { opacity: 1, y: 0, duration: 0.3 }, "<")
+        .reverse();
+
+      const toggleModal = (e) => {
+        e.stopPropagation();
+        // modalTl.reversed(!modalTl.reversed());
+        // ★關鍵邏輯：在切換前，先檢查「目前是否為反向(關閉)狀態」？
+        // 如果現在是 reversed (true)，代表接下來要「打開」
+        const willOpen = modalTl.reversed();
+
+        if (willOpen) {
+          // 1. 先算出卷軸寬度 (必須在 overflow: hidden 之前算)
+          const scrollBarWidth = getScrollbarWidth();
+
+          // 2. 如果真的有卷軸 (寬度 > 0)，就幫 body 加上 padding 撐住空間
+          if (scrollBarWidth > 0) {
+            document.body.style.paddingRight = `${scrollBarWidth}px`;
+          }
+          document.body.style.overflow = "hidden"; // 鎖住背景捲動
+          // === 準備打開 ===
+          modalTl.play(); // 正向播放
+        } else {
+          // === 準備關閉 ===
+
+          //   document.body.style.overflow = ""; // 解除鎖定
+          //   document.body.style.paddingRight = "";
+          modalTl.reverse(); // 反向播放
+        }
+      };
+
+      show.addEventListener("click", toggleModal);
+      close.addEventListener("click", toggleModal);
+      dimmer.addEventListener("click", toggleModal);
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && isModalOpen) {
+          toggleModal();
+        }
+      });
+
+      // 原理：視窗總寬度 (含卷軸) - 網頁內容寬度 (不含卷軸)
+      const getScrollbarWidth = () => {
+        return window.innerWidth - document.documentElement.clientWidth;
+      };
+    </script>
+  </body>
+</html>
