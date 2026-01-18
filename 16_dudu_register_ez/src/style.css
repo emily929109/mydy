@@ -1,0 +1,134 @@
+:root {
+  --color-green: #00af9a;
+  --color-dark-green: #028b7a;
+  --color-grey: #ebebeb;
+  --color-drak-grey: #cbc8c8;
+  --color-pink: #ff0000a3;
+}
+
+/*------ 共用文字 排版CSS 開始------*/
+.title {
+  color: var(--color-green);
+}
+
+.subtitle {
+}
+
+.wrapper {
+  max-width: 50rem;
+}
+
+.basic-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 3rem;
+}
+
+@media (max-width: 576px) {
+  .basic-info > * {
+    grid-column: 1 / -1;
+  }
+}
+
+/*------ 共用文字CSS 結束------*/
+
+/*------ 被mdb影響CSS 開始------*/
+#headerapp {
+  padding: 1rem 2rem;
+}
+
+#headerapp.headerfixed .login-icon {
+  width: 140px;
+}
+
+@media (max-width: 768px) {
+  .footer p[data-bs-toggle] {
+    font-size: 1.2rem !important;
+  }
+}
+/*------ 被mdb影響CSS 結束------*/
+/*input*/
+.form-outline .form-control:focus {
+  border-color: var(--color-green);
+  box-shadow: inset 0 0 0 1px var(--color-green);
+}
+
+.form-outline .form-control:focus ~ .form-label {
+  color: var(--color-green);
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-leading,
+.form-outline .form-control:focus ~ .form-notch .form-notch-middle,
+.form-outline .form-control:focus ~ .form-notch .form-notch-trailing {
+  border-color: var(--color-green);
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-middle {
+  border-top: none;
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-leading {
+  border-color: var(--color-green);
+  box-shadow: -1px 0 0 0 var(--color-green), 0 1px 0 0 var(--color-green),
+    0 -1px 0 0 var(--color-green);
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-middle {
+  box-shadow: 0 1px 0 0 var(--color-green);
+}
+
+.form-outline .form-control:focus ~ .form-notch .form-notch-trailing {
+  box-shadow: 1px 0 0 0 var(--color-green), 0 -1px 0 0 var(--color-green),
+    0 1px 0 0 var(--color-green);
+}
+
+.btn-primary {
+  --mdb-btn-bg: #00ab98;
+  --mdb-btn-color: #ffffff;
+  --mdb-btn-box-shadow: 0 4px 9px -4px rgba(0, 171, 152, 0.6);
+  --mdb-btn-hover-bg: #008f85;
+  --mdb-btn-focus-bg: #008f85;
+  --mdb-btn-active-bg: #008f85;
+  --mdb-btn-box-shadow-state: 0 8px 9px -4px rgba(0, 171, 152, 0.6),
+    0 4px 18px 0 rgba(0, 171, 152, 0.6);
+  display: block;
+  margin-left: auto;
+  max-width: 10rem;
+  width: 100%;
+  padding: 0.6rem 0;
+  font-size: 1rem;
+}
+
+.form-control:focus {
+  border-color: var(--color-green);
+  box-shadow: inset 0px 0px 0px 1px var(--color-green);
+}
+/*------ 覆蓋mdb CSS 結束------*/
+.required-icon {
+  color: #dc4c64;
+  margin-right: 2px;
+}
+
+.invalid-feedback::before {
+  width: 1rem;
+  height: 1rem;
+  content: "i";
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.5em;
+  height: 1.5em;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+  background-color: #dc4c64;
+  color: #fff;
+  font-size: 1em;
+}
+
+/* 強制讓有 datetimepicker class 的輸入框，Label 永遠保持浮起狀態 */
+.form-outline .datetimepicker ~ .form-label {
+  transform: translateY(-1rem) translateY(0.1rem) scale(0.8);
+  background-color: #fff;
+  padding: 0 0.2rem;
+  color: var(--color-green); /* 或你想要的顏色 */
+}
