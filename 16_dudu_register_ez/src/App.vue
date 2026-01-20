@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted, nextTick, watch, reactive, computed } from "vue";
+import { Input, initMDB } from "mdb-ui-kit";
 
 const u = ref({
   id: "",
@@ -12,7 +13,16 @@ const msg = reactive({
 });
 const idErrorStatus = ref("");
 
-onMounted(() => {});
+onMounted(() => {
+  initMDB({ Input });
+  flatpickr("#datepicker", {
+    onClose: function (selectedDates, dateStr, instance) {
+      // u.value.birthdate = dateStr;
+
+      handleRequiredAtBlur("birth");
+    },
+  });
+});
 
 const handleRequiredAtBlur = (fieldName) => {
   const value = u.value[fieldName];
@@ -79,17 +89,7 @@ const next = (_u) => {
   }
 };
 
-window.addEventListener("load", function () {
-  flatpickr("#datepicker");
-
-  // 2. 手動初始化 MDB Input (解決邊框不見的問題)
-  document.querySelectorAll(".form-outline").forEach((formOutline) => {
-    // 確保 mdb 物件存在 (如果您是用 CDN 引入)
-    if (window.mdb && window.mdb.Input) {
-      new mdb.Input(formOutline).init();
-    }
-  });
-});
+window.addEventListener("load", function () {});
 </script>
 
 <template>
@@ -149,7 +149,7 @@ window.addEventListener("load", function () {
 
       <!-- 出生年月日 -->
       <div>
-        <div class="orm-outline mt-4" data-mdb-input-init>
+        <div class="form-outline mt-4" data-mdb-input-init>
           <!-- <label for="datepicker">Start Date</label> -->
           <input
             id="datepicker"

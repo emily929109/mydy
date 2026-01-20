@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "mdb-ui-kit": "^9.3.0",
     "vue": "^3.5.24"
   },
   "devDependencies": {
