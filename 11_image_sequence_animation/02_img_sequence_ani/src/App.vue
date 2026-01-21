@@ -16,7 +16,9 @@ const loadImages = () => {
     const img = new Image();
     const id = (i + 1).toString().padStart(2, "0");
     console.log(id);
-    img.src = `/${id}.png`;
+    // img.src = `/${id}.png`;
+    // 意思是：以目前這支程式檔案 (import.meta.url) 為基準，去抓同層級 images 資料夾裡的圖
+    img.src = new URL(`./images/${id}.png`, import.meta.url).href;
     images.push(img);
   }
   // console.log(images);
