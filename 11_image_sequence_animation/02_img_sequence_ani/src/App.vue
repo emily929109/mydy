@@ -3,90 +3,76 @@ import { ref, onMounted } from "vue";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 
-gsap.registerPlugin(ScrollTrigger);
-const canvasEl = ref(null);
-const frameCount = 59; // 假設 60 張圖
-const images = [];
-const imageFrame = { frame: 0 }; // 這是一個虛擬物件，用來給 GSAP 改變數值用
-let tween = null; // 用來存儲動畫實例
+// 1. 定義 Canvas 與 Context
+const myCanvas = ref(null);
+let ctx = null;
 
-// 預先載入圖片的函式 (避免捲動時閃爍)
-const loadImages = () => {
-  for (let i = 0; i < frameCount; i++) {
-    const img = new Image();
-    const id = (i + 1).toString().padStart(2, "0");
-    console.log(id);
-    // img.src = `/${id}.png`;
-    // 意思是：以目前這支程式檔案 (import.meta.url) 為基準，去抓同層級 images 資料夾裡的圖
-    img.src = new URL(`./images/${id}.png`, import.meta.url).href;
-    images.push(img);
-  }
-  // console.log(images);
-};
+// 2. 定義兩張圖片物件
+const imgBase = new Image();
+const imgTop = new Image();
 
-// const render = (ctx) => {
-//   // 畫出目前 frame 對應的那張圖
-//   // Math.round 確保我們取整數 (第1張, 第2張...)
-//   const index = Math.round(imageFrame.frame);
-//   if (images[index]) {
-//     // 清空畫布並繪製新圖
-//     ctx.clearRect(0, 0, canvasEl.value.width, canvasEl.value.height);
-//     ctx.drawImage(
-//       images[index],
-//       0,
-//       0,
-//       canvasEl.value.width,
-//       canvasEl.value.height,
-//     );
-//   }
-// };
+// 3. 定義動畫狀態 (progress 0 = 全顯示底圖, 1 = 全顯示上層圖)
+const animationState = { progress: 0 };
 
-const render = (ctx) => {
-  // 畫出目前 frame 對應的那張圖
-  // 清空畫布並繪製新圖
-  const index = Math.round(imageFrame.frame);
-  ctx.clearRect(0, 0, canvasEl.value.width, canvasEl.value.height);
-  ctx.drawImage(
-    images[index],
-    0,
-    0,
-    canvasEl.value.width,
-    canvasEl.value.height,
-  );
-};
+// 圖片路徑 (請換成您的圖片)
+const src1 = "./images/01.png";
+const src2 = "./images/02.png";
 
-onMounted(() => {
-  loadImages();
+onMounted(async () => {
+  // 初始化 Canvas Context
+  ctx = myCanvas.value.getContext("2d");
 
-  const canvas = canvasEl.value;
-  const ctx = canvas.getContext("2d");
-  canvas.width = 500;
-  canvas.height = 1000;
-  const duration = 3; // 如果你有60張圖，想呈現 30fps，duration 就是 2 秒 (60/30)
+  // 等待兩張圖片都載入完成才能畫 (這步最重要，Canvas 不能畫還沒載入的圖)
+  await Promise.all([loadImage(imgBase, src1), loadImage(imgTop, src2)]);
 
-  tween = gsap.to(imageFrame, {
-    frame: frameCount - 1,
-    snap: "frame", // 使frame只取整數
-    ease: "none",
-    duration: duration,
-    paused: true, // 預設先暫停，等待 ScrollTrigger 觸發
-
-    scrollTrigger: {
-      trigger: ".animation-wrapper",
-      start: "top 50%", // 當區塊頂部到達視窗中間位置時開始
-      end: "bottom top",
-      toggleActions: "play pause resume pause", // 滑進去就播放，滑出去暫停，滑回來繼續播
-      pin: false,
-    },
-    onUpdate: () => render(ctx),
-  });
+  // 一開始先畫一次初始狀態
+  render();
 });
+
+// --- 核心繪圖邏輯 (畫家) ---
+const render = () => {
+  // A. 清空畫布 (擦白板)
+  //clearRect(x, y, width, height)
+  ctx.clearRect(0, 0, myCanvas.value.width, myCanvas.value.height);
+
+  // B. 畫底圖 (永遠是不透明的)
+  // drawImage(image, x, y)
+  ctx.globalAlpha = 1;
+  ctx.drawImage(imgBase, 0, 0);
+
+  // C. 畫上層圖 (根據進度決定透明度)
+  // 這就是 Zingala 疊圖的秘密：globalAlpha
+  ctx.globalAlpha = animationState.progress;
+  ctx.drawImage(imgTop, 0, 0);
+};
+
+// --- 動畫控制邏輯 (導演) ---
+const animateToNext = () => {
+  gsap.to(animationState, {
+    progress: 1, // 目標：變成 1 (完全顯示上層圖)
+    duration: 1,
+    ease: "power2.out",
+    // 關鍵！GSAP 每算一次數值，就叫畫家重畫一次
+    onUpdate: render,
+  });
+};
+
+// --- 工具：圖片載入 Helper ---
+const loadImage = (imgObj, src) => {
+  return new Promise((resolve) => {
+    imgObj.onload = () => resolve();
+    imgObj.src = src;
+  });
+};
 </script>
 
 <template>
+  <div class="controls">
+    <button @click="animateToNext">切換到 B 圖</button>
+  </div>
   <div class="scroll-container">
     <div class="animation-wrapper">
-      <canvas ref="canvasEl"></canvas>
+      <canvas ref="myCanvas"></canvas>
     </div>
   </div>
 </template>
