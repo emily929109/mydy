@@ -4,3 +4,8 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+canvas#canvas {
+  border-radius: 1.3em;
+  border: 5px solid #7f7f7f;
+}
