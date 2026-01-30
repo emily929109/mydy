@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import gsap from "gsap";
 import parseAPNG from "apng-js";
 
-const img1Src = "/images/apng_v2.png";
+const img1Src = "./images/apng_v2.png";
 
 window.onload = function () {
   const canvas = document.querySelector("#canvas");
