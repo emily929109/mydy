@@ -242,6 +242,10 @@
           right: 0;
         }
       }
+
+      .wrapper .swiper-pagination-bullet-active {
+        background: red;
+      }
     </style>
   </head>
   <body>
@@ -268,61 +272,10 @@
         <div class="swiper-button-next"></div>
       </div>
     </div>
-    <!-- Slider main container -->
-    <!-- <div class="swiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">
-          <img src="https://picsum.photos/1550/600?random=1" />
-        </div>
-        <div class="swiper-slide">
-          <img src="https://picsum.photos/1550/600?random=2" />
-        </div>
-        <div class="swiper-slide">
-          <img src="https://picsum.photos/1550/600?random=3" />
-        </div>
-        <div class="swiper-slide">
-          <img src="https://picsum.photos/1550/600?random=4" />
-        </div>
-      </div>
-      <div class="swiper-pagination"></div>
-
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-button-next"></div>
-
-      <div class="swiper-scrollbar"></div>
-    </div> -->
 
     <script src="https://cdn.jsdelivr.net/npm/swiper@8/swiper-bundle.min.js"></script>
     <script>
       const swiper = new Swiper(".swiper", {
-        // slidesPerView: "auto", // 關鍵：讓 Slide 寬度根據 CSS 設定，而非自動等分
-        // // centeredSlides: true, // 關鍵：讓 active slide 永遠置中
-        // loop: true, // 開啟循環
-
-        // // 這是解決你「下一張是空白」的關鍵參數
-        // // 當 slidesPerView 設為 auto 時，Swiper 偶爾會算錯需要複製幾張 slide
-        // // 手動設一個數字（例如 2 或 3），強迫它前後多複製幾張 slide 來填補空白
-        // // loopedSlides: 3,
-
-        // spaceBetween: 20, // Slide 之間的間距
-
-        // // If we need pagination
-        // pagination: {
-        //   el: ".swiper-pagination",
-        // },
-
-        // // Navigation arrows
-        // navigation: {
-        //   nextEl: ".swiper-button-next",
-        //   prevEl: ".swiper-button-prev",
-        // },
-
-        // // (選填) 如果需要自動輪播
-        // autoplay: {
-        //   delay: 3000,
-        //   disableOnInteraction: false,
-        // },
-
         observer: true,
         observeParents: true,
         navigation: {
@@ -334,11 +287,11 @@
           type: "bullets",
           clickable: true,
         },
-        // autoplay: {
-        //   delay: 3000,
-        //   pauseOnMouseEnter: true,
-        //   disableOnInteraction: false,
-        // },
+        autoplay: {
+          delay: 3000,
+          pauseOnMouseEnter: true,
+          disableOnInteraction: false,
+        },
         effect: "slide",
         speed: 1000,
         spaceBetween: 0,
