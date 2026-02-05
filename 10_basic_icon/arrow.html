@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -116,15 +116,63 @@
         border-width: 0 2px 2px 0;
         transform: rotate(45deg);
       }
+
+      /*------------xx mark開始 ------------*/
+      .css-close-icon {
+        /* 1. 設定容器大小 */
+        display: inline-block;
+        width: 24px; /* 調整這裡改變整體大小 */
+        height: 24px;
+        position: relative; /* 讓偽元素可以定位 */
+        cursor: pointer; /* 滑鼠游標變成手指 */
+      }
+
+      /* 2. 繪製兩條線的共同樣式 */
+      .css-close-icon::before,
+      .css-close-icon::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 80%; /* 線條長度 (相對於容器) */
+        height: 3px; /* 線條粗細 */
+        background-color: #333; /* 線條顏色 */
+        border-radius: 5px; /* 讓線條頭尾圓潤 (像 FontAwesome) */
+        transition: all 0.3s ease; /* 增加互動動畫 */
+      }
+
+      .css-close-icon::before {
+        transform: translate(-50%, -50%) rotate(45deg);
+      }
+
+      .css-close-icon::after {
+        transform: translate(-50%, -50%) rotate(-45deg);
+      }
+
+      .css-close-icon:hover::before,
+      .css-close-icon:hover::after {
+        background-color: #ff0000; /* 滑鼠移過去變紅色 */
+      }
+
+      .css-close-icon:hover {
+        transform: rotate(90deg);
+        transition: transform 0.3s ease;
+      }
+      /*------------xx mark結束 ------------*/
     </style>
   </head>
   <body>
     <div class="arrow-line"></div>
     <div class="arrow-btn"></div>
+
+    <!-- checkbox -->
     <label class="checkbox-wrapper">
       <input type="checkbox" class="custom-checkbox" />
       <span class="checkmark"></span>
       禁用的選項
     </label>
+
+    <!-- xx amrk -->
+    <span class="css-close-icon"></span>
   </body>
 </html>
