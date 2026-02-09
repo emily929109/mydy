@@ -7,14 +7,16 @@ import * as bootstrap from "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 gsap.registerPlugin(ScrollTrigger);
-const img1Src = "./images/apng_v2.png";
-const img2Src = "./images/video2/apng_2.png";
-const img3Src = "./images/video3/apng_3.png";
+const img1Src = "/images/apng_v2.png";
+const img2Src = "/images/apng_2.png";
+// const img3Src = "/images/video3/apng_3.png";
+// const img3Src = "/images/video2/apng_3.png";
+const img3Src = "/images/apng_3.png";
 const apngList = [img1Src, img2Src, img3Src];
 
 onMounted(() => {});
 
-//將圖片轉換為純二進位數據
+//將圖片轉換為純二進位數據`
 async function getImgBuffer(url) {
   try {
     const response = await fetch(url);
@@ -25,39 +27,34 @@ async function getImgBuffer(url) {
   }
 }
 
-window.onload = function () {
-  // const canvas = document.querySelector("#canvas");
-  // const ctx = canvas.getContext("2d");
-  const playerMap = new Map();
+window.onload = async function () {
+  const playerMap = new Map(); //array不能儲存DOM元素作為key，會被轉換成字符串
 
-  apngList.forEach((src, index) => {
+  for (const [index, src] of apngList.entries()) {
     const canvasEl = document.getElementById(`canvas${index + 1}`);
 
     if (canvasEl) {
-      const ctx = canvasEl.getContext("2d");
-      const apng = initApngPlayer(src, ctx);
-    canvasEl.width = apng.width;
-    canvasEl.height = apng.height;
+      const ctx = canvasEl.getContext("2d", { willReadFrequently: true });
+      const apng = await initApngPlayer(src, ctx);
 
-    apng.numPlays = 2;
-    const player = await apng.getPlayer(ctx);
-    playerMap.set(canvas, player);
+      canvasEl.width = apng.width;
+      canvasEl.height = apng.height;
+      apng.numPlays = 2;
+      const player = await apng.getPlayer(ctx);
+      playerMap.set(canvasEl, player);
+      console.log(index);
 
-        ScrollTrigger.create({
-      trigger: canvasEl,
-      start: "top 50%", // 視窗的 50% 碰到元素的頂部時觸發 (等同 threshold 0.5)
-      end: "bottom top",
-      onEnter: () => player.play(),
-      onLeave: () => player.pause(),
-      onLeaveBack: () => player.pause(),
-      onEnterBack: () => player.play(),
-
-      // markers: true,
-    });
-
-      // console.log(`APNG Player ${index + 1} initialized!`);
+      ScrollTrigger.create({
+        trigger: canvasEl,
+        start: "top 50%", // 視窗的 50% 碰到元素的頂部時觸發 (等同 threshold 0.5)
+        end: "bottom top",
+        onEnter: () => player.play(),
+        onLeave: () => player.pause(),
+        onLeaveBack: () => player.pause(),
+        onEnterBack: () => player.play(),
+      });
     }
-  });
+  }
 
   //初始化apng
   async function initApngPlayer(url, ctx) {
@@ -66,30 +63,34 @@ window.onload = function () {
 
     const apng = parseAPNG(imgBuffer);
     return apng;
-
-
-
-
-
-    // Object.keys(options).forEach((key) => {
-    //   apng[key] = options[key];
-    // });
-
-
   }
-
-  // initApngPlayer(img1Src, ctx);
 };
 </script>
 
 <template>
-  <div style="min-height: 1200px"></div>
-  <div class="fs-1">簡單一掃 即可付款</div>
-  <canvas id="canvas1"></canvas>
-  <div class="fs-1">繳帳單也能很輕鬆</div>
-  <canvas id="canvas2"></canvas>
-  <div class="fs-1">快速結帳 無需等待</div>
-  <canvas id="canvas3"></canvas>
+  <div class="wrapper mt-5">
+    <div class="d-flex video-wrapper justify-center">
+      <div class="video-wrapper-img">
+        <canvas id="canvas1"></canvas>
+      </div>
+      <div class="video-wrapper-txt fs-1">簡單一掃 即可付款</div>
+    </div>
+    <div class="d-flex video-wrapper justify-center">
+      <div class="video-wrapper-txt fs-1">繳帳單也能很輕鬆</div>
+      <div class="video-wrapper-img">
+        <canvas id="canvas2"></canvas>
+      </div>
+    </div>
+    <div class="d-flex video-wrapper justify-center">
+      <div class="video-wrapper-img">
+        <canvas id="canvas3"></canvas>
+      </div>
+
+      <div class="video-wrapper-txt fs-1">快速結帳 無需等待</div>
+    </div>
+  </div>
+
+  <!-- <img src="/images/video3/apng_3.png" /> -->
 </template>
 
 <style scoped>

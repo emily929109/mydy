@@ -1,11 +1,37 @@
-body {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-canvas#canvas {
+canvas {
   border-radius: 1.3em;
-  border: 5px solid #7f7f7f;
+  max-width: 300px;
+  background-image: url("/images/mb.png");
+}
+
+.video-wrapper-img {
+  position: relative;
+  padding: 20px;
+}
+
+.video-wrapper-img::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/mb.png");
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.video-wrapper {
+  gap: 80px;
+  justify-content: center;
+}
+
+.video-wrapper-txt {
+  margin-top: 80px;
 }
