@@ -7,20 +7,18 @@
 canvas {
   border-radius: 1.3em;
   max-width: 300px;
-  background-image: url("/images/mb.png");
+  width: 100%;
 }
 
-.video-wrapper-img {
-  position: relative;
-  padding: 20px;
-}
-
-.video-wrapper-img::before {
+/* .canvas-container::before {
   content: "";
   position: absolute;
   inset: 0;
   background-image: url("/images/mb.png");
-}
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+} */
 
 .wrapper {
   max-width: 1200px;
