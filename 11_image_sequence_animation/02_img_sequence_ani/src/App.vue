@@ -5,31 +5,26 @@ import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 import * as bootstrap from "bootstrap";
 import "bootstrap/dist/css/bootstrap.min.css";
-
 gsap.registerPlugin(ScrollTrigger);
+
 const img1Src = "/images/apng_v2.png";
 const img2Src = "/images/apng_2.png";
-// const img3Src = "/images/video3/apng_3.png";
-// const img3Src = "/images/video2/apng_3.png";
 const img3Src = "/images/apng_3.png";
 const apngList = [img1Src, img2Src, img3Src];
 
-onMounted(() => {});
-
-//將圖片轉換為純二進位數據`
-async function getImgBuffer(url) {
+onMounted(async () => {
+  // 1. 載入共用的手機背景圖
+  let bgImg;
   try {
-    const response = await fetch(url);
-    const buffer = await response.arrayBuffer(); //(純二進位數據)
-    return buffer;
-  } catch (error) {
-    console.error("圖片讀取失敗:", error);
+    bgImg = await loadImage("/images/mb.png");
+  } catch (e) {
+    console.error("背景圖載入失敗", e);
+    return;
   }
-}
+});
 
 window.onload = async function () {
-  const playerMap = new Map(); //array不能儲存DOM元素作為key，會被轉換成字符串
-  const bgImg = await loadImage("/images/mb.png");
+  const playerMap = new Map(); //可以儲存DOM的物件
 
   for (const [index, src] of apngList.entries()) {
     const canvasEl = document.getElementById(`canvas${index + 1}`);
@@ -97,7 +92,8 @@ window.onload = async function () {
     }
   }
 
-  //初始化apng
+  //------------------------------------------------------------------
+  //初始化apng播放器，回傳一個apng物件
   async function initApngPlayer(url, ctx) {
     const imgBuffer = await getImgBuffer(url);
     if (!imgBuffer) return;
@@ -106,12 +102,25 @@ window.onload = async function () {
     return apng;
   }
 
-  // 1. 新增一個讀取圖片的工具函式 (Promise包裝)
+  //------------------------------------------------------------------
+  //將apng轉換為純二進位數據`
+  async function getImgBuffer(url) {
+    try {
+      const response = await fetch(url);
+      const buffer = await response.arrayBuffer(); //(純二進位數據)
+      return buffer;
+    } catch (error) {
+      console.error("圖片讀取失敗:", error);
+    }
+  }
+
+  //------------------------------------------------------------------
+  // 載入圖片並回傳一個 Image 物件，後續被 Canvas.drawimge() 使用
   function loadImage(src) {
     return new Promise((resolve, reject) => {
-      const img = new Image();
+      const img = new Image(); //web api 等同於 document.createElement("img")
       img.crossOrigin = "anonymous"; // 若圖片跨域需要加這行
-      img.onload = () => resolve(img);
+      img.onload = () => resolve(img); // 圖片載入成功，回傳 Image 物件 給呼叫者(await)
       img.onerror = (e) => reject(e);
       img.src = src;
     });
