@@ -12,6 +12,16 @@ const img2Src = "/images/apng_2.png";
 const img3Src = "/images/apng_3.png";
 const apngList = [img1Src, img2Src, img3Src];
 
+// 1. 定義資料陣列
+const videoItems = [
+  { id: 1, text: "簡單一掃 即可付款" },
+  { id: 2, text: "繳帳單也能很輕鬆" }, // 這一筆我們希望它反轉
+  { id: 3, text: "快速結帳 無需等待" },
+];
+
+// 2. 準備一個陣列來存所有的 canvas DOM (給之後的 GSAP 用)
+const canvasRefs = ref([]);
+
 onMounted(async () => {
   // 1. 載入共用的手機背景圖
   let bgImg;
@@ -130,7 +140,7 @@ window.onload = async function () {
 
 <template>
   <div class="wrapper mt-5">
-    <div class="d-flex video-wrapper justify-center">
+    <!-- <div class="d-flex video-wrapper justify-center">
       <div class="video-wrapper-img">
         <div class="canvas-container">
           <canvas id="canvas1"></canvas>
@@ -150,10 +160,27 @@ window.onload = async function () {
       </div>
 
       <div class="video-wrapper-txt fs-1">快速結帳 無需等待</div>
+    </div> -->
+    <div
+      v-for="(item, index) in videoItems"
+      :key="item.id"
+      class="d-flex video-wrapper justify-center"
+      :class="{ 'flex-row-reverse': index % 2 !== 0 }"
+    >
+      <div class="video-wrapper-img">
+        <div class="canvas-container">
+          <canvas
+            :id="'canvas' + item.id"
+            :ref="(el) => (canvasRefs[index] = el)"
+          ></canvas>
+        </div>
+      </div>
+
+      <div class="video-wrapper-txt fs-1">
+        {{ item.text }}
+      </div>
     </div>
   </div>
-
-  <!-- <img src="/images/video3/apng_3.png" /> -->
 </template>
 
 <style scoped>
