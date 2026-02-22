@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vue Basic</title>
+    <style>
+      .box {
+        width: 100px;
+        height: 100px;
+        background-color: red;
+        margin-top: 10px;
+      }
+
+      label,
+      button {
+        display: block;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <div id="app">
+      <login-form></login-form>
+    </div>
+
+    <script>
+      const app = Vue.createApp({
+        data: function () {
+          return {};
+        },
+        methods: {},
+      });
+
+      // -------- 父元件 login-form component
+      app.component("login-form", {
+        template: `
+            <form>
+                <h3>{{formTitle}}</h3>
+                <custom-input 
+                    v-for="(input, index) in inputs" 
+                    :key="index" 
+                    :label="input.label" 
+                    v-model="input.value" 
+                    :type="input.type">
+                </custom-input>
+                <button type='submit' @click.prevent="handleSubmit">Login</button>
+            </form>
+        `,
+        components: ["custom-input"],
+        data() {
+          return {
+            formTitle: "Login Form",
+            inputs: [
+              { label: "Name", value: "", type: "text" },
+              { label: "Password", value: "", type: "password" },
+            ],
+          };
+        },
+        methods: {
+          handleSubmit() {
+            console.log(this.inputs[0].value, this.inputs[1].value);
+          },
+        },
+      });
+
+      // ------- custom-input component
+      app.component("custom-input", {
+        template: `
+                <label>
+                    <div>{{ label }}</div>
+                    <input type="text" v-model="inputValue" />
+                </label>
+            `,
+        props: ["label", "modelValue"],
+        computed: {
+          // 计算属性，获取父组件传递的值
+          inputValue: {
+            get() {
+              return this.modelValue;
+            },
+            set(value) {
+              //   this.inputValue = value;
+              this.$emit("update:modelValue", value);
+            },
+          },
+        },
+        data() {
+          return {
+            //inputValue: "",
+          };
+        },
+      });
+
+      app.mount("#app");
+    </script>
+  </body>
+</html>
