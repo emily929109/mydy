@@ -78,13 +78,10 @@
               <input
                 type="number"
                 class="form-control mb-3"
-                v-model="inventory[i].quantity"
+                v-model.number="inventory[i].quantity"
               />
 
-              <button
-                class="btn btn-primary"
-                @click="addToCart(item.name, inventory[i].quantity)"
-              >
+              <button class="btn btn-primary" @click="addToCart(i)">
                 Add to Cart
               </button>
             </div>
@@ -109,11 +106,13 @@
           };
         },
         methods: {
-          addToCart(item, quantity) {
-            if (!this.cart[item]) {
-              this.cart[item] = 0;
-            }
-            this.cart[item] += quantity;
+          addToCart(index) {
+            //取得點擊商品物件
+            let item = this.inventory[index];
+
+            // 將購買數量總數儲存在cart
+            this.cart[item.name] = (this.cart[item.name] || 0) + item.quantity;
+            console.log(this.cart);
           },
           toggleSidebar() {
             this.showCart = !this.showCart;
@@ -123,6 +122,7 @@
           const res = await fetch("./src/food.json");
           const data = await res.json();
           this.inventory = data;
+          console.log(this.inventory);
         },
       });
 
@@ -148,7 +148,6 @@
                     <table class="cart-table">
                     <thead>
                         <tr>
-                        <th><span class="sr-only">Product Image</span></th>
                         <th>Product</th>
                         <th>Price</th>
                         <th>Qty</th>
@@ -157,15 +156,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                        <td><i class="fa-solid fa-carrot"></i></td>
-                        <td>Carrot</td>
-                        <td>$5.00</td>
-                        <td class="center">{{ cart.carrots }}</td>
-                        <td>\${{ cart.carrots * 5}}</td>
-                        <td class="center">
-                            <button class="btn btn-light cart-remove">&times;</button>
-                        </td>
+                        <tr v-for="(quantity,name) in cart" :key="name">
+                          <td>{{ name }}</td>
+                          <td>$5.00</td>
+                          <td class="center">{{ quantity }}</td>
+                          <td>\${{ quantity * 5}}</td>
+                          <td class="center">
+                              <button class="btn btn-light cart-remove">&times;</button>
+                          </td>
                         </tr>
                     </tbody>
                     </table>
