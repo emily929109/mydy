@@ -136,7 +136,7 @@
         computed: {
           cartTotal() {
             let total = 0;
-            // 2. 跑迴圈遍歷 cart 物件中的每一個商品
+            // 跑迴圈遍歷 cart 物件中的每一個商品
             // Object.entries(this.cart) 會把 { Apple: 2, Banana: 3 }
             // 轉換成 [['Apple', 2], ['Banana', 3]] 的陣列格式，
             for (const [name, quantity] of Object.entries(this.cart)) {
