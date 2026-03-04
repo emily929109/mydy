@@ -88,7 +88,12 @@
           </div>
         </div>
       </div>
-      <sidebar v-if="showCart" :toggle="toggleSidebar" :cart="cart"></sidebar>
+      <sidebar
+        v-if="showCart"
+        :toggle="toggleSidebar"
+        :cart="cart"
+        :inventory="inventory"
+      ></sidebar>
     </div>
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -112,7 +117,6 @@
 
             // 將購買數量總數儲存在cart
             this.cart[item.name] = (this.cart[item.name] || 0) + item.quantity;
-            console.log(this.cart);
           },
           toggleSidebar() {
             this.showCart = !this.showCart;
@@ -121,16 +125,34 @@
         async mounted() {
           const res = await fetch("./src/food.json");
           const data = await res.json();
+
           this.inventory = data;
           console.log(this.inventory);
         },
       });
 
       app.component("sidebar", {
-        props: ["toggle", "cart"],
+        props: ["toggle", "cart", "inventory"],
         computed: {
           cartTotal() {
-            return this.cart.carrots * 5;
+            let total = 0;
+            // 2. 跑迴圈遍歷 cart 物件中的每一個商品
+            // Object.entries(this.cart) 會把 { Apple: 2, Banana: 3 }
+            // 轉換成 [['Apple', 2], ['Banana', 3]] 的陣列格式，
+            for (const [name, quantity] of Object.entries(this.cart)) {
+              total += this.getPrice(name) * quantity;
+            }
+            return total.toFixed(2);
+          },
+        },
+        methods: {
+          getPrice(name) {
+            let item = this.inventory.find((item) => item.name === name);
+            return item ? item.price.USD : 0;
+          },
+          removeItem(name) {
+            delete this.cart[name];
+            console.log(this.cart);
           },
         },
         template: `
@@ -158,11 +180,11 @@
                     <tbody>
                         <tr v-for="(quantity,name) in cart" :key="name">
                           <td>{{ name }}</td>
-                          <td>$5.00</td>
+                          <td>\${{ getPrice(name) }}</td>
                           <td class="center">{{ quantity }}</td>
-                          <td>\${{ quantity * 5}}</td>
+                          <td>\${{ (getPrice(name) * quantity).toFixed(2) }}</td>
                           <td class="center">
-                              <button class="btn btn-light cart-remove">&times;</button>
+                              <button class="btn btn-light cart-remove" @click="removeItem(name)">&times;</button>
                           </td>
                         </tr>
                     </tbody>
