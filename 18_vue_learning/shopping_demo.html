@@ -51,13 +51,60 @@
       .card-body input {
         width: 100%;
       }
+
+      .cart-container,
+      .cart {
+        z-index: 1031;
+      }
+
+      .cart-btn {
+        top: 12px;
+        right: 10px;
+      }
+
+      @media screen and (max-width: 992px) {
+        .cart-btn {
+          right: 80px;
+        }
+      }
     </style>
   </head>
   <body>
     <div class="wrapper container mx-auto mt-5" id="app">
-      <button class="btn btn-secondary mb-4" @click="toggleSidebar">
-        購物車
-      </button>
+      <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">Emily's Shop</a>
+          <button
+            class="btn btn-secondary me-2 cart-btn position-absolute"
+            @click="toggleSidebar"
+          >
+            購物車<span class="text-dark text-white"
+              >({{ Object.values(cart).reduce((acc, curr) => acc + curr, 0)
+              }})</span
+            >
+          </button>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Home</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
       <div class="row">
         <!-- item -->
         <div
@@ -93,9 +140,14 @@
         :toggle="toggleSidebar"
         :cart="cart"
         :inventory="inventory"
+        :remove="remove"
       ></sidebar>
     </div>
-
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script
       src="https://kit.fontawesome.com/7c6bbc6b90.js"
@@ -117,22 +169,33 @@
 
             // 將購買數量總數儲存在cart
             this.cart[item.name] = (this.cart[item.name] || 0) + item.quantity;
+            this.inventory[index].quantity = 0; //購買後將數量重置為0
+            console.log(this.cart);
           },
           toggleSidebar() {
             this.showCart = !this.showCart;
+          },
+          remove(name) {
+            delete this.cart[name];
           },
         },
         async mounted() {
           const res = await fetch("./src/food.json");
           const data = await res.json();
 
-          this.inventory = data;
+          // 初始化 quantity 避免出現 NAN問題
+          this.inventory = data.map((item) => {
+            return {
+              ...item, // 展開原本的資料 (保留 id, name, price 等)
+              quantity: 0, // 🌟 手動幫它加上數量屬性，並初始化為 0
+            };
+          });
           console.log(this.inventory);
         },
       });
 
       app.component("sidebar", {
-        props: ["toggle", "cart", "inventory"],
+        props: ["toggle", "cart", "inventory", "remove"],
         computed: {
           cartTotal() {
             let total = 0;
@@ -149,9 +212,6 @@
           getPrice(name) {
             let item = this.inventory.find((item) => item.name === name);
             return item ? item.price.USD : 0;
-          },
-          removeItem(name) {
-            delete this.cart[name];
           },
         },
         template: `
@@ -183,13 +243,13 @@
                           <td class="center">{{ quantity }}</td>
                           <td>\${{ (getPrice(name) * quantity).toFixed(2) }}</td>
                           <td class="center">
-                              <button class="btn btn-light cart-remove" @click="removeItem(name)">&times;</button>
+                              <button class="btn btn-light cart-remove" @click="remove(name)">&times;</button>
                           </td>
                         </tr>
                     </tbody>
                     </table>
 
-                    <p class="center"><em>No items in cart</em></p>
+                    <p class="center" v-if="Object.keys(cart).length === 0"><em>No items in cart</em></p>
                     <div class="spread">
                     <span><strong>Total:</strong> \$ {{ cartTotal }}</span>
                     <button class="btn btn-light">Checkout</button>
