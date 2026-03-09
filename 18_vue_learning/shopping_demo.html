@@ -67,6 +67,15 @@
           right: 80px;
         }
       }
+
+      .quantity-selector button {
+        background: #d4d600;
+      }
+
+      .quantity-selector button:disabled {
+        background: #e0e0e0;
+        cursor: not-allowed;
+      }
     </style>
   </head>
   <body>
@@ -127,6 +136,8 @@
                 class="form-control mb-3"
                 v-model.number="inventory[i].quantity"
               />
+
+              <quantity-selector></quantity-selector>
 
               <button class="btn btn-primary" @click="addToCart(i)">
                 Add to Cart
@@ -190,7 +201,6 @@
               quantity: 0, // 🌟 手動幫它加上數量屬性，並初始化為 0
             };
           });
-          console.log(this.inventory);
         },
       });
 
@@ -257,6 +267,45 @@
                 </div>
                 </div>
             </aside>
+        `,
+      });
+
+      app.component("quantity-selector", {
+        data() {
+          return {
+            value: 0,
+            max: 10,
+            min: 0,
+          };
+        },
+        computed: {
+          disableDec() {
+            // 當目前的值「小於或等於」最小值時，減號就禁用
+            return this.value <= this.min;
+          },
+          disableInc() {
+            // 當目前的值「大於或等於」最大值時，加號就禁用
+            return this.value >= this.max;
+          },
+        },
+        methods: {
+          increment() {
+            if (this.value < this.max) {
+              this.value++;
+            }
+          },
+          decrement() {
+            if (this.value > this.min) {
+              this.value--;
+            }
+          },
+        },
+        template: `
+          <div class="input-group mb-3 quantity-selector">
+            <button class="btn btn-outline-secondary" type="button" @click="decrement" :disabled="disableDec">&ndash;</button>
+            <input type="text" class="form-control text-center" :value="value" readonly />
+            <button class="btn btn-outline-secondary" type="button" @click="increment" :disabled="disableInc">&#xff0b;</button>
+          </div>
         `,
       });
 
