@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+
     <title>Shopping Demo</title>
     <link
       rel="stylesheet"
@@ -72,6 +76,16 @@
         background: #d4d600;
       }
 
+      .add-cart-btn,
+      .add-cart-btn:hover,
+      .add-cart-btn:focus,
+      .add-cart-btn:active {
+        background: #9d748b;
+        color: #fff;
+        border-radius: 0.3em;
+        border: none;
+      }
+
       .quantity-selector button:disabled {
         background: #e0e0e0;
         cursor: not-allowed;
@@ -117,7 +131,7 @@
       <div class="row">
         <!-- item -->
         <div
-          class="col-12 col-md-4 item-card"
+          class="col-12 col-md-4 item-card mb-3"
           v-for="(item,i) in inventory.slice(0,3)"
         >
           <div class="card">
@@ -130,17 +144,16 @@
               <div class="card-text mb-2">
                 <span>Price : </span>${{item.price.USD}}
               </div>
-              <!--在inventory創立新的屬性quantity-->
-              <input
-                type="number"
-                class="form-control mb-3"
-                v-model.number="inventory[i].quantity"
-              />
 
-              <quantity-selector></quantity-selector>
+              <!--用 v-model="item.quantity" 把變數交給quantity-selector。你負責幫我顯示數字，如果使用者操作了什麼導致數字變了，記得自動幫我更新 item.quantity-->
+              <quantity-selector
+                v-model="item.quantity"
+                :min="0"
+                :max="10"
+              ></quantity-selector>
 
-              <button class="btn btn-primary" @click="addToCart(i)">
-                Add to Cart
+              <button class="add-cart-btn py-2 fw-bold" @click="addToCart(i)">
+                加入購物車
               </button>
             </div>
           </div>
@@ -271,39 +284,38 @@
       });
 
       app.component("quantity-selector", {
-        data() {
-          return {
-            value: 0,
-            max: 10,
-            min: 0,
-          };
+        // 1. Vue 3 規定：接收 v-model 傳進來的值，屬性名稱固定叫做 "modelValue"
+        props: {
+          modelValue: { type: Number, required: true },
+          min: { type: Number, default: 0 },
+          max: { type: Number, default: 10 },
         },
         computed: {
           disableDec() {
             // 當目前的值「小於或等於」最小值時，減號就禁用
-            return this.value <= this.min;
+            return this.modelValue <= this.min;
           },
           disableInc() {
             // 當目前的值「大於或等於」最大值時，加號就禁用
-            return this.value >= this.max;
+            return this.modelValue >= this.max;
           },
         },
         methods: {
           increment() {
-            if (this.value < this.max) {
-              this.value++;
+            if (this.modelValue < this.max) {
+              this.$emit("update:modelValue", this.modelValue + 1);
             }
           },
           decrement() {
-            if (this.value > this.min) {
-              this.value--;
+            if (this.modelValue > this.min) {
+              this.$emit("update:modelValue", this.modelValue - 1);
             }
           },
         },
         template: `
           <div class="input-group mb-3 quantity-selector">
             <button class="btn btn-outline-secondary" type="button" @click="decrement" :disabled="disableDec">&ndash;</button>
-            <input type="text" class="form-control text-center" :value="value" readonly />
+            <input type="text" class="form-control text-center" v-model="modelValue" readonly/>
             <button class="btn btn-outline-secondary" type="button" @click="increment" :disabled="disableInc">&#xff0b;</button>
           </div>
         `,
