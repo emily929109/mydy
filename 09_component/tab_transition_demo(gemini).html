@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fancy Tab Demo</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      /* 基礎重置與排版 */
+      body {
+        font-family: sans-serif;
+        background-color: #f8f9fa;
+        padding: 20px;
+      }
+      .card {
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .card-body {
+        padding: 0;
+      }
+
+      /* ======== Tab 導覽列樣式 ======== */
+      .fancy-tab {
+        display: flex;
+        flex-direction: column;
+      }
+      .nav-bar {
+        display: flex;
+        position: relative; /* 🌟 關鍵：讓 indicator 可以相對於它絕對定位 */
+        border-bottom: 1px solid #e3e6ed;
+        padding: 0 10px;
+      }
+      .nav-bar-item {
+        padding: 15px 20px;
+        cursor: pointer;
+        color: #5e6e82;
+        font-weight: bold;
+        transition: color 0.3s;
+      }
+      .nav-bar-item.active {
+        color: #2c7be5; /* 截圖中的藍色 */
+      }
+
+      /* ======== 藍色滑動底線 (Indicator) ======== */
+      .tab-indicator {
+        position: absolute;
+        bottom: -1px; /* 貼齊並蓋過底線 */
+        height: 3px;
+        background-color: #2c7be5;
+        border-radius: 3px 3px 0 0;
+        /* 🌟 關鍵：讓 left 和 right 的改變產生動畫 */
+        transition:
+          left 0.4s ease-in-out,
+          right 0.4s ease-in-out;
+      }
+
+      /* ======== 內文切換動畫 (Vue Transition) ======== */
+      .tab-contents {
+        padding: 30px 20px;
+        min-height: 150px;
+      }
+
+      /* Vue <transition name="fade"> 的專屬 class */
+      .fade-enter-active,
+      .fade-leave-active {
+        transition:
+          opacity 0.3s ease,
+          transform 0.3s ease;
+      }
+      .fade-enter-from {
+        opacity: 0;
+        transform: translateY(10px); /* 進入時稍微往下掉一點 */
+      }
+      .fade-leave-to {
+        opacity: 0;
+        transform: translateY(-10px); /* 離開時稍微往上飄一點 */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="card">
+        <div class="card-body">
+          <div class="fancy-tab">
+            <div class="nav-bar nav-bar-center" ref="navBarRef">
+              <div
+                v-for="(tab, index) in tabs"
+                :key="tab.id"
+                class="nav-bar-item px-3 px-sm-4"
+                :class="{ 'active': currentTab === index }"
+                @click="selectTab(index, $event)"
+              >
+                {{ tab.name }}
+              </div>
+
+              <div
+                class="tab-indicator"
+                :style="{ left: indicatorLeft + 'px', right: indicatorRight + 'px' }"
+              ></div>
+            </div>
+
+            <div class="tab-contents">
+              <transition name="fade" mode="out-in">
+                <div :key="currentTab">
+                  <h4 style="color: #2c7be5">{{ tabs[currentTab].name }}</h4>
+                  <p>{{ tabs[currentTab].content }}</p>
+                </div>
+              </transition>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const { createApp, ref, onMounted, nextTick } = Vue;
+
+      createApp({
+        setup() {
+          // 1. 定義 Tab 資料
+          const tabs = ref([
+            {
+              id: "announcement",
+              name: "重要公告",
+              content: "這裡是重要公告的內容。系統將於明日凌晨 2:00 進行維護。",
+            },
+            {
+              id: "discount",
+              name: "優惠資訊",
+              content: "這裡是優惠資訊的內容。全館滿千送百，只到這個月底喔！",
+            },
+            {
+              id: "pets",
+              name: "寵物相關",
+              content:
+                "這裡是寵物相關的內容。帶毛小孩來店消費，即贈送精美零食包一份。",
+            },
+          ]);
+
+          // 2. 定義狀態變數
+          const currentTab = ref(0); // 預設選中第一個
+          const indicatorLeft = ref(0);
+          const indicatorRight = ref(0);
+          const navBarRef = ref(null); // 用來抓取 DOM 元素的 ref
+
+          // 3. 核心計算邏輯：計算藍線的位置
+          const updateIndicator = (clickedElement) => {
+            if (!navBarRef.value || !clickedElement) return;
+
+            // 取得父容器 (nav-bar) 的尺寸與位置資訊
+            const navRect = navBarRef.value.getBoundingClientRect();
+            console.log("navRect:", navRect);
+            // 取得被點擊按鈕的尺寸與位置資訊
+            const elRect = clickedElement.getBoundingClientRect();
+
+            // 計算 left：點擊按鈕的左邊緣 - 父容器的左邊緣
+            indicatorLeft.value = elRect.left - navRect.left;
+
+            // 計算 right：父容器的右邊緣 - 點擊按鈕的右邊緣
+            indicatorRight.value = navRect.right - elRect.right;
+          };
+
+          // 4. 點擊事件
+          const selectTab = (index, event) => {
+            currentTab.value = index;
+            // 傳入觸發點擊的那個 HTML 元素 (event.currentTarget)
+            updateIndicator(event.currentTarget);
+          };
+
+          // 5. 初始化：網頁一載入時，先幫第一顆按鈕算好藍線位置
+          onMounted(() => {
+            nextTick(() => {
+              // 抓取第一顆按鈕的 DOM 元素
+              const firstTabElement =
+                navBarRef.value.querySelector(".nav-bar-item");
+              updateIndicator(firstTabElement);
+            });
+          });
+
+          return {
+            tabs,
+            currentTab,
+            indicatorLeft,
+            indicatorRight,
+            navBarRef,
+            selectTab,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>

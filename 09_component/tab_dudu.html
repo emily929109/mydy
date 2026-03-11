@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>tab_dudu</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    />
+    <style>
+      /*==========news=============*/
+      .news ol {
+        padding: 0;
+        margin: 0;
+        list-style: none;
+      }
+
+      .news {
+        color: #003048;
+      }
+
+      .news a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .news-date {
+        margin: 0;
+        color: #6f6e6e;
+      }
+
+      a.new-title {
+      }
+
+      .news-item {
+        border-bottom: 1px solid #e1e1e2;
+        position: relative;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .news-item i {
+        color: #00ab96;
+      }
+
+      .news a:hover {
+        text-decoration: none;
+        color: #00ab96;
+        font-weight: bold;
+      }
+
+      /*button共用*/
+      button.news-more {
+        background-color: #00ab96;
+        color: #fff;
+        outline: none;
+        border: none;
+        width: 100%;
+        max-width: 250px;
+        border-radius: 8px;
+        font-family: "Chiron GoRound TC", sans-serif;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+      }
+
+      .news-more::after {
+        content: "";
+        width: 0;
+        border-right-width: 0;
+        border-left-width: 10px;
+        border-left-color: blue;
+        border-top-width: 10px;
+        border-bottom-width: 10px;
+        height: 0;
+        z-index: 9;
+        position: relative;
+        display: inline-block;
+        margin-left: 10px;
+        border: 7px solid #fff;
+        border-right-width: 0;
+        border-top-color: transparent;
+        border-bottom-color: transparent;
+        vertical-align: inherit;
+      }
+
+      button.news-more:hover {
+        color: #0b1f41;
+        border-color: #0b1f41;
+        background-color: #fff;
+      }
+
+      button.news-more:hover::after {
+        border-left-color: #0b1f41;
+      }
+
+      /*tab*/
+      .news .tablinks {
+        width: 50%;
+        background-color: #fff;
+        outline: none;
+        padding: 8px 0;
+        border-radius: 24px;
+        border: 2px solid #009d87;
+        color: inherit;
+        position: relative;
+      }
+
+      .news .tablinks.active {
+        border-color: #ff8025;
+      }
+
+      .news .tablinks::after {
+        content: "";
+        display: block;
+        width: 0;
+        height: 0;
+        content: "";
+        display: block;
+        height: 0px;
+        border-width: 12px 8px;
+        border-style: solid;
+        border-color: #00ab98 transparent transparent transparent;
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        transform: translate(-50%);
+      }
+
+      .news .tablinks.active::after {
+        border-color: #ff8025 transparent transparent transparent;
+      }
+
+      /*==============rwd修正==============*/
+      .features,
+      .register-link p,
+      .brand-text,
+      .brand-ex,
+      .store-product,
+      .news,
+      .feedback-list,
+      .news-card-wrapper {
+        max-width: 1000px;
+      }
+
+      .banner-wrapper {
+        max-width: 950px;
+      }
+
+      @media (min-width: 1441px) {
+        .banner-wrapper {
+          max-width: 1100px;
+        }
+      }
+
+      @media (min-width: 1281px) {
+        .features,
+        .register-link p,
+        .brand-text,
+        .brand-ex,
+        .store-product,
+        .news,
+        .feedback-list,
+        .news-card-wrapper {
+          max-width: 1200px;
+        }
+      }
+
+      .v-enter-active,
+      .v-leave-active {
+        transition: opacity 0.1s;
+        position: absolute; /* 🌟 終極殺招：讓離開和進入的元素重疊 */
+        top: 0;
+        left: 0;
+        width: 100%;
+      }
+
+      .v-enter-from,
+      .v-leave-to {
+        opacity: 0;
+      }
+
+      .v-enter-to,
+      .v-leave-from {
+        opacity: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section news mx-auto">
+      <div class="title fs-1 fw-bold mb-4 text-center">公告專區</div>
+      <div class="news-list">
+        <!---------- tab links ------------>
+        <div class="d-flex gap-3 mx-1">
+          <button
+            class="tablinks fs-2 fw-bold tablinks"
+            :class="{ 'active': currentTab === 'announcement' }"
+            @click="currentTab = 'announcement'"
+          >
+            重要公告
+          </button>
+          <button
+            class="tablinks fs-2 fw-bold tablinks"
+            :class="{ 'active': currentTab === 'pets' }"
+            @click="currentTab = 'pets'"
+          >
+            寵物相關
+          </button>
+        </div>
+
+        <!---------- tab contents ------------>
+        <div class="tab-container position-relative" style="min-height: 300px">
+          <transition mode="out-in">
+            <!--寵物相關-->
+            <ol
+              class="news-list-pets tabcontent mb-4"
+              v-if="currentTab === 'pets'"
+              key="pets"
+            >
+              <!--news-1-->
+              <a href="~/Home/News/pet_health" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-1"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/12/15</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【 潮濕天氣增多 毛孩健康亮紅燈 】
+                    </div>
+                  </div>
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+
+              <!--news-2-->
+              <a href="~/Home/News/pet_2" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-1"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/12/03</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【DUDUPAY 寵物展超狂活動登場！ 】
+                    </div>
+                  </div>
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+
+              <!--news-3-->
+              <a href="~/Home/News/pet" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-1"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/12/03</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【DUDUPAY 攜手寵物界品牌大軍進駐寵物展！ 】
+                    </div>
+                  </div>
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+
+              <!--news-4-->
+              <a href="~/Home/News/pettravelchecklist" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-1"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/07/08</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【 毛孩旅遊前必備清單 】
+                    </div>
+                  </div>
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+
+              <!--news-5-->
+              <a href="~/Home/News/pet_oralcare" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-2"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/07/22</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【 寵物口腔護理指南，口腔健康從日常開始！ 】
+                    </div>
+                  </div>
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+            </ol>
+          </transition>
+
+          <transition>
+            <!--重要公告-->
+            <ol
+              class="news-list-pets tabcontent mb-4"
+              v-else-if="currentTab === 'announcement'"
+              key="announcement"
+            >
+              <!--news-1-->
+              <a href="~/Home/News/newbnpl" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-1"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/07/15</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【 數位分期新選擇 — DUDUPAY 體驗靈活分期，輕鬆又方便！ 】
+                    </div>
+                  </div>
+
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+
+              <!--news-2-->
+              <a href="~/Home/News_1" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-2"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/08/27</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【 DUDUPAY新會員搶先招募 】
+                    </div>
+                  </div>
+
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+
+              <!--news-3-->
+              <a href="~/Home/News/whats_dudupay" target="_blank">
+                <li
+                  class="news-item py-3"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#news-3"
+                  role="button"
+                  aria-expanded="false"
+                  aria-controls="collapseExample"
+                >
+                  <div>
+                    <p class="fs-0 fs-lg-1 news-date">2025/07/01</p>
+                    <div class="fs-3 fw-bold new-title">
+                      【 DUDUPAY—理性消費分期新選擇 】
+                    </div>
+                  </div>
+                  <span><i class="fa-solid fa-chevron-right"></i></span>
+                </li>
+              </a>
+            </ol>
+          </transition>
+        </div>
+      </div>
+      <a href="~/Home/News" target="_blank"
+        ><button class="d-block fs-1 fs-md-2 mb-7 mt-5 mx-auto news-more py-3">
+          觀看更多
+        </button></a
+      >
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+      const { createApp } = Vue;
+
+      createApp({
+        data() {
+          return {
+            currentTab: "announcement", // 預設顯示重要公告
+          };
+        },
+      }).mount(".news");
+    </script>
+  </body>
+</html>
