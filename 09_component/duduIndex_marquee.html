@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>duduIndex_marquee</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+    />
+    <style>
+      /*==========3大特色修改=============*/
+      .title {
+        color: var(--color-dark-blue);
+        font-family: "Chiron GoRound TC", sans-serif;
+        letter-spacing: 2px;
+      }
+
+      .features-item img {
+        max-height: 150px;
+      }
+
+      .features-title {
+        color: var(--color-dark-blue);
+      }
+
+      .features-text {
+        color: #6e6d6d;
+        }
+      /*==========背景偽元素=============*/
+      .features::before,
+      .features::after {
+        font-size: 15vw;
+        letter-spacing: 20px;
+        color: #fff;
+        font-family: "Poppins", sans-serif;
+        position: absolute;
+        text-shadow:
+          -1px -1px 0 #e4f6f4,
+          1px -1px 0 #e4f6f4,
+          -1px 1px 0 #e4f6f4,
+          1px 1px 0 #e4f6f4;
+        font-weight: 900;
+        z-index: -1;
+        white-space: nowrap;
+        pointer-events: none;
+      }
+
+      .features::before {
+        content: "DUDU";
+        top: 0;
+        animation: marquee-left 50s linear infinite;
+      }
+
+      .features::after {
+        content: "PAY";
+        bottom: -146px;
+        animation: marquee-right 50s linear infinite;
+      }
+
+      @keyframes marquee-left {
+        0% { left: 100%; transform: translateX(0); }
+        100% { left: 0; transform: translateX(-100%); }
+      }
+
+      @keyframes marquee-right {
+        0% { left: 0; transform: translateX(-100%); }
+        100% { left: 100%; transform: translateX(0); }
+      }
+
+      @media (max-width: 1500px) {
+        .features::after {
+          bottom: 45px;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .features::before {
+          font-size: 23vw;
+          top: 67px;
+        }
+
+        .features::after {
+          bottom: 5px;
+          font-size: 23vw;
+        }
+      }
+
+      .features {
+        position: relative;
+        margin: 0 auto;
+        overflow: hidden; /* 🌟 確保跑馬燈不超出邊界 */
+      }
+        background-color: #00ab97;
+        border-radius: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 0;
+      }
+
+      .register-link p:hover {
+        background-color: #ffc843;
+        color: black;
+      }
+
+      .register-link p::before {
+        content: "";
+        width: 190px;
+        height: 155px;
+        display: block;
+        position: absolute;
+        background-image: url(/img/bear.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        bottom: -12px;
+        left: 80px;
+      }
+
+      .features {
+        position: relative;
+        margin: 0 auto;
+      }
+
+      .features span {
+        color: #00b7a6;
+        text-shadow:
+          1px 2px 0px #fff,
+          5px 3px 0px #005f66;
+        font-size: 100px;
+        font-weight: bold;
+        line-height: 65%;
+      }
+
+      @media (max-width: 768px) {
+        .register-link p::before {
+          left: 5px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .register-link p::before {
+          width: 95px;
+          height: 88px;
+          bottom: -7px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .features-item {
+          padding: 0;
+        }
+
+        .features-title {
+          font-size: 22px !important;
+        }
+
+        .features-text {
+          font-size: 17px !important;
+        }
+
+        .features span {
+          font-size: 60px;
+        }
+      }
+
+      /*==============rwd修正==============*/
+      .features,
+      .register-link p,
+      .brand-text,
+      .brand-ex,
+      .store-product,
+      .news,
+      .feedback-list,
+      .news-card-wrapper {
+        max-width: 1000px;
+      }
+
+      .banner-wrapper {
+        max-width: 950px;
+      }
+
+      @media (min-width: 1441px) {
+        .banner-wrapper {
+          max-width: 1100px;
+        }
+      }
+
+      @media (min-width: 1281px) {
+        .features,
+        .register-link p,
+        .brand-text,
+        .brand-ex,
+        .store-product,
+        .news,
+        .feedback-list,
+        .news-card-wrapper {
+          max-width: 1200px;
+        }
+      }
+
+      /*==========立即線上申辦修改=============*/
+      .register-link p {
+        color: #fff;
+        background-color: #00ab97;
+        border-radius: 8px;
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 0;
+      }
+
+      .register-link p:hover {
+        background-color: #ffc843;
+        color: black;
+      }
+
+      .register-link p::before {
+        content: "";
+        width: 190px;
+        height: 155px;
+        display: block;
+        position: absolute;
+        background-image: url(img/bear.png);
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        bottom: -12px;
+        left: 80px;
+      }
+
+      .features {
+        position: relative;
+        margin: 0 auto;
+      }
+
+      .features span {
+        color: #00b7a6;
+        text-shadow:
+          1px 2px 0px #fff,
+          5px 3px 0px #005f66;
+        font-size: 100px;
+        font-weight: bold;
+        line-height: 65%;
+      }
+
+      @media (max-width: 768px) {
+        .register-link p::before {
+          left: 5px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .register-link p::before {
+          width: 95px;
+          height: 88px;
+          bottom: -7px;
+        }
+      }
+
+      @media (max-width: 576px) {
+        .features-item {
+          padding: 0;
+        }
+
+        .features-title {
+          font-size: 22px !important;
+        }
+
+        .features-text {
+          font-size: 17px !important;
+        }
+
+        .features span {
+          font-size: 60px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section features mt-4 mt-md-7 text-center fadeUp">
+      <div class="title fs-1 fw-bold text-center">DUDUPAY</div>
+      <!--fs-4 fs-md-6-->
+      <div class="title fs-1 fw-bold text-center mb-4">
+        <span class="me-3">3</span>大特色
+      </div>
+      <div class="container-fluid">
+        <div class="row justify-content-center">
+          <!--item-1-->
+          <div class="features-item col-12 col-md-4 mb-4">
+            <img class="mb-3" src="img/apple.png" />
+            <div class="features-title fs-2 fs-md-3 mb-2 mb-md-4">
+              新型額度數位分期支付
+            </div>
+            <div class="features-text fs-3">
+              <!--fs-1 fs-md-2-->
+              毛孩消費 / 美容 / 旅遊 / 機車<br />
+              都可輕鬆分期付款無負擔
+            </div>
+          </div>
+          <!--item-2-->
+          <div class="features-item col-12 col-md-4 mb-4">
+            <img class="mb-3" src="img/apple.png" />
+            <div class="features-title fs-2 fs-md-3 mb-2 mb-md-4">
+              線上一鍵申辦
+            </div>
+            <div class="features-text fs-3">
+              DUDUPAY 官方網站申辦<br />
+              全線上申請，簡單快速
+            </div>
+          </div>
+          <!--item-3-->
+          <div class="features-item col-12 col-md-4 mb-4">
+            <img class="mb-3" src="img/apple.png" />
+            <div class="features-title fs-2 fs-md-3 mb-2 mb-md-4">
+              安全支付工具
+            </div>
+            <div class="features-text fs-3">
+              獨立伺服器&驗證簡訊保護個資<br />
+              防盜刷超安心！
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 立即線上申辦 -->
+    <div class="mb-7 register-link section text-center mt-0 mt-md-5">
+      <a href="~/Home/Register" target="_blank">
+        <p class="fs-2 fs-md-3 py-3 py-md-4 mx-auto">立即線上申辦</p>
+      </a>
+    </div>
+  </body>
+</html>
