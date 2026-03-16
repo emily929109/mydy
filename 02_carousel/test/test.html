@@ -1,100 +1,671 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <title>Swiper demo</title>
+    <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"
+      content="width=device-width, initial-scale=1, user-scalable=no"
     />
-    <!-- Link Swiper's CSS -->
+
+    <title>Shopping Demo - Checkout & Order</title>
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
     />
-
-    <!-- Demo styles -->
+    <link rel="stylesheet" href="styles/style.min.css" />
     <style>
-      html,
-      body {
-        position: relative;
-        height: 100%;
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
       }
 
       body {
-        background: #000;
-        font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
-        font-size: 14px;
-        color: #fff;
         margin: 0;
         padding: 0;
+        background-color: #f8f9fa;
       }
 
-      .swiper {
+      img {
         width: 100%;
-        height: 100%;
-      }
-
-      .swiper-slide {
-        text-align: center;
-        font-size: 18px;
-        background: #444;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-
-      .swiper-slide img {
+        max-width: 80px;
         display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
+        margin: 0 auto;
       }
 
-      .swiper {
-        margin-left: auto;
-        margin-right: auto;
+      .card {
+        height: 100%;
+        width: auto;
+        display: flex;
+        min-width: 0;
+      }
+
+      .card-body {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .card-img-top {
+        padding: 1rem 0;
+      }
+
+      .btn.btn-primary {
+        display: block;
+      }
+
+      .card-body input {
+        width: 100%;
+      }
+
+      .cart-container,
+      .cart {
+        z-index: 1031;
+      }
+
+      .cart-btn {
+        top: 12px;
+        right: 10px;
+      }
+
+      @media screen and (max-width: 992px) {
+        .cart-btn {
+          right: 80px;
+        }
+      }
+
+      button {
+        touch-action: manipulation;
+      }
+      .quantity-selector button {
+        background: #d4d600;
+      }
+
+      .add-cart-btn,
+      .add-cart-btn:hover,
+      .add-cart-btn:focus,
+      .add-cart-btn:active {
+        background: #9d748b;
+        color: #fff;
+        border-radius: 0.3em;
+        border: none;
+      }
+
+      .quantity-selector button:disabled {
+        background: #e0e0e0;
+        cursor: not-allowed;
+      }
+
+      .cart-container,
+      .cart {
+        width: 100%;
+        max-width: 410px;
+      }
+
+      /* New styles for checkout and order info */
+      .checkout-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+      }
+      .checkout-steps::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #dee2e6;
+        z-index: 1;
+      }
+      .step {
+        background: #fff;
+        border: 2px solid #dee2e6;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        font-weight: bold;
+      }
+      .step.active {
+        border-color: #9d748b;
+        color: #9d748b;
+      }
+      .order-summary {
+        background: #fff;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .form-section {
+        background: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
       }
     </style>
   </head>
-
   <body>
-    <!-- Swiper -->
-    <div class="swiper mySwiper">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">Slide 1</div>
-        <div class="swiper-slide">Slide 2</div>
-        <div class="swiper-slide">Slide 3</div>
-        <div class="swiper-slide">Slide 4</div>
-        <div class="swiper-slide">Slide 5</div>
-        <div class="swiper-slide">Slide 6</div>
-        <div class="swiper-slide">Slide 7</div>
-        <div class="swiper-slide">Slide 8</div>
-        <div class="swiper-slide">Slide 9</div>
+    <div class="wrapper container mx-auto mt-5 pt-5" id="app">
+      <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#" @click="view = 'products'"
+            >Emily's Shop</a
+          >
+          <button
+            class="btn btn-secondary me-2 cart-btn position-absolute"
+            @click="toggleSidebar"
+            v-if="view === 'products'"
+          >
+            購物車<span class="text-white">({{ cartCount }})</span>
+          </button>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  :class="{active: view === 'products'}"
+                  href="#"
+                  @click.prevent="view = 'products'"
+                  >Home</a
+                >
+              </li>
+              <li class="nav-item" v-if="cartCount > 0">
+                <a
+                  class="nav-link"
+                  :class="{active: view === 'checkout'}"
+                  href="#"
+                  @click.prevent="view = 'checkout'"
+                  >Checkout</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Step Indicator -->
+      <div class="container mb-4" v-if="view !== 'products'">
+        <div class="row justify-content-center">
+          <div class="col-md-6">
+            <div class="checkout-steps">
+              <div class="step" :class="{active: view === 'checkout'}">1</div>
+              <div class="step" :class="{active: view === 'order'}">2</div>
+              <div class="step" :class="{active: view === 'success'}">3</div>
+            </div>
+            <div class="d-flex justify-content-between px-1">
+              <small>購買清單</small>
+              <small>填寫資料</small>
+              <small>完成訂購</small>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-pagination"></div>
+
+      <!-- Main Content Area -->
+      <div v-if="view === 'products'">
+        <div class="row">
+          <div
+            class="col-12 col-md-4 item-card mb-3"
+            v-for="(item,i) in inventory"
+            :key="item.id"
+          >
+            <div class="card">
+              <img
+                :src="`img/${item.icon}.png`"
+                class="card-img-top"
+                alt="..."
+              />
+              <div class="card-body">
+                <h5 class="card-title">{{item.name}}</h5>
+                <div class="card-text mb-2">
+                  <span>Type : </span>{{item.type}}
+                </div>
+                <div class="card-text mb-2">
+                  <span>Price : </span>${{item.price.USD}}
+                </div>
+
+                <quantity-selector
+                  v-model="item.quantity"
+                  :min="0"
+                  :max="10"
+                ></quantity-selector>
+
+                <button
+                  class="add-cart-btn py-2 fw-bold"
+                  @click="addToCart(item.name, item.quantity, i)"
+                >
+                  加入購物車
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkout View -->
+      <div v-else-if="view === 'checkout'" class="checkout-view">
+        <h2>購買清單 (Step 1)</h2>
+        <div class="order-summary mb-4">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>商品</th>
+                <th>單價</th>
+                <th>數量</th>
+                <th>小計</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(quantity, name) in cart" :key="name">
+                <td>
+                  <div class="d-flex align-items-center">
+                    <img
+                      :src="`img/${getIcon(name)}.png`"
+                      style="width: 40px; margin-right: 10px"
+                      alt=""
+                    />
+                    {{ name }}
+                  </div>
+                </td>
+                <td>${{ getPrice(name) }}</td>
+                <td style="width: 150px">
+                  <quantity-selector
+                    :model-value="quantity"
+                    @update:model-value="updateCartQuantity(name, $event)"
+                    :min="1"
+                    :max="10"
+                  ></quantity-selector>
+                </td>
+                <td>${{ (getPrice(name) * quantity).toFixed(2) }}</td>
+                <td>
+                  <button
+                    class="btn btn-outline-danger btn-sm"
+                    @click="remove(name)"
+                  >
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" class="text-end fw-bold">總計:</td>
+                <td colspan="2" class="fw-bold">${{ cartTotal }}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <div class="d-flex justify-content-between mt-4">
+            <button
+              class="btn btn-outline-secondary"
+              @click="view = 'products'"
+            >
+              繼續購物
+            </button>
+            <button
+              class="btn btn-primary"
+              @click="view = 'order'"
+              :disabled="cartCount === 0"
+            >
+              下一步：填寫資料
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Info View -->
+      <div v-else-if="view === 'order'" class="order-info-view">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="form-section">
+              <h4>收件人資訊 (Step 2)</h4>
+              <hr />
+              <form @submit.prevent="submitOrder">
+                <div class="mb-3">
+                  <label class="form-label">收件人姓名 *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    v-model="orderForm.name"
+                    required
+                    placeholder="請輸入姓名"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">連絡電話 *</label>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    v-model="orderForm.phone"
+                    required
+                    placeholder="請輸入電話"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">電子信箱 *</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    v-model="orderForm.email"
+                    required
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">收件地址 *</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    v-model="orderForm.address"
+                    required
+                    placeholder="請輸入詳細地址"
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">付款方式 *</label>
+                  <select
+                    class="form-select"
+                    v-model="orderForm.payment"
+                    required
+                  >
+                    <option value="" disabled>請選擇付款方式</option>
+                    <option value="credit">信用卡</option>
+                    <option value="transfer">銀行轉帳</option>
+                    <option value="cod">貨到付款</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">備註</label>
+                  <textarea
+                    class="form-control"
+                    v-model="orderForm.note"
+                    rows="3"
+                    placeholder="如有特殊需求請在此說明"
+                  ></textarea>
+                </div>
+                <div class="d-flex justify-content-between mt-4">
+                  <button
+                    type="button"
+                    class="btn btn-outline-secondary"
+                    @click="view = 'checkout'"
+                  >
+                    回上一步
+                  </button>
+                  <button type="submit" class="btn btn-success">
+                    確認下單
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="order-summary">
+              <h5>訂單摘要</h5>
+              <hr />
+              <div
+                v-for="(quantity, name) in cart"
+                :key="name"
+                class="d-flex justify-content-between mb-2"
+              >
+                <span>{{ name }} x {{ quantity }}</span>
+                <span>${{ (getPrice(name) * quantity).toFixed(2) }}</span>
+              </div>
+              <hr />
+              <div class="d-flex justify-content-between fw-bold">
+                <span>應付總額</span>
+                <span>${{ cartTotal }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success View -->
+      <div v-else-if="view === 'success'" class="text-center py-5">
+        <div class="mb-4">
+          <i
+            class="fa-solid fa-circle-check text-success"
+            style="font-size: 5rem"
+          ></i>
+        </div>
+        <h2>感謝您的購買！</h2>
+        <p class="lead">訂單已成功建立，我們將儘速為您處理。</p>
+        <p>您的訂單編號：#ORD-{{ Math.floor(Math.random() * 1000000) }}</p>
+        <button class="btn btn-primary mt-3" @click="resetShop">
+          回首頁繼續購物
+        </button>
+      </div>
+
+      <!-- Sidebar Cart Overlay -->
+      <sidebar
+        v-if="showCart && view === 'products'"
+        :toggle="toggleSidebar"
+        :cart="cart"
+        :inventory="inventory"
+        :remove="remove"
+        @go-to-checkout="view = 'checkout'; showCart = false"
+      ></sidebar>
     </div>
 
-    <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-    <!-- Initialize Swiper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script
+      src="https://kit.fontawesome.com/7c6bbc6b90.js"
+      crossorigin="anonymous"
+    ></script>
     <script>
-      var swiper = new Swiper(".mySwiper", {
-        slidesPerView: 4,
-        spaceBetween: 30,
-        loop: true,
-        pagination: {
-          el: ".swiper-pagination",
-          clickable: true,
+      let app = Vue.createApp({
+        data() {
+          return {
+            inventory: [],
+            cart: {},
+            showCart: false,
+            view: "products", // products, checkout, order, success
+            orderForm: {
+              name: "",
+              phone: "",
+              email: "",
+              address: "",
+              payment: "",
+              note: "",
+            },
+          };
         },
-        navigation: {
-          nextEl: ".swiper-button-next",
-          prevEl: ".swiper-button-prev",
+        computed: {
+          cartCount() {
+            return Object.values(this.cart).reduce(
+              (acc, curr) => acc + curr,
+              0,
+            );
+          },
+          cartTotal() {
+            let total = 0;
+            for (const [name, quantity] of Object.entries(this.cart)) {
+              total += this.getPrice(name) * quantity;
+            }
+            return total.toFixed(2);
+          },
+        },
+        methods: {
+          addToCart(name, quantity, index) {
+            if (quantity <= 0) return;
+            this.cart[name] = (this.cart[name] || 0) + quantity;
+            this.inventory[index].quantity = 0;
+            this.showCart = true;
+          },
+          updateCartQuantity(name, quantity) {
+            if (quantity <= 0) {
+              this.remove(name);
+            } else {
+              this.cart[name] = quantity;
+            }
+          },
+          toggleSidebar() {
+            this.showCart = !this.showCart;
+          },
+          remove(name) {
+            delete this.cart[name];
+          },
+          getPrice(name) {
+            let item = this.inventory.find((item) => item.name === name);
+            return item ? item.price.USD : 0;
+          },
+          getIcon(name) {
+            let item = this.inventory.find((item) => item.name === name);
+            return item ? item.icon : "default";
+          },
+          submitOrder() {
+            // Here you would normally send data to a server
+            console.log("Order Submitted:", {
+              cart: this.cart,
+              info: this.orderForm,
+              total: this.cartTotal,
+            });
+            this.view = "success";
+          },
+          resetShop() {
+            this.cart = {};
+            this.view = "products";
+            this.orderForm = {
+              name: "",
+              phone: "",
+              email: "",
+              address: "",
+              payment: "",
+              note: "",
+            };
+          },
+        },
+        async mounted() {
+          try {
+            const res = await fetch("./src/food.json");
+            const data = await res.json();
+            this.inventory = data.map((item) => ({
+              ...item,
+              quantity: 0,
+            }));
+          } catch (e) {
+            console.error("Failed to load inventory", e);
+          }
         },
       });
+
+      app.component("sidebar", {
+        props: ["toggle", "cart", "inventory", "remove"],
+        emits: ["go-to-checkout"],
+        computed: {
+          cartTotal() {
+            let total = 0;
+            for (const [name, quantity] of Object.entries(this.cart)) {
+              total += this.getPrice(name) * quantity;
+            }
+            return total.toFixed(2);
+          },
+        },
+        methods: {
+          getPrice(name) {
+            let item = this.inventory.find((item) => item.name === name);
+            return item ? item.price.USD : 0;
+          },
+        },
+        template: `
+            <aside class="cart-container">
+                <div class="cart">
+                <h1 class="cart-title spread">
+                    <span>
+                    Cart
+                    <i class="fa-solid fa-cart-arrow-down"></i>
+                    </span>
+                    <button class="cart-close" @click="toggle">&times;</button>
+                </h1>
+
+                <div class="cart-body">
+                    <table class="cart-table">
+                    <thead>
+                        <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th>Total</th>
+                        <th><span class="sr-only">Actions</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="(quantity,name) in cart" :key="name">
+                          <td>{{ name }}</td>
+                          <td>\${{ getPrice(name) }}</td>
+                          <td class="center">{{ quantity }}</td>
+                          <td>\${{ (getPrice(name) * quantity).toFixed(2) }}</td>
+                          <td class="center">
+                              <button class="btn btn-light cart-remove" @click="remove(name)">&times;</button>
+                          </td>
+                        </tr>
+                    </tbody>
+                    </table>
+
+                    <p class="center" v-if="Object.keys(cart).length === 0"><em>No items in cart</em></p>
+                    <div class="spread mt-3">
+                    <span><strong>Total:</strong> \$ {{ cartTotal }}</span>
+                    <button class="btn btn-primary" @click="$emit('go-to-checkout')" v-if="Object.keys(cart).length > 0">Checkout</button>
+                    </div>
+                </div>
+                </div>
+            </aside>
+        `,
+      });
+
+      app.component("quantity-selector", {
+        props: {
+          modelValue: { type: Number, required: true },
+          min: { type: Number, default: 0 },
+          max: { type: Number, default: 10 },
+        },
+        computed: {
+          disableDec() {
+            return this.modelValue <= this.min;
+          },
+          disableInc() {
+            return this.modelValue >= this.max;
+          },
+        },
+        methods: {
+          increment() {
+            if (this.modelValue < this.max) {
+              this.$emit("update:modelValue", this.modelValue + 1);
+            }
+          },
+          decrement() {
+            if (this.modelValue > this.min) {
+              this.$emit("update:modelValue", this.modelValue - 1);
+            }
+          },
+        },
+        template: `
+          <div class="input-group quantity-selector">
+            <button class="btn btn-outline-secondary btn-sm" type="button" @click="decrement" :disabled="disableDec">&ndash;</button>
+            <input type="text" class="form-control form-control-sm text-center" v-model="modelValue" readonly/>
+            <button class="btn btn-outline-secondary btn-sm" type="button" @click="increment" :disabled="disableInc">&#xff0b;</button>
+          </div>
+        `,
+      });
+
+      app.mount("#app");
     </script>
   </body>
 </html>

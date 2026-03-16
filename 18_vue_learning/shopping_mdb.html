@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Shopping MDB - Checkout & Order</title>
+    
+    <!-- MDB / FontAwesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.min.css" rel="stylesheet" />
+    
+    <!-- 原有樣式優化 -->
+    <style>
+      body {
+        background-color: #fbfbfb;
+      }
+      .card {
+        border-radius: 15px;
+      }
+      .bg-image img {
+        height: 150px;
+        object-fit: contain;
+        padding: 1.5rem;
+      }
+      .cart-btn {
+        top: 12px;
+        right: 10px;
+      }
+      @media screen and (max-width: 992px) {
+        .cart-btn {
+          right: 80px;
+        }
+      }
+      /* Step Indicator */
+      .checkout-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        position: relative;
+      }
+      .checkout-steps::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e0e0e0;
+        z-index: 1;
+      }
+      .step {
+        background: #fff;
+        border: 2px solid #e0e0e0;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+      .step.active {
+        background-color: #1266f1;
+        border-color: #1266f1;
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(18, 102, 241, 0.3);
+      }
+      .cart-container {
+        z-index: 1050;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper container mx-auto mt-5 pt-5" id="app">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-2">
+        <div class="container-fluid">
+          <a class="navbar-brand fw-bold text-primary" href="#" @click="view = 'products'">
+            <i class="fas fa-shopping-bag me-2"></i>Emily's Shop
+          </a>
+          <button
+            class="btn btn-primary btn-rounded me-2 cart-btn position-absolute shadow-2"
+            @click="toggleSidebar"
+            v-if="view === 'products'"
+            data-mdb-ripple-init
+          >
+            <i class="fas fa-cart-shopping me-1"></i> ({{ cartCount }})
+          </button>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-mdb-collapse-init
+            data-mdb-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" :class="{active: view === 'products'}" href="#" @click.prevent="view = 'products'">首頁</a>
+              </li>
+              <li class="nav-item" v-if="cartCount > 0">
+                <a class="nav-link" :class="{active: view === 'checkout'}" href="#" @click.prevent="view = 'checkout'">結帳流程</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Step Indicator -->
+      <div class="container mb-5" v-if="view !== 'products'">
+        <div class="row justify-content-center">
+          <div class="col-md-6 text-center">
+            <div class="checkout-steps">
+              <div class="step" :class="{active: view === 'checkout'}">1</div>
+              <div class="step" :class="{active: view === 'order'}">2</div>
+              <div class="step" :class="{active: view === 'success'}">3</div>
+            </div>
+            <div class="d-flex justify-content-between px-1 mt-2 fw-500">
+              <span>購買清單</span>
+              <span>填寫資料</span>
+              <span>完成訂購</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Area: Products -->
+      <div v-if="view === 'products'">
+        <div class="row">
+          <div class="col-12 col-md-4 mb-4" v-for="(item, i) in inventory" :key="item.id">
+            <div class="card h-100 shadow-2-strong">
+              <div class="bg-image hover-overlay ripple text-center" data-mdb-ripple-init data-mdb-ripple-color="light">
+                <img :src="`../18_vue_learning/img/${item.icon}.png`" class="img-fluid" />
+                <a href="#!">
+                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                </a>
+              </div>
+              <div class="card-body">
+                <h5 class="card-title fw-bold">{{item.name}}</h5>
+                <p class="card-text mb-1"><span class="badge badge-light text-dark">類別: {{item.type}}</span></p>
+                <p class="card-text mb-3 fw-bold text-primary fs-5">${{item.price.USD}}</p>
+
+                <quantity-selector v-model="item.quantity" :min="0" :max="10"></quantity-selector>
+
+                <button
+                  class="btn btn-primary btn-block mt-3 shadow-0"
+                  @click="addToCart(item.name, item.quantity, i)"
+                  data-mdb-ripple-init
+                >
+                  加入購物車
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Checkout View -->
+      <div v-else-if="view === 'checkout'" class="checkout-view">
+        <h3 class="fw-bold mb-4"><i class="fas fa-list-check me-2 text-primary"></i>確認購買清單</h3>
+        <div class="card shadow-2 mb-4">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead class="bg-light">
+                  <tr>
+                    <th>商品</th>
+                    <th>單價</th>
+                    <th>數量</th>
+                    <th>小計</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(quantity, name) in cart" :key="name">
+                    <td>
+                      <div class="d-flex align-items-center">
+                        <img :src="`../18_vue_learning/img/${getIcon(name)}.png`" style="width: 45px" class="rounded-circle me-3" />
+                        <span class="fw-bold">{{ name }}</span>
+                      </div>
+                    </td>
+                    <td>${{ getPrice(name) }}</td>
+                    <td style="width: 150px">
+                      <quantity-selector :model-value="quantity" @update:model-value="updateCartQuantity(name, $event)" :min="1" :max="10"></quantity-selector>
+                    </td>
+                    <td class="fw-bold text-primary">${{ (getPrice(name) * quantity).toFixed(2) }}</td>
+                    <td>
+                      <button class="btn btn-link btn-sm text-danger" @click="remove(name)" data-mdb-ripple-init>
+                        <i class="fas fa-trash-can fa-lg"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex justify-content-end mt-4">
+              <h4 class="fw-bold">總計: <span class="text-primary">${{ cartTotal }}</span></h4>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-outline-primary btn-rounded shadow-0" @click="view = 'products'" data-mdb-ripple-init>
+            <i class="fas fa-arrow-left me-2"></i>繼續購物
+          </button>
+          <button class="btn btn-primary btn-rounded shadow-2" @click="view = 'order'" :disabled="cartCount === 0" data-mdb-ripple-init>
+            下一步：填寫資料<i class="fas fa-arrow-right ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Order Info View -->
+      <div v-else-if="view === 'order'" class="order-info-view">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="card shadow-2 mb-4">
+              <div class="card-body p-4">
+                <h4 class="fw-bold mb-4">收件人資訊</h4>
+                <form @submit.prevent="submitOrder">
+                  <!-- Name input -->
+                  <div class="form-outline mb-4" data-mdb-input-init>
+                    <input type="text" id="orderName" class="form-control" v-model="orderForm.name" required />
+                    <label class="form-label" for="orderName">收件人姓名 *</label>
+                  </div>
+
+                  <!-- Phone input -->
+                  <div class="form-outline mb-4" data-mdb-input-init>
+                    <input type="tel" id="orderPhone" class="form-control" v-model="orderForm.phone" required />
+                    <label class="form-label" for="orderPhone">連絡電話 *</label>
+                  </div>
+
+                  <!-- Email input -->
+                  <div class="form-outline mb-4" data-mdb-input-init>
+                    <input type="email" id="orderEmail" class="form-control" v-model="orderForm.email" required />
+                    <label class="form-label" for="orderEmail">電子信箱 *</label>
+                  </div>
+
+                  <!-- Address input -->
+                  <div class="form-outline mb-4" data-mdb-input-init>
+                    <input type="text" id="orderAddress" class="form-control" v-model="orderForm.address" required />
+                    <label class="form-label" for="orderAddress">收件地址 *</label>
+                  </div>
+
+                  <!-- Payment select (MDB Standard Select fallback) -->
+                  <div class="mb-4">
+                    <label class="form-label text-muted small ms-1">付款方式 *</label>
+                    <select class="form-select border shadow-0" v-model="orderForm.payment" required>
+                      <option value="" disabled>請選擇付款方式</option>
+                      <option value="credit">信用卡</option>
+                      <option value="transfer">銀行轉帳</option>
+                      <option value="cod">貨到付款</option>
+                    </select>
+                  </div>
+
+                  <!-- Note textarea -->
+                  <div class="form-outline mb-4" data-mdb-input-init>
+                    <textarea class="form-control" id="orderNote" v-model="orderForm.note" rows="3"></textarea>
+                    <label class="form-label" for="orderNote">備註 (如有特殊需求請在此說明)</label>
+                  </div>
+
+                  <div class="d-flex justify-content-between mt-5">
+                    <button type="button" class="btn btn-outline-primary btn-rounded shadow-0" @click="view = 'checkout'" data-mdb-ripple-init>
+                      回上一步
+                    </button>
+                    <button type="submit" class="btn btn-success btn-rounded shadow-2" data-mdb-ripple-init>
+                      確認下單 <i class="fas fa-check-circle ms-2"></i>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="card shadow-2 bg-light">
+              <div class="card-body p-4">
+                <h5 class="fw-bold mb-3 text-center text-uppercase border-bottom pb-2">訂單摘要</h5>
+                <div v-for="(quantity, name) in cart" :key="name" class="d-flex justify-content-between mb-2 small">
+                  <span class="text-muted">{{ name }} x {{ quantity }}</span>
+                  <span class="fw-bold">${{ (getPrice(name) * quantity).toFixed(2) }}</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                  <span>應付總額</span>
+                  <span class="text-primary">${{ cartTotal }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success View -->
+      <div v-else-if="view === 'success'" class="text-center py-5">
+        <div class="mb-4 animate__animated animate__zoomIn">
+          <i class="fas fa-circle-check text-success" style="font-size: 6rem"></i>
+        </div>
+        <h2 class="fw-bold text-success mb-3">感謝您的購買！</h2>
+        <p class="lead text-muted mb-4">訂單已成功建立，我們將儘速為您處理。</p>
+        <div class="alert alert-info d-inline-block px-5">
+          您的訂單編號：<strong>#ORD-{{ Math.floor(Math.random() * 1000000) }}</strong>
+        </div>
+        <div>
+          <button class="btn btn-primary btn-lg btn-rounded mt-4 shadow-2" @click="resetShop" data-mdb-ripple-init>
+            回首頁繼續購物 <i class="fas fa-home ms-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sidebar Cart Overlay -->
+      <div 
+        class="offcanvas offcanvas-end" 
+        :class="{show: showCart}" 
+        tabindex="-1" 
+        style="visibility: visible;" 
+        v-if="showCart && view === 'products'"
+      >
+        <div class="offcanvas-header bg-primary text-white shadow-2">
+          <h5 class="offcanvas-title fw-bold"><i class="fas fa-cart-shopping me-2"></i>購物車</h5>
+          <button type="button" class="btn-close btn-close-white" @click="toggleSidebar"></button>
+        </div>
+        <div class="offcanvas-body">
+          <div v-if="Object.keys(cart).length === 0" class="text-center mt-5 text-muted">
+            <i class="fas fa-cart-ghost fa-4x mb-3 opacity-25"></i>
+            <p>目前購物車是空的</p>
+          </div>
+          <div v-else>
+            <div v-for="(quantity, name) in cart" :key="name" class="d-flex align-items-center mb-3 p-2 border-bottom">
+              <img :src="`../18_vue_learning/img/${getIcon(name)}.png`" style="width: 40px" class="me-3" />
+              <div class="flex-grow-1">
+                <div class="fw-bold small">{{ name }}</div>
+                <div class="text-muted small">${{ getPrice(name) }} x {{ quantity }}</div>
+              </div>
+              <div class="fw-bold text-primary me-3">${{ (getPrice(name) * quantity).toFixed(2) }}</div>
+              <button class="btn btn-link btn-sm text-danger p-0 shadow-0" @click="remove(name)">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <div class="mt-4">
+              <div class="d-flex justify-content-between mb-3">
+                <h5 class="fw-bold">總計:</h5>
+                <h5 class="fw-bold text-primary">${{ cartTotal }}</h5>
+              </div>
+              <button class="btn btn-primary btn-block btn-lg btn-rounded shadow-2" @click="view = 'checkout'; showCart = false" data-mdb-ripple-init>
+                前往結帳
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="offcanvas-backdrop fade show" v-if="showCart && view === 'products'" @click="toggleSidebar"></div>
+    </div>
+
+    <!-- MDB JS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.2.0/mdb.umd.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <script>
+      let app = Vue.createApp({
+        data() {
+          return {
+            inventory: [],
+            cart: {},
+            showCart: false,
+            view: "products", 
+            orderForm: {
+              name: "",
+              phone: "",
+              email: "",
+              address: "",
+              payment: "",
+              note: "",
+            },
+          };
+        },
+        computed: {
+          cartCount() {
+            return Object.values(this.cart).reduce((acc, curr) => acc + curr, 0);
+          },
+          cartTotal() {
+            let total = 0;
+            for (const [name, quantity] of Object.entries(this.cart)) {
+              total += this.getPrice(name) * quantity;
+            }
+            return total.toFixed(2);
+          },
+        },
+        methods: {
+          addToCart(name, quantity, index) {
+            if (quantity <= 0) return;
+            this.cart[name] = (this.cart[name] || 0) + quantity;
+            this.inventory[index].quantity = 0;
+            this.showCart = true;
+          },
+          updateCartQuantity(name, quantity) {
+            if (quantity <= 0) {
+              this.remove(name);
+            } else {
+              this.cart[name] = quantity;
+            }
+          },
+          toggleSidebar() {
+            this.showCart = !this.showCart;
+          },
+          remove(name) {
+            delete this.cart[name];
+          },
+          getPrice(name) {
+            let item = this.inventory.find((item) => item.name === name);
+            return item ? item.price.USD : 0;
+          },
+          getIcon(name) {
+            let item = this.inventory.find((item) => item.name === name);
+            return item ? item.icon : "default";
+          },
+          submitOrder() {
+            console.log("Order Submitted:", {
+              cart: this.cart,
+              info: this.orderForm,
+              total: this.cartTotal,
+            });
+            this.view = "success";
+          },
+          resetShop() {
+            this.cart = {};
+            this.view = "products";
+            this.orderForm = {
+              name: "",
+              phone: "",
+              email: "",
+              address: "",
+              payment: "",
+              note: "",
+            };
+          },
+        },
+        async mounted() {
+          try {
+            // 指向原有的 food.json
+            const res = await fetch("../18_vue_learning/src/food.json");
+            const data = await res.json();
+            this.inventory = data.map((item) => ({
+              ...item,
+              quantity: 0,
+            }));
+          } catch (e) {
+            console.error("Failed to load inventory", e);
+          }
+        },
+      });
+
+      app.component("quantity-selector", {
+        props: {
+          modelValue: { type: Number, required: true },
+          min: { type: Number, default: 0 },
+          max: { type: Number, default: 10 },
+        },
+        emits: ["update:modelValue"],
+        methods: {
+          increment() {
+            if (this.modelValue < this.max) {
+              this.$emit("update:modelValue", this.modelValue + 1);
+            }
+          },
+          decrement() {
+            if (this.modelValue > this.min) {
+              this.$emit("update:modelValue", this.modelValue - 1);
+            }
+          },
+        },
+        template: `
+          <div class="input-group input-group-sm shadow-0" style="width: 120px; margin: 0 auto;">
+            <button class="btn btn-outline-primary border shadow-0" type="button" @click="decrement" :disabled="modelValue <= min">
+              <i class="fas fa-minus"></i>
+            </button>
+            <input type="text" class="form-control text-center border-top border-bottom" v-model="modelValue" readonly style="background: transparent;" />
+            <button class="btn btn-outline-primary border shadow-0" type="button" @click="increment" :disabled="modelValue >= max">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        `,
+      });
+
+      app.mount("#app");
+    </script>
+  </body>
+</html>

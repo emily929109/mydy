@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>test - MDB Style</title>
+    <!-- MDB CSS -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        background-color: #fbfbfb;
+      }
+
+      .custom-container {
+        width: 500px;
+        height: 500px;
+        background: #f44336; /* Material Red */
+      }
+
+      .item {
+        width: 100px;
+        height: 100px;
+        background: #2196f3; /* Material Blue */
+        top: 0;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Added shadow-5 for MDB depth effect -->
+    <div class="custom-container position-relative shadow-5">
+      <div class="item position-absolute shadow-2"></div>
+    </div>
+
+    <!-- MDB JS -->
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.1.0/mdb.umd.min.js"
+    ></script>
+  </body>
+</html>

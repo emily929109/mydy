@@ -139,7 +139,7 @@
         }
       }
 
-      /*==========立即線上申辦修改 =============*/
+      /*==========按鈕熊熊升起效果 開始 =============*/
       .register-link p {
         color: #fff;
         background-color: transparent;
@@ -235,17 +235,10 @@
       }
 
       @media (max-width: 768px) {
-        .register-link p {
-          /* 小螢幕直接展開裁切區域，讓熊熊手部/腳部露出 */
-          clip-path: polygon(0% -500%, 100% -500%, 100% 120%, 0% 120%) !important;
-        }
         .register-link p::before {
           left: 15px;
           width: 140px;
           height: 115px;
-          /* 🌟 直接停留在終點位置 */
-          opacity: 1 !important;
-          transform: translateY(0) !important;
         }
       }
 
@@ -258,6 +251,7 @@
         }
       }
 
+      /*==========按鈕熊熊升起效果 結束 =============*/
       .features {
         position: relative;
         margin: 0 auto;
