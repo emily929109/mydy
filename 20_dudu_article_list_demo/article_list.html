@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>article_list</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: var(--falcon-body-font-family);
+        font-size: var(--falcon-body-font-size);
+        font-weight: var(--falcon-body-font-weight);
+        line-height: var(--falcon-body-line-height);
+        color: var(--falcon-body-color);
+        text-align: var(--falcon-body-text-align);
+        background-color: white;
+        /*#c4dedb;*/
+        -webkit-text-size-adjust: 100%;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+
+      .button {
+        font-size: calc(15px + 15 * ((100vw - 375px) / 1545));
+        display: inline-block;
+        padding: 3px 20px;
+        background-color: #00af9a;
+        color: #fff;
+        text-align: center;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: 700;
+      }
+
+      .button:hover {
+        background-color: #f5ac48;
+        color: #fff;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: none;
+      }
+      /*========banner滿版修改========*/
+
+      .news-item img {
+        width: 100%;
+        transition: transform 0.5s ease;
+      }
+
+      /*========newslist修改========*/
+      .news-list.row {
+        max-width: 1200px;
+        padding: 120px 0;
+      }
+
+      .news-item {
+        position: relative;
+        transition: all 0.5s ease;
+        opacity: 0;
+      }
+
+      .news-item-img {
+        aspect-ratio: 1/1;
+        border-radius: 20px;
+      }
+
+      .news-item-text {
+        position: relative;
+        bottom: 0;
+        background: #ffffff;
+        margin-left: 35px;
+        margin-top: -50px;
+        padding: 16px 55px 16px 24px;
+        border-radius: 12px;
+        transition: all 0.5s ease;
+        box-shadow: 0px 5px 15px 0px rgba(0, 0, 0, 0.2);
+        position: relative;
+      }
+
+      .news-item-text p {
+        letter-spacing: 1px;
+        color: #040404;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        /* max-height: 106px;*/
+      }
+
+      .news-item span {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #00ab98;
+        position: absolute;
+        right: 35px;
+        bottom: 20px;
+        overflow: hidden;
+        border: 1px solid transparent;
+      }
+
+      .news-item span i {
+        color: #fff;
+      }
+
+      /*hover效果*/
+      .news-item:hover img {
+        -webkit-transform: scale(1.1);
+        transform: scale(1.1);
+      }
+
+      .news-item:hover .news-item-text {
+        background-color: #00ab98;
+        color: #fff;
+      }
+
+      .news-item:hover .news-item-text p {
+        color: #fff;
+      }
+
+      .news-item span::after {
+        position: absolute;
+        content: "";
+        inset: 0px;
+        background-color: #fff;
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(-100%);
+        width: 30px;
+        height: 32px;
+      }
+
+      .news-item:hover span::after {
+        transform: translateX(0);
+      }
+
+      .news-item:hover span {
+        border-color: #00ab98;
+      }
+
+      .news-item:hover span i {
+        color: #00ab98;
+        z-index: 2;
+      }
+
+      /*==============rwd修正==============*/
+      #bannerCarousel {
+        max-width: 1000px;
+      }
+
+      @media (min-width: 1281px) {
+        #bannerCarousel {
+          max-width: 1200px;
+        }
+      }
+
+      /*==============.fade-in==============*/
+      .fade-in {
+        animation: smooth 0.8s ease-in-out forwards;
+      }
+
+      @keyframes smooth {
+        0% {
+          opacity: 0;
+          -webkit-transform: translateX(20px);
+          transform: translateX(20px);
+        }
+
+        100% {
+          opacity: 1;
+          -webkit-transform: translateX(0);
+          transform: translateX(0);
+        }
+      }
+
+      /*==============swiper==============*/
+      .banner-container {
+        max-width: 1000px;
+      }
+
+      .banner .swiper-slide {
+        border-radius: 1.5em;
+        overflow: hidden;
+      }
+
+      .banner-container .swiper-button-prev,
+      .banner-container .swiper-button-next {
+        opacity: 1;
+        color: #00a58d;
+        height: 240px;
+        background-color: rgb(205, 240, 236);
+        border-radius: 8px;
+        box-shadow: none;
+        width: 3rem;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .banner-container .swiper-button-prev {
+        left: -88px;
+      }
+
+      .banner-container .swiper-button-next {
+        right: -88px;
+      }
+
+      .banner-container .swiper-navigation-icon {
+        width: 40%;
+      }
+
+      .banner-container .swiper-navigation-icon path {
+        stroke-width: 1px;
+        stroke: currentColor;
+      }
+
+      .swiper-pagination-bullet {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        opacity: 1;
+        background-color: #989898;
+      }
+
+      .swiper-pagination-bullet.swiper-pagination-bullet-active {
+        width: 20px;
+        height: 20px;
+        background-color: #00ab98;
+      }
+
+      .banner-container .swiper-pagination {
+        bottom: -50px;
+        align-items: center;
+      }
+
+      @media (min-width: 1281px) {
+        .banner-container {
+          max-width: 1200px;
+        }
+      }
+
+      @media (max-width: 992px) {
+        .banner-container {
+          margin-left: -1rem !important;
+          margin-right: -1rem !important;
+        }
+
+        .banner .swiper-slide {
+          border-radius: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="banner-container mx-auto position-relative">
+        <div class="banner swiper mt-4">
+          <div class="swiper-wrapper">
+            <div class="swiper-slide" v-for="banner in banners" :key="banner.alt">
+              <a :href="banner.href" target="_blank">
+                <img
+                  class="d-block w-100 swiper-lazy swiper-lazy-loaded"
+                  :src="banner.img"
+                  :alt="banner.alt"
+                />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-pagination d-flex justify-content-center"></div>
+
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-button-next"></div>
+      </div>
+
+      <!--============news-list 開始=============-->
+      <div class="news-list mx-auto py-7 row section">
+        <!--item-->
+        <div 
+          class="news-item col-12 col-md-6 col-lg-4 mb-4" 
+          v-for="(news, index) in newsList" 
+          :key="index"
+          :style="{ animationDelay: (index % 3) * 0.2 + 's' }"
+        >
+          <a :href="news.href">
+            <div class="news-item-img overflow-hidden">
+              <img :src="news.img" />
+            </div>
+            <div class="fs-4 news-item-text">
+              <p>{{ news.text }}</p>
+            </div>
+          </a>
+          <span class="align-items-center d-flex justify-content-center p-1">
+            <i class="fa-solid fa-arrow-right"></i>
+          </span>
+        </div>
+        <!--============news-list 結束=============-->
+      </div>
+    </div>
+
+    <!-- 載入 Vue 3 (CDN) -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
+    <script>
+      const { createApp } = Vue;
+
+      const app = createApp({
+        data() {
+          return {
+            banners: [
+              { href: '~/Home/News/yilan', img: './img/news/yilan/banner_1550x600.jpg', alt: '宜蘭兩天一夜遊' },
+              { href: '~/Home/News/periodontitis', img: './img/news/periodontitis/banner_1550x600.jpg', alt: '狗狗牙周病' },
+              { href: '~/Home/News/games', img: './img/news/games/banner_1550x600.jpg', alt: '程泓電玩' },
+              { href: '~/Home/News/hospitals', img: './img/news/hospitals/BN.png', alt: 'DUDUPAY 攜手多家動物醫院' },
+              { href: '~/Home/News/trip', img: './img/news/17trip/17tripBN.jpg', alt: '17trip banner' },
+              { href: '~/Home/News/fukuoka', img: './img/news/fukuoka/fukuoka_BN.png', alt: 'fukuoka banner' }
+            ],
+            newsList: [
+              { href: '~/Home/News/yilan', img: './img/news/yilan/banner_1024x1024.jpg', text: '帶毛孩輕鬆出遊！宜蘭2天1夜寵物友善小旅行，吃喝玩樂全攻略' },
+              { href: '~/Home/News/periodontitis', img: './img/news/periodontitis/banner_1024x1024.jpg', text: '【狗狗口腔真相大公開】從口臭到掉牙，帶你一次看懂狗狗牙周病' },
+              { href: '~/Home/News/games', img: './img/news/games/banner_1024x1024.jpg', text: '買的不是遊戲是回憶！程泓電玩用純粹熱愛，陪伴玩家找回樂趣' },
+              { href: '~/Home/News/hospitals', img: './img/news/hospitals/cover.jpg', text: 'DUDUPAY攜手多間寵物醫院，提供毛孩家長便利、安心的就醫選擇' },
+              { href: '~/Home/News/trip', img: './img/news/17trip/17trip.jpg', text: 'DUDUPAY 攜手「一起飛旅行社」推出寵物旅遊專屬優惠' },
+              { href: '~/Home/News/fukuoka', img: './img/news/fukuoka/fukuoka_list.png', text: '春節想出國走走？DUDUPAY 無卡分期買機票成旅遊新選擇' },
+              { href: '~/Home/News/pet_health', img: './img/news/pet/pet_health_1024x1024.jpg', text: '潮濕天氣讓毛孩健康亮紅燈！獸醫提醒：當心毛孩關節與皮膚出狀況，照護要加強' },
+              { href: '~/Home/News/pet_2', img: './img/news/pet/pet-2.jpg', text: 'DUDUPAY 寵物展超狂活動登場！天天送好康、週末抽大獎，毛爸毛媽必衝！' },
+              { href: '~/Home/News/pet', img: './img/news/pet/展場亮點-1024x1024.jpg', text: 'DUDUPAY 攜手寵物界品牌大軍進駐寵物展｜現場限量半價組合、抽獎好禮等你帶回家！' },
+              { href: '~/Home/News/autumn_travel', img: './img/news/秋遊季-1024x1024.jpg', text: 'DUDUPAY 秋季旅遊特輯｜日本、韓國、東南亞無卡分期買機票，輕鬆出發零壓力！' },
+              { href: '~/Home/News/school_season', img: './img/news/news-list/new_8.jpg', text: '開學季｜新學期即將開啟，準備好迎接全新的學習挑戰了嗎？' },
+              { href: '~/Home/News/pet_oralcare', img: './img/news/news-list/new_7.jpg', text: '毛孩牙齒保健｜寵物口腔護理指南，口腔健康從日常開始！' },
+              { href: '~/Home/News/eyebrow_installment', img: './img/news/news-list/new_6.jpg', text: '不畫也有精緻眉｜ 與其每天早起搏命，不如試試半永久眉毛，找對眉型，整體氣質立刻升級' },
+              { href: '~/Home/News/newbnpl', img: './img/news/news-list/new_5.jpg', text: '理性分期｜幸福升級數位分期新選擇 — DUDUPAY 體驗靈活分期，輕鬆又方便！' },
+              { href: '~/Home/News/pettravelchecklist', img: './img/news/news-list/new_3.jpg', text: '毛孩出遊必備清單｜規劃旅遊帶著毛孩共同打造專屬的幸福回憶！' },
+              { href: '~/Home/News_1', img: './img/news/news-list/new_1.jpg', text: 'DUDU新會員招募｜現在加入即可獲得消費額度、LINE POINT和DU幣！' },
+              { href: '~/Home/News/whats_dudupay', img: './img/news/news-list/new_2.jpg', text: 'DUDUPAY理性購物新選擇｜秉持「理性分期、幸福升級」理念前提下，採用獨特履約信用升級分期模式，讓您輕鬆且彈性地分期購買所需商品或服務！' },
+              { href: '~/Home/News/travel_installment', img: './img/news/news-list/new_4.jpg', text: '出發家族旅行團｜想帶爸媽出國或家族旅遊，不該被預算限制打斷，DUDUPAY旅遊分期讓你想去沒壓力！' }
+            ]
+          };
+        },
+        mounted() {
+          // 使用 nextTick 確保 Vue 已經完成 v-for 的 DOM 渲染
+          this.$nextTick(() => {
+            // IntersectionObserver 初始化
+            const options_x = {
+              root: null,
+              threshold: 0.3,
+            };
+            const observer = new IntersectionObserver((entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  entry.target.classList.add("fade-in");
+                  observer.unobserve(entry.target);
+                }
+              });
+            }, options_x);
+
+            const target = document.querySelectorAll(".section .news-item");
+            target.forEach((el) => observer.observe(el));
+
+            // Swiper 初始化
+            const swiper = new Swiper(".swiper", {
+              loop: true,
+              pagination: {
+                el: ".swiper-pagination",
+                clickable: true,
+              },
+              navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+              },
+            });
+          });
+        }
+      });
+
+      app.mount('#app');
+    </script>
+    <script
+      src="https://kit.fontawesome.com/7c6bbc6b90.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
