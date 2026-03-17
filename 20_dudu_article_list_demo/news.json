@@ -1,0 +1,92 @@
+[
+  {
+    "href": "~/Home/News/yilan",
+    "img": "./img/news/yilan/banner_1024x1024.jpg",
+    "text": "帶毛孩輕鬆出遊！宜蘭2天1夜寵物友善小旅行，吃喝玩樂全攻略"
+  },
+  {
+    "href": "~/Home/News/periodontitis",
+    "img": "./img/news/periodontitis/banner_1024x1024.jpg",
+    "text": "【狗狗口腔真相大公開】從口臭到掉牙，帶你一次看懂狗狗牙周病"
+  },
+  {
+    "href": "~/Home/News/games",
+    "img": "./img/news/games/banner_1024x1024.jpg",
+    "text": "買的不是遊戲是回憶！程泓電玩用純粹熱愛，陪伴玩家找回樂趣"
+  },
+  {
+    "href": "~/Home/News/hospitals",
+    "img": "./img/news/hospitals/cover.jpg",
+    "text": "DUDUPAY攜手多間寵物醫院，提供毛孩家長便利、安心的就醫選擇"
+  },
+  {
+    "href": "~/Home/News/trip",
+    "img": "./img/news/17trip/17trip.jpg",
+    "text": "DUDUPAY 攜手「一起飛旅行社」推出寵物旅遊專屬優惠"
+  },
+  {
+    "href": "~/Home/News/fukuoka",
+    "img": "./img/news/fukuoka/fukuoka_list.png",
+    "text": "春節想出國走走？DUDUPAY 無卡分期買機票成旅遊新選擇"
+  },
+  {
+    "href": "~/Home/News/pet_health",
+    "img": "./img/news/pet/pet_health_1024x1024.jpg",
+    "text": "潮濕天氣讓毛孩健康亮紅燈！獸醫提醒：當心毛孩關節與皮膚出狀況，照護要加強"
+  },
+  {
+    "href": "~/Home/News/pet_2",
+    "img": "./img/news/pet/pet-2.jpg",
+    "text": "DUDUPAY 寵物展超狂活動登場！天天送好康、週末抽大獎，毛爸毛媽必衝！"
+  },
+  {
+    "href": "~/Home/News/pet",
+    "img": "./img/news/pet/展場亮點-1024x1024.jpg",
+    "text": "DUDUPAY 攜手寵物界品牌大軍進駐寵物展｜現場限量半價組合、抽獎好禮等你帶回家！"
+  },
+  {
+    "href": "~/Home/News/autumn_travel",
+    "img": "./img/news/秋遊季-1024x1024.jpg",
+    "text": "DUDUPAY 秋季旅遊特輯｜日本、韓國、東南亞無卡分期買機票，輕鬆出發零壓力！"
+  },
+  {
+    "href": "~/Home/News/school_season",
+    "img": "./img/news/news-list/new_8.jpg",
+    "text": "開學季｜新學期即將開啟，準備好迎接全新的學習挑戰了嗎？"
+  },
+  {
+    "href": "~/Home/News/pet_oralcare",
+    "img": "./img/news/news-list/new_7.jpg",
+    "text": "毛孩牙齒保健｜寵物口腔護理指南，口腔健康從日常開始！"
+  },
+  {
+    "href": "~/Home/News/eyebrow_installment",
+    "img": "./img/news/news-list/new_6.jpg",
+    "text": "不畫也有精緻眉｜ 與其每天早起搏命，不如試試半永久眉毛，找對眉型，整體氣質立刻升級"
+  },
+  {
+    "href": "~/Home/News/newbnpl",
+    "img": "./img/news/news-list/new_5.jpg",
+    "text": "理性分期｜幸福升級數位分期新選擇 — DUDUPAY 體驗靈活分期，輕鬆又方便！"
+  },
+  {
+    "href": "~/Home/News/pettravelchecklist",
+    "img": "./img/news/news-list/new_3.jpg",
+    "text": "毛孩出遊必備清單｜規劃旅遊帶著毛孩共同打造專屬的幸福回憶！"
+  },
+  {
+    "href": "~/Home/News_1",
+    "img": "./img/news/news-list/new_1.jpg",
+    "text": "DUDU新會員招募｜現在加入即可獲得消費額度、LINE POINT和DU幣！"
+  },
+  {
+    "href": "~/Home/News/whats_dudupay",
+    "img": "./img/news/news-list/new_2.jpg",
+    "text": "DUDUPAY理性購物新選擇｜秉持「理性分期、幸福升級」理念前提下，採用獨特履約信用升級分期模式，讓您輕鬆且彈性地分期購買所需商品或服務！"
+  },
+  {
+    "href": "~/Home/News/travel_installment",
+    "img": "./img/news/news-list/new_4.jpg",
+    "text": "出發家族旅行團｜想帶爸媽出國或家族旅遊，不該被預算限制打斷，DUDUPAY旅遊分期讓你想去沒壓力！"
+  }
+]
