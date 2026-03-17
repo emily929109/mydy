@@ -255,6 +255,70 @@
           border-radius: 0;
         }
       }
+
+      /*==============category-tabs==============*/
+      .category-tabs {
+        max-width: 1200px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-top: 80px;
+        margin-bottom: -40px;
+        position: relative;
+        z-index: 10;
+      }
+
+      .tab-item {
+        padding: 20px 0;
+        cursor: pointer;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.3s ease;
+        position: relative;
+        flex: 1;
+        text-align: center;
+        font-size: 1.1rem;
+      }
+
+      .tab-item:hover {
+        color: #00ab98;
+      }
+
+      .tab-item.active {
+        color: #00ab98;
+        font-weight: 700;
+      }
+
+      .tab-item::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 3px;
+        background-color: #00ab98;
+        transition: width 0.3s ease;
+      }
+
+      .tab-item.active::after {
+        width: 60%;
+      }
+
+      @media (max-width: 768px) {
+        .category-tabs {
+          margin: 40px 1rem -20px 1rem;
+          padding: 0 10px;
+        }
+        .tab-item {
+          font-size: 0.9rem;
+          padding: 15px 0;
+        }
+      }
     </style>
   </head>
   <body>
@@ -284,12 +348,45 @@
         <div class="swiper-button-next"></div>
       </div>
 
+      <!--============文章類別 Tab 開始=============-->
+      <div class="category-tabs mx-auto">
+        <div
+          class="tab-item"
+          :class="{ active: currentCategory === '全部' }"
+          @click="changeCategory('全部')"
+        >
+          全部
+        </div>
+        <div
+          class="tab-item"
+          :class="{ active: currentCategory === '最新消息' }"
+          @click="changeCategory('最新消息')"
+        >
+          最新消息
+        </div>
+        <div
+          class="tab-item"
+          :class="{ active: currentCategory === '寵物相關' }"
+          @click="changeCategory('寵物相關')"
+        >
+          寵物相關
+        </div>
+        <div
+          class="tab-item"
+          :class="{ active: currentCategory === '已結束活動' }"
+          @click="changeCategory('已結束活動')"
+        >
+          已結束活動
+        </div>
+      </div>
+      <!--============文章類別 Tab 結束=============-->
+
       <!--============news-list 開始=============-->
       <div class="news-list mx-auto py-7 row section">
         <!--item-->
         <div
           class="news-item col-12 col-md-6 col-lg-4 mb-4"
-          v-for="(news, index) in newsList"
+          v-for="(news, index) in filteredNews"
           :key="index"
           :style="{ animationDelay: (index % 3) * 0.2 + 's' }"
         >
@@ -314,7 +411,7 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.js"></script>
     <script>
-      const { createApp, ref, onMounted, nextTick } = Vue;
+      const { createApp, ref, onMounted, nextTick, computed } = Vue;
 
       const app = createApp({
         setup() {
@@ -351,13 +448,21 @@
             },
           ]);
 
-          const newsList = ref([]);
+          const allNews = ref([]);
+          const currentCategory = ref("全部");
+
+          const filteredNews = computed(() => {
+            if (currentCategory.value === "全部") return allNews.value;
+            return allNews.value.filter(
+              (news) => news.category === currentCategory.value
+            );
+          });
 
           const initPlugins = () => {
             // IntersectionObserver 初始化
             const options_x = {
               root: null,
-              threshold: 0.3,
+              threshold: 0.1,
             };
             const observer = new IntersectionObserver((entries) => {
               entries.forEach((entry) => {
@@ -369,9 +474,12 @@
             }, options_x);
 
             const target = document.querySelectorAll(".section .news-item");
-            target.forEach((el) => observer.observe(el));
+            target.forEach((el) => {
+              el.classList.remove("fade-in"); // 重置動畫
+              observer.observe(el);
+            });
 
-            // Swiper 初始化
+            // Swiper 初始化 (僅在尚未初始化時執行，或重新初始化)
             const swiper = new Swiper(".swiper", {
               loop: true,
               pagination: {
@@ -388,7 +496,7 @@
           const fetchNews = async () => {
             try {
               const response = await axios.get("news.json");
-              newsList.value = response.data;
+              allNews.value = response.data;
               nextTick(() => {
                 initPlugins();
               });
@@ -397,13 +505,53 @@
             }
           };
 
+          const changeCategory = (category) => {
+            currentCategory.value = category;
+
+            // 更新網址參數 (不重整頁面)
+            const url = new URL(window.location);
+            if (category === "全部") {
+              url.searchParams.delete("category");
+            } else {
+              url.searchParams.set("category", category);
+            }
+            window.history.pushState({ category }, "", url);
+
+            // 重新初始化動畫與外掛
+            nextTick(() => {
+              initPlugins();
+            });
+          };
+
+          // 處理瀏覽器前進/後退
+          window.onpopstate = (event) => {
+            const category =
+              (event.state && event.state.category) ||
+              new URLSearchParams(window.location.search).get("category") ||
+              "全部";
+            currentCategory.value = category;
+            nextTick(() => {
+              initPlugins();
+            });
+          };
+
           onMounted(() => {
+            // 從 URL 初始化類別
+            const params = new URLSearchParams(window.location.search);
+            const category = params.get("category");
+            if (category) {
+              currentCategory.value = category;
+            }
+
             fetchNews();
           });
 
           return {
             banners,
-            newsList,
+            allNews,
+            currentCategory,
+            filteredNews,
+            changeCategory,
           };
         },
       });
