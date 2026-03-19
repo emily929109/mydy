@@ -454,7 +454,7 @@
           const filteredNews = computed(() => {
             if (currentCategory.value === "全部") return allNews.value;
             return allNews.value.filter(
-              (news) => news.category === currentCategory.value
+              (news) => news.category === currentCategory.value,
             );
           });
 
@@ -510,17 +510,22 @@
 
             // 更新網址參數 (不重整頁面)
             const url = new URL(window.location);
+            console.log(url.searchParams);
             if (category === "全部") {
               url.searchParams.delete("category");
             } else {
               url.searchParams.set("category", category);
             }
+
+            //這會導致頁面重整
+            // window.location.href = url.toString();
+
             window.history.pushState({ category }, "", url);
 
-            // 重新初始化動畫與外掛
-            nextTick(() => {
-              initPlugins();
-            });
+            // // 重新初始化動畫與外掛
+            // nextTick(() => {
+            //   initPlugins();
+            // });
           };
 
           // 處理瀏覽器前進/後退
