@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>article_list</title>
+    <title>DUDUPAY 文章列表</title>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@12/swiper-bundle.min.css"
@@ -58,13 +58,14 @@
       /*========newslist修改========*/
       .news-list.row {
         max-width: 1200px;
-        padding: 120px 0;
+        padding: 80px 0;
       }
 
       .news-item {
         position: relative;
         transition: all 0.5s ease;
         opacity: 0;
+        cursor: pointer;
       }
 
       .news-item-img {
@@ -309,6 +310,145 @@
         width: 60%;
       }
 
+      /*==============search-bar==============*/
+      .search-container {
+        max-width: 1200px;
+        margin-top: 60px;
+        margin-bottom: -60px;
+        padding: 0 20px;
+        position: relative;
+        z-index: 5;
+      }
+
+      .search-input-group {
+        background: #fff;
+        border-radius: 30px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        padding: 5px 20px;
+        display: flex;
+        align-items: center;
+        border: 2px solid #eee;
+        transition: all 0.3s ease;
+      }
+
+      .search-input-group:focus-within {
+        border-color: #00ab98;
+        box-shadow: 0 4px 20px rgba(0, 171, 152, 0.15);
+      }
+
+      .search-input-group input {
+        border: none;
+        outline: none;
+        padding: 10px;
+        width: 100%;
+        font-size: 1rem;
+        color: #333;
+      }
+
+      .search-input-group i.fa-magnifying-glass {
+        color: #00ab98;
+        font-size: 1.2rem;
+      }
+
+      .search-clear {
+        cursor: pointer;
+        color: #ccc;
+        transition: color 0.3s ease;
+        padding: 5px;
+      }
+
+      .search-clear:hover {
+        color: #666;
+      }
+
+      /*==============已結束標籤==============*/
+      .news-item.ended .news-item-img {
+        position: relative;
+      }
+
+      .news-item.ended .news-item-img::before {
+        content: "已結束";
+        position: absolute;
+        top: 0;
+        left: 0;
+        background-color: rgba(43, 43, 43, 0.85);
+        color: #fff;
+        padding: 10px 25px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        border-bottom-right-radius: 20px;
+        z-index: 5;
+        letter-spacing: 2px;
+      }
+
+      /*==============內頁樣式 (Blog Info)==============*/
+      .blog-info-container {
+        max-width: 900px;
+        margin: 40px auto 100px auto;
+        padding: 0 20px;
+      }
+
+      .blog-info-banner {
+        width: 100%;
+        border-radius: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
+
+      .blog-info-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 25px;
+        line-height: 1.4;
+      }
+
+      .blog-info-content {
+        font-size: 1rem;
+        line-height: 1.8;
+        color: #444;
+      }
+
+      .blog-info-content p {
+        margin-bottom: 1.5rem;
+      }
+
+      .blog-info-content h1,
+      .blog-info-content h2,
+      .blog-info-content h3 {
+        color: #00ab98;
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      /* 子標題樣式: 1.1rem, 粗體, 底線 (v1.2 規範) */
+      .blog-info-subtitle {
+        font-size: 1.1rem !important;
+        font-weight: bold !important;
+        color: #00ab98;
+        margin-top: 2rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .back-btn {
+        display: inline-flex;
+        align-items: center;
+        color: #00ab98;
+        font-weight: 600;
+        cursor: pointer;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .back-btn:hover {
+        color: #f5ac48;
+        transform: translateX(-5px);
+      }
+
+      .back-btn i {
+        margin-right: 8px;
+      }
+
       @media (max-width: 768px) {
         .category-tabs {
           margin: 40px 1rem -20px 1rem;
@@ -318,91 +458,126 @@
           font-size: 0.9rem;
           padding: 15px 0;
         }
+        .search-container {
+          margin-top: 40px;
+          margin-bottom: -30px;
+        }
+        .blog-info-title {
+          font-size: 1.5rem;
+        }
       }
     </style>
   </head>
   <body>
     <div id="app">
-      <div class="banner-container mx-auto position-relative">
-        <div class="banner swiper mt-4">
-          <div class="swiper-wrapper">
-            <div
-              class="swiper-slide"
-              v-for="banner in banners"
-              :key="banner.alt"
-            >
-              <a :href="banner.href" target="_blank">
-                <img
-                  class="d-block w-100 swiper-lazy swiper-lazy-loaded"
-                  :src="banner.img"
-                  :alt="banner.alt"
-                />
-              </a>
+      <!-- 列表頁顯示容器 -->
+      <div v-show="isListView">
+        <div class="banner-container mx-auto position-relative">
+          <div class="banner swiper mt-4">
+            <div class="swiper-wrapper">
+              <div
+                class="swiper-slide"
+                v-for="banner in banners"
+                :key="banner.alt"
+              >
+                <a :href="banner.href" target="_blank">
+                  <img
+                    class="d-block w-100 swiper-lazy swiper-lazy-loaded"
+                    :src="banner.img"
+                    :alt="banner.alt"
+                  />
+                </a>
+              </div>
             </div>
           </div>
+
+          <div class="swiper-pagination d-flex justify-content-center"></div>
+
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
         </div>
 
-        <div class="swiper-pagination d-flex justify-content-center"></div>
+        <!--============文章類別 Tab 開始=============-->
+        <div class="category-tabs mx-auto">
+          <div
+            class="tab-item"
+            :class="{ active: currentCategory === '全部' }"
+            @click="changeCategory('全部')"
+          >
+            全部
+          </div>
+          <div
+            class="tab-item"
+            :class="{ active: currentCategory === '最新消息' }"
+            @click="changeCategory('最新消息')"
+          >
+            最新消息
+          </div>
+          <div
+            class="tab-item"
+            :class="{ active: currentCategory === '寵物相關' }"
+            @click="changeCategory('寵物相關')"
+          >
+            寵物相關
+          </div>
+          <div
+            class="tab-item"
+            :class="{ active: currentCategory === '已結束活動' }"
+            @click="changeCategory('已結束活動')"
+          >
+            已結束活動
+          </div>
+        </div>
+        <!--============文章類別 Tab 結束=============-->
 
-        <div class="swiper-button-prev"></div>
-        <div class="swiper-button-next"></div>
-      </div>
-
-      <!--============文章類別 Tab 開始=============-->
-      <div class="category-tabs mx-auto">
-        <div
-          class="tab-item"
-          :class="{ active: currentCategory === '全部' }"
-          @click="changeCategory('全部')"
-        >
-          全部
-        </div>
-        <div
-          class="tab-item"
-          :class="{ active: currentCategory === '最新消息' }"
-          @click="changeCategory('最新消息')"
-        >
-          最新消息
-        </div>
-        <div
-          class="tab-item"
-          :class="{ active: currentCategory === '寵物相關' }"
-          @click="changeCategory('寵物相關')"
-        >
-          寵物相關
-        </div>
-        <div
-          class="tab-item"
-          :class="{ active: currentCategory === '已結束活動' }"
-          @click="changeCategory('已結束活動')"
-        >
-          已結束活動
-        </div>
-      </div>
-      <!--============文章類別 Tab 結束=============-->
-
-      <!--============news-list 開始=============-->
-      <div class="news-list mx-auto py-7 row section">
-        <!--item-->
-        <div
-          class="news-item col-12 col-md-6 col-lg-4 mb-4"
-          v-for="(news, index) in filteredNews"
-          :key="index"
-          :style="{ animationDelay: (index % 3) * 0.2 + 's' }"
-        >
-          <a :href="news.href">
+        <!--============news-list 開始=============-->
+        <div class="news-list mx-auto py-7 row section">
+          <!--item-->
+          <div
+            class="news-item col-12 col-md-6 col-lg-4 mb-4"
+            :class="{ ended: news.category === '已結束活動' }"
+            v-for="(news, index) in filteredNews"
+            :key="index"
+            :style="{ animationDelay: (index % 3) * 0.2 + 's' }"
+            @click="viewArticle(news)"
+          >
             <div class="news-item-img overflow-hidden">
               <img :src="news.img" />
             </div>
             <div class="fs-4 news-item-text">
               <p>{{ news.text }}</p>
             </div>
-          </a>
-          <span class="align-items-center d-flex justify-content-center p-1">
-            <i class="fa-solid fa-arrow-right"></i>
-          </span>
+            <span class="align-items-center d-flex justify-content-center p-1">
+              <i class="fa-solid fa-arrow-right"></i>
+            </span>
+          </div>
+          <!--============news-list 結束=============-->
         </div>
-        <!--============news-list 結束=============-->
+      </div>
+
+      <!-- 內頁顯示容器 (Blog Info) -->
+      <div
+        v-if="!isListView && currentArticle"
+        class="blog-info-container fade-in"
+      >
+        <div class="back-btn" @click="goBack">
+          <i class="fa-solid fa-chevron-left"></i> 返回文章列表
+        </div>
+
+        <img
+          :src="currentArticle.banner"
+          :alt="currentArticle.title"
+          class="blog-info-banner"
+        />
+
+        <h2 class="blog-info-title">{{ currentArticle.title }}</h2>
+
+        <!-- 使用 formattedContent 進行渲染 -->
+        <div class="blog-info-content" v-html="formattedContent"></div>
+
+        <div class="mt-5 text-center">
+          <div class="button" @click="goBack">回文章列表</div>
+        </div>
       </div>
     </div>
 
@@ -449,12 +624,24 @@
           ]);
 
           const allNews = ref([]);
+          const newsData = ref([]); // 存儲詳細文章內容
           const currentCategory = ref("全部");
+          const isListView = ref(true);
+          const currentArticle = ref(null);
 
           const filteredNews = computed(() => {
             if (currentCategory.value === "全部") return allNews.value;
             return allNews.value.filter(
               (news) => news.category === currentCategory.value,
+            );
+          });
+
+          // 格式化文章內容：將 |, #, * 開頭的段落套用子標題樣式 (blogInfoSkills v1.2)
+          const formattedContent = computed(() => {
+            if (!currentArticle.value || !currentArticle.value.txt) return "";
+            return currentArticle.value.txt.replace(
+              /<p[^>]*>\s*([|#*])\s*/g,
+              '<p class="blog-info-subtitle">',
             );
           });
 
@@ -495,8 +682,26 @@
 
           const fetchNews = async () => {
             try {
-              const response = await axios.get("news.json");
-              allNews.value = response.data;
+              // 同時取得列表與詳細資料
+              const [listRes, dataRes] = await Promise.all([
+                axios.get("news.json"),
+                axios.get("news_data.json"),
+              ]);
+
+              allNews.value = listRes.data;
+              newsData.value = dataRes.data;
+
+              // 檢查初始 URL 是否有文章 ID
+              const params = new URLSearchParams(window.location.search);
+              const articleId = params.get("id");
+              if (articleId) {
+                const article = newsData.value.find((a) => a.id === articleId);
+                if (article) {
+                  currentArticle.value = article;
+                  isListView.value = false;
+                }
+              }
+
               nextTick(() => {
                 initPlugins();
               });
@@ -510,34 +715,73 @@
 
             // 更新網址參數 (不重整頁面)
             const url = new URL(window.location);
-            console.log(url.searchParams);
             if (category === "全部") {
               url.searchParams.delete("category");
             } else {
               url.searchParams.set("category", category);
             }
+            url.searchParams.delete("id"); // 切換類別時清除文章ID
 
-            //這會導致頁面重整
-            // window.location.href = url.toString();
+            window.history.pushState({ category, view: "list" }, "", url);
 
-            window.history.pushState({ category }, "", url);
+            nextTick(() => {
+              initPlugins();
+            });
+          };
 
-            // // 重新初始化動畫與外掛
-            // nextTick(() => {
-            //   initPlugins();
-            // });
+          const viewArticle = (news) => {
+            // 根據 news.href 或內容匹配 news_data.json 中的 id
+            const id = news.href.split("/").pop();
+            const article = newsData.value.find((a) => a.id === id);
+
+            if (article) {
+              currentArticle.value = article;
+              isListView.value = false;
+
+              const url = new URL(window.location);
+              url.searchParams.set("id", id);
+              window.history.pushState({ id, view: "detail" }, "", url);
+
+              window.scrollTo(0, 0);
+            } else {
+              // 如果沒找到對應 ID，則嘗試開啟原始連結
+              window.open(news.href, "_blank");
+            }
+          };
+
+          const goBack = () => {
+            isListView.value = true;
+            currentArticle.value = null;
+
+            const url = new URL(window.location);
+            url.searchParams.delete("id");
+            window.history.pushState({ view: "list" }, "", url);
+
+            nextTick(() => {
+              initPlugins();
+            });
           };
 
           // 處理瀏覽器前進/後退
           window.onpopstate = (event) => {
-            const category =
-              (event.state && event.state.category) ||
-              new URLSearchParams(window.location.search).get("category") ||
-              "全部";
-            currentCategory.value = category;
-            nextTick(() => {
-              initPlugins();
-            });
+            const params = new URLSearchParams(window.location.search);
+            const articleId = params.get("id");
+            const category = params.get("category") || "全部";
+
+            if (articleId) {
+              const article = newsData.value.find((a) => a.id === articleId);
+              if (article) {
+                currentArticle.value = article;
+                isListView.value = false;
+              }
+            } else {
+              isListView.value = true;
+              currentArticle.value = null;
+              currentCategory.value = category;
+              nextTick(() => {
+                initPlugins();
+              });
+            }
           };
 
           onMounted(() => {
@@ -556,7 +800,12 @@
             allNews,
             currentCategory,
             filteredNews,
+            isListView,
+            currentArticle,
+            formattedContent,
             changeCategory,
+            viewArticle,
+            goBack,
           };
         },
       });
