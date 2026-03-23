@@ -605,13 +605,13 @@
                 axios.get("news_data.json"),
               ]);
 
-              allNews.value = listRes.data;
-              newsData.value = dataRes.data;
+              allNews.value = Array.isArray(listRes.data) ? listRes.data : [];
+              newsData.value = Array.isArray(dataRes.data) ? dataRes.data : [];
 
               // 檢查初始 URL 是否有文章 ID
               const params = new URLSearchParams(window.location.search);
               const articleId = params.get("id");
-              if (articleId) {
+              if (articleId && Array.isArray(newsData.value)) {
                 const article = newsData.value.find((a) => a.id === articleId);
                 if (article) {
                   currentArticle.value = article;
