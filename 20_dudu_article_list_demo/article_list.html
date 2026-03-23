@@ -152,17 +152,6 @@
         z-index: 2;
       }
 
-      /*==============rwd修正==============*/
-      #bannerCarousel {
-        max-width: 1000px;
-      }
-
-      @media (min-width: 1281px) {
-        #bannerCarousel {
-          max-width: 1200px;
-        }
-      }
-
       /*==============.fade-in==============*/
       .fade-in {
         animation: smooth 0.8s ease-in-out forwards;
@@ -311,57 +300,6 @@
         width: 60%;
       }
 
-      /*==============search-bar==============*/
-      .search-container {
-        max-width: 1200px;
-        margin-top: 60px;
-        margin-bottom: -60px;
-        padding: 0 20px;
-        position: relative;
-        z-index: 5;
-      }
-
-      .search-input-group {
-        background: #fff;
-        border-radius: 30px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        padding: 5px 20px;
-        display: flex;
-        align-items: center;
-        border: 2px solid #eee;
-        transition: all 0.3s ease;
-      }
-
-      .search-input-group:focus-within {
-        border-color: #00ab98;
-        box-shadow: 0 4px 20px rgba(0, 171, 152, 0.15);
-      }
-
-      .search-input-group input {
-        border: none;
-        outline: none;
-        padding: 10px;
-        width: 100%;
-        font-size: 1rem;
-        color: #333;
-      }
-
-      .search-input-group i.fa-magnifying-glass {
-        color: #00ab98;
-        font-size: 1.2rem;
-      }
-
-      .search-clear {
-        cursor: pointer;
-        color: #ccc;
-        transition: color 0.3s ease;
-        padding: 5px;
-      }
-
-      .search-clear:hover {
-        color: #666;
-      }
-
       /*==============已結束標籤==============*/
       .news-item.ended .news-item-img {
         position: relative;
@@ -422,15 +360,6 @@
         margin-bottom: 1rem;
       }
 
-      /* 子標題樣式: 1.1rem, 粗體, 底線 (v1.2 規範) */
-      .blog-info-subtitle {
-        font-size: 1.1rem !important;
-        font-weight: bold !important;
-        color: #00ab98;
-        margin-top: 2rem;
-        margin-bottom: 1.5rem;
-      }
-
       .back-btn {
         display: inline-flex;
         align-items: center;
@@ -458,10 +387,6 @@
         .tab-item {
           font-size: 0.9rem;
           padding: 15px 0;
-        }
-        .search-container {
-          margin-top: 40px;
-          margin-bottom: -30px;
         }
         .blog-info-title {
           font-size: 1.5rem;
@@ -573,8 +498,8 @@
 
         <h2 class="blog-info-title">{{ currentArticle.title }}</h2>
 
-        <!-- 使用 formattedContent 進行渲染 -->
-        <div class="blog-info-content" v-html="formattedContent"></div>
+        <!-- 直接使用 currentArticle.txt 進行渲染 -->
+        <div class="blog-info-content" v-html="currentArticle.txt"></div>
 
         <div class="mt-5 text-center">
           <div class="button" @click="goBack">回文章列表</div>
@@ -634,15 +559,6 @@
             if (currentCategory.value === "全部") return allNews.value;
             return allNews.value.filter(
               (news) => news.category === currentCategory.value,
-            );
-          });
-
-          // 格式化文章內容：將 |, #, * 開頭的段落套用子標題樣式 (blogInfoSkills v1.2)
-          const formattedContent = computed(() => {
-            if (!currentArticle.value || !currentArticle.value.txt) return "";
-            return currentArticle.value.txt.replace(
-              /<p[^>]*>\s*([|#*])\s*/g,
-              '<p class="blog-info-subtitle">',
             );
           });
 
@@ -803,7 +719,6 @@
             filteredNews,
             isListView,
             currentArticle,
-            formattedContent,
             changeCategory,
             viewArticle,
             goBack,
