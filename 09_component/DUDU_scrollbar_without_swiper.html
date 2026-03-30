@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DUDU_scrollbar_without_swiper</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: sans-serif;
+        background: #f5f5f5;
+        padding: 40px 16px;
+      }
+
+      /* ── 外層容器 ── */
+      .tab-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 480px;
+        margin: 0 auto;
+        position: relative;
+      }
+
+      /* ── 左右箭頭 ── */
+      .btn-arrow {
+        flex-shrink: 0;
+        width: 32px;
+        height: 32px;
+        border: 1px solid #ccc;
+        border-radius: 50%;
+        background: #fff;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.2s,
+          border-color 0.2s;
+        user-select: none;
+      }
+
+      .btn-arrow:hover:not(:disabled) {
+        background: #eee;
+        border-color: #999;
+      }
+
+      .btn-arrow:disabled {
+        opacity: 0.3;
+        cursor: default;
+      }
+
+      .btn-arrow svg {
+        width: 14px;
+        height: 14px;
+        stroke: #333;
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      /* ── scroll 容器：overflow hidden 禁止手動拖動 ── */
+      .tab-track {
+        flex: 1;
+        overflow: hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      /* ── 內層 flex 排列 ── */
+      .tab-inner {
+        display: flex;
+        gap: 8px;
+        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        will-change: transform;
+      }
+
+      /* ── 每個 chip ── */
+      .tab-item {
+        flex-shrink: 0;
+        scroll-snap-align: start;
+        padding: 6px 16px;
+        border: 1px solid #ccc;
+        border-radius: 999px;
+        background: #fff;
+        color: #333;
+        font-size: 14px;
+        white-space: nowrap;
+        word-break: keep-all;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition:
+          background 0.2s,
+          border-color 0.2s,
+          color 0.2s;
+        user-select: none;
+      }
+
+      .tab-item:hover {
+        background: #f0f0f0;
+        border-color: #999;
+      }
+
+      .tab-item.active {
+        background: var(--color-blue-2, #1a73e8);
+        border-color: var(--color-blue-2, #1a73e8);
+        color: #fff;
+      }
+
+      .box {
+        width: 200px;
+        height: 200px;
+        margin: 20px auto;
+      }
+
+      .box.one {
+        background-color: rgb(172, 197, 72);
+      }
+
+      .box.two {
+        background-color: rgb(143, 117, 60);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="box one"></div>
+      <snap-tab-bar :items="tabItems"></snap-tab-bar>
+      <div class="box two"></div>
+    </div>
+
+    <script>
+      const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+      const SnapTabBar = {
+        props: {
+          items: {
+            type: Array,
+            required: true,
+          },
+        },
+        setup(props) {
+          const trackEl = ref(null);
+          const innerEl = ref(null);
+          const currentIndex = ref(0);
+          const activeIndex = ref(0);
+
+          // 計算每格寬度（item width + gap）
+          function getItemStep() {
+            if (!innerEl.value) return 0;
+            const firstItem = innerEl.value.querySelector(".tab-item");
+            if (!firstItem) return 0;
+            const itemRect = firstItem.getBoundingClientRect();
+            const gap = parseFloat(getComputedStyle(innerEl.value).gap) || 0;
+            return itemRect.width + gap;
+          }
+
+          // 計算最大可以偏移幾格（讓最後一格不超出容器）
+          function getMaxIndex() {
+            if (!trackEl.value || !innerEl.value) return 0;
+            const trackWidth = trackEl.value.clientWidth;
+            const totalWidth = innerEl.value.scrollWidth;
+            const step = getItemStep();
+            if (step === 0) return 0;
+            return Math.max(0, Math.ceil((totalWidth - trackWidth) / step));
+          }
+
+          const isPrevDisabled = computed(() => currentIndex.value === 0);
+          const isNextDisabled = computed(() => currentIndex.value >= getMaxIndex());
+
+          function slideTo(index) {
+            const max = getMaxIndex();
+            currentIndex.value = Math.max(0, Math.min(index, max));
+            const step = getItemStep();
+            innerEl.value.style.transform = `translateX(-${currentIndex.value * step}px)`;
+          }
+
+          function onPrev() {
+            slideTo(currentIndex.value - 1);
+          }
+
+          function onNext() {
+            slideTo(currentIndex.value + 1);
+          }
+
+          function onItemClick(index) {
+            activeIndex.value = index;
+          }
+
+          onMounted(() => {
+            nextTick(() => {
+              window.addEventListener("resize", () => slideTo(currentIndex.value));
+            });
+          });
+
+          return {
+            trackEl,
+            innerEl,
+            currentIndex,
+            activeIndex,
+            isPrevDisabled,
+            isNextDisabled,
+            onPrev,
+            onNext,
+            onItemClick,
+          };
+        },
+        template: `
+          <div class="tab-bar">
+            <button class="btn-arrow" :disabled="isPrevDisabled" aria-label="往左" @click="onPrev">
+              <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+
+            <div class="tab-track" ref="trackEl">
+              <div class="tab-inner" ref="innerEl">
+                <a
+                  v-for="(item, index) in items"
+                  :key="index"
+                  href="#"
+                  class="tab-item"
+                  :class="{ active: activeIndex === index }"
+                  @click.prevent="onItemClick(index)"
+                >{{ item.label }}</a>
+              </div>
+            </div>
+
+            <button class="btn-arrow" :disabled="isNextDisabled" aria-label="往右" @click="onNext">
+              <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+          </div>
+        `,
+      };
+
+      const app = createApp({
+        setup() {
+          const tabItems = ref([
+            { label: "全部" },
+            { label: "電子產品" },
+            { label: "服飾配件" },
+            { label: "美妝保養" },
+            { label: "居家生活" },
+            { label: "食品飲料" },
+            { label: "運動戶外" },
+            { label: "書籍文具" },
+            { label: "玩具童裝" },
+            { label: "寵物用品" },
+          ]);
+
+          return { tabItems };
+        },
+      });
+
+      app.component("snap-tab-bar", SnapTabBar);
+      app.mount("#app");
+    </script>
+  </body>
+</html>
