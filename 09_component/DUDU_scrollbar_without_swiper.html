@@ -66,20 +66,22 @@
         stroke-linejoin: round;
       }
 
-      /* ── scroll 容器：overflow hidden 禁止手動拖動 ── */
+      /* ── scroll 容器 ── */
       .tab-track {
         flex: 1;
-        overflow: hidden;
-        scroll-snap-type: x mandatory;
+        overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+
+      .tab-track::-webkit-scrollbar {
+        display: none;
       }
 
       /* ── 內層 flex 排列 ── */
       .tab-inner {
         display: flex;
         gap: 8px;
-        transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        will-change: transform;
       }
 
       /* ── 每個 chip ── */
@@ -150,25 +152,24 @@
         },
         setup(props) {
           const trackEl = ref(null);
-          const innerEl = ref(null);
           const currentIndex = ref(0);
           const activeIndex = ref(0);
 
           // 計算每格寬度（item width + gap）
           function getItemStep() {
-            if (!innerEl.value) return 0;
-            const firstItem = innerEl.value.querySelector(".tab-item");
+            if (!trackEl.value) return 0;
+            const firstItem = trackEl.value.querySelector(".tab-item");
             if (!firstItem) return 0;
             const itemRect = firstItem.getBoundingClientRect();
-            const gap = parseFloat(getComputedStyle(innerEl.value).gap) || 0;
+            const gap = parseFloat(getComputedStyle(trackEl.value.firstElementChild).gap) || 0;
             return itemRect.width + gap;
           }
 
           // 計算最大可以偏移幾格（讓最後一格不超出容器）
           function getMaxIndex() {
-            if (!trackEl.value || !innerEl.value) return 0;
+            if (!trackEl.value) return 0;
             const trackWidth = trackEl.value.clientWidth;
-            const totalWidth = innerEl.value.scrollWidth;
+            const totalWidth = trackEl.value.scrollWidth;
             const step = getItemStep();
             if (step === 0) return 0;
             return Math.max(0, Math.ceil((totalWidth - trackWidth) / step));
@@ -181,7 +182,7 @@
             const max = getMaxIndex();
             currentIndex.value = Math.max(0, Math.min(index, max));
             const step = getItemStep();
-            innerEl.value.style.transform = `translateX(-${currentIndex.value * step}px)`;
+            trackEl.value.scrollTo({ left: currentIndex.value * step, behavior: "smooth" });
           }
 
           function onPrev() {
@@ -199,12 +200,15 @@
           onMounted(() => {
             nextTick(() => {
               window.addEventListener("resize", () => slideTo(currentIndex.value));
+              trackEl.value.addEventListener("scroll", () => {
+                const step = getItemStep();
+                if (step) currentIndex.value = Math.round(trackEl.value.scrollLeft / step);
+              });
             });
           });
 
           return {
             trackEl,
-            innerEl,
             currentIndex,
             activeIndex,
             isPrevDisabled,
@@ -221,7 +225,7 @@
             </button>
 
             <div class="tab-track" ref="trackEl">
-              <div class="tab-inner" ref="innerEl">
+              <div class="tab-inner">
                 <a
                   v-for="(item, index) in items"
                   :key="index"
