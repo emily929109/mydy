@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p \"C:/Users/emily/Desktop/emily/01_project/99_memories\")",
+      "Bash(mkdir -p \"C:/Users/emily/Desktop/emily/01_project/.claude/commands\")"
+    ]
+  }
+}

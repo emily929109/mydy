@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls /c/Users/emily/Desktop/emily/01_project/09_component/*.html)"
+    ]
+  }
+}
