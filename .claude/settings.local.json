@@ -9,9 +9,7 @@
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(code --wait:*)",
-      "Bash(echo:*)"
+      "Bash(git push:*)"
     ]
   }
 }

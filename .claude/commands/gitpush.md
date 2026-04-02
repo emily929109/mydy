@@ -1,6 +1,6 @@
 ---
 description: 自動生成 commit message 並推送到 GitHub
-allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git commit:*), Bash(git push:*), Bash(git log:*), Bash(echo:*), Bash(code:*)
+allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git commit:*), Bash(git push:*), Bash(git log:*)
 ---
 
 執行以下 git 儲存與推送流程：
@@ -29,16 +29,17 @@ allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git diff:*), Bash(git c
 - ...
 ```
 
-## Step 4 — 開啟 VSCode 讓 user 編輯 commit message
+## Step 4 — 請 user 確認或修改
 
-1. 將生成的 commit message 寫入暫存檔 `/tmp/gitsave_commit_msg.txt`
-2. 執行 `code --wait /tmp/gitsave_commit_msg.txt` 開啟 VSCode
-3. 告知 user：「已在 VSCode 開啟 commit message，請編輯完畢後**關閉該分頁**，我會自動繼續。」
-4. 等待指令返回（user 關閉分頁後自動繼續）
-5. 讀取 `/tmp/gitsave_commit_msg.txt` 的最終內容作為 commit message
+將生成的 commit message 顯示給 user，詢問：
+「是否要修改？若沒問題，我將執行 git commit 與 git push。」
+
+等待 user 回覆，若 user 要求修改，依其指示調整後再次確認。
 
 ## Step 5 — 執行 Commit 與 Push
 
-1. 執行 `git commit -F /tmp/gitsave_commit_msg.txt`
+待 user 確認後：
+
+1. 執行 `git commit -m "<確認的 commit message>"`
 2. 執行 `git push` 推送到當前分支
 3. 顯示推送結果
