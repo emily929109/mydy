@@ -2,7 +2,8 @@
   <h1>{{ title }}</h1>
   <p>Welcome...</p>
 
-  <teleport to="#modals" v-if="showModal">
+  <!-- <teleport to="#modals" v-if="showModal"> -->
+  <div v-if="showModal">
     <Modal theme="sale" @close="toggleModal">
       <template v-slot:links>
         <a href="#">sign up now</a>
@@ -11,45 +12,59 @@
       <h1>Ninja Givaway!</h1>
       <p>Grab your ninja swag for half price!</p>
     </Modal>
-  </teleport>  
+  </div>
 
-  <teleport to="#modals" v-if="showModalTwo">
+  <!-- </teleport>   -->
+
+  <!-- <teleport to="#modals" v-if="showModalTwo">
     <Modal @close="toggleModalTwo">
       <h1>Sign up to the Newsletter</h1>
       <p>For updates and promo codes!</p>
     </Modal>
-  </teleport>
+  </teleport> -->
+
+  <div v-if="showModalTwo">
+    <Modal @close="toggleModalTwo">
+      <h1>whats for dinner today?</h1>
+      <p>tomato beef pot!</p>
+      <template v-slot:dinner>
+        <a href="#">yum yum</a>
+        <a href="#">more info</a>
+      </template>
+    </Modal>
+  </div>
 
   <button @click.alt="toggleModal">open modal (alt click)</button>
   <button @click="toggleModalTwo">open modal 2</button>
 </template>
 
 <script>
-import Modal from './components/Modal'
+import Modal from "./components/Modal";
 
 export default {
-  name: 'App',
+  name: "App",
   components: { Modal },
   data() {
     return {
-      title: 'My First Vue App!',
+      title: "My First Vue App!!!",
       showModal: false,
       showModalTwo: false,
-    }
+    };
   },
   methods: {
     toggleModal() {
-      this.showModal = !this.showModal
+      this.showModal = !this.showModal;
     },
     toggleModalTwo() {
-      this.showModalTwo = !this.showModalTwo
-    }
-  }
-}
+      this.showModalTwo = !this.showModalTwo;
+    },
+  },
+};
 </script>
 
 <style>
-#app, #modals {
+#app,
+#modals {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
