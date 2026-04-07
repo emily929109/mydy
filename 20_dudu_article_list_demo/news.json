@@ -1,5 +1,23 @@
 [
   {
+    "href": "~/Home/News/dog_heart_disease",
+    "img": "/img/news/heartAttack/banner_1024x1024.jpg",
+    "text": "狗狗心臟病不可輕忽！從早期徵兆到照護對策一次完整解析",
+    "category": "萌寵生活"
+  },
+  {
+    "href": "~/Home/News/cat_black_tooth",
+    "img": "/img/news/blackTooth/banner_1024x1024.jpg",
+    "text": "貓咪牙齒變黑不是蛀牙？獸醫提醒：真正問題可能更嚴重",
+    "category": "萌寵生活"
+  },
+  {
+    "href": "~/Home/News/jeju_april",
+    "img": "/img/news/fukuoka/fukuoka_list.png",
+    "text": "四月飛奔濟州島｜花路漫步、海風相伴，DUDUPAY 無卡分期讓春旅說走就走",
+    "category": "探索旅程"
+  },
+  {
     "href": "~/Home/News/spring",
     "img": "./img/news/spring/spring_list.jpg",
     "text": "春睏季節的療癒旅行，精選 4 間寵物友善溫泉飯店，讓毛孩也能享受春天的溫暖！",

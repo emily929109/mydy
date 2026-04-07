@@ -360,6 +360,16 @@
         margin-bottom: 1rem;
       }
 
+      .blog-info-content video {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: block;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
       .back-btn {
         display: inline-flex;
         align-items: center;
@@ -554,6 +564,7 @@
           const currentCategory = ref("全部");
           const isListView = ref(true);
           const currentArticle = ref(null);
+          const listScrollY = ref(0);
 
           const filteredNews = computed(() => {
             if (currentCategory.value === "全部") return allNews.value;
@@ -652,6 +663,8 @@
             const article = newsData.value.find((a) => a.id === id);
 
             if (article) {
+              listScrollY.value = window.scrollY; // 儲存列表目前捲動位置
+
               currentArticle.value = article;
               isListView.value = false;
 
@@ -659,7 +672,9 @@
               url.searchParams.set("id", id);
               window.history.pushState({ id, view: "detail" }, "", url);
 
-              window.scrollTo(0, 0);
+              nextTick(() => {
+                window.scrollTo(0, 0); // DOM 更新後才執行，避免行動裝置版面重算覆蓋 scroll
+              });
             } else {
               // 如果沒找到對應 ID，則嘗試開啟原始連結
               window.open(news.href, "_blank");
@@ -675,6 +690,7 @@
             window.history.pushState({ view: "list" }, "", url);
 
             nextTick(() => {
+              window.scrollTo(0, listScrollY.value); // 還原離開列表前的捲動位置
               initPlugins();
             });
           };
@@ -688,14 +704,19 @@
             if (articleId) {
               const article = newsData.value.find((a) => a.id === articleId);
               if (article) {
+                listScrollY.value = window.scrollY; // 儲存列表捲動位置
                 currentArticle.value = article;
                 isListView.value = false;
+                nextTick(() => {
+                  window.scrollTo(0, 0); // DOM 更新後才執行
+                });
               }
             } else {
               isListView.value = true;
               currentArticle.value = null;
               currentCategory.value = category;
               nextTick(() => {
+                window.scrollTo(0, listScrollY.value); // 還原列表捲動位置
                 initPlugins();
               });
             }
