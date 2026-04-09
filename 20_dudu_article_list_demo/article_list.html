@@ -658,8 +658,9 @@
           };
 
           const viewArticle = (news) => {
-            // 根據 news.href 或內容匹配 news_data.json 中的 id
-            const id = news.href.split("/").pop();
+            // 根據列表json物件中的 href 取得文章 id
+            const hrefParams = new URLSearchParams(news.href.split("?")[1]);
+            const id = hrefParams.get("id");
             const article = newsData.value.find((a) => a.id === id);
 
             if (article) {

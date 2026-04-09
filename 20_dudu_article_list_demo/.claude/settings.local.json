@@ -4,7 +4,9 @@
       "Bash(python3:*)",
       "Bash(python:*)",
       "Bash(node -e \":*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(find C:/Users/emily/Desktop/emily/01_project/20_dudu_article_list_demo -name *.mp4 -o -name *fuji* -type f)",
+      "Bash(ls:*)"
     ]
   }
 }

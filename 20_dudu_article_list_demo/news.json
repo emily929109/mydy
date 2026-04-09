@@ -1,136 +1,168 @@
 [
   {
-    "href": "~/Home/News/dog_heart_disease",
-    "img": "/img/news/heartAttack/banner_1024x1024.jpg",
-    "text": "狗狗心臟病不可輕忽！從早期徵兆到照護對策一次完整解析",
-    "category": "萌寵生活"
+    "href": "/Home/News?id=cat_heart_disease",
+    "img": "/img/news/cat_heart_disease/banner_1024x1024.jpg",
+    "text": "貓咪心臟病早知道！早期警訊症狀、日常照護到營養關鍵重點整理一次看",
+    "category": "萌寵生活",
+    "date": "2026/04/10"
+  },
+
+  {
+    "href": "/Home/News?id=fuji",
+    "img": "/img/news/fuji/banner_1024x1024.jpg",
+    "text": "富士山夢幻場景大集合！精選7大人氣必訪景點，帶你一次飽覽壯麗山景、特色橋梁與絕美拍照景點，捕捉最佳富士山畫面",
+    "category": "探索旅程",
+    "date": "2026/04/10"
+  },
+
+  {
+    "href": "/Home/News?id=dog_heart_disease",
+    "img": "/img/news/dog_heart_disease/banner_1024x1024.jpg",
+    "text": "狗狗心臟病全指南：從早期症狀辨識、分期解析到日常照護重點一次掌握",
+    "category": "萌寵生活",
+    "date": "2026/04/07"
+  },
+
+  {
+    "href": "/Home/News?id=cat_black_tooth",
+    "img": "/img/news/cat_black_tooth/banner_1024x1024.jpg",
+    "text": "別讓黑牙成為隱形危機！帶你了解貓咪常見口腔疾病與照護重點",
+    "category": "萌寵生活",
+    "date": "2026/04/07"
   },
   {
-    "href": "~/Home/News/cat_black_tooth",
-    "img": "/img/news/blackTooth/banner_1024x1024.jpg",
-    "text": "貓咪牙齒變黑不是蛀牙？獸醫提醒：真正問題可能更嚴重",
-    "category": "萌寵生活"
-  },
-  {
-    "href": "~/Home/News/jeju_april",
-    "img": "/img/news/fukuoka/fukuoka_list.png",
-    "text": "四月飛奔濟州島｜花路漫步、海風相伴，DUDUPAY 無卡分期讓春旅說走就走",
-    "category": "探索旅程"
-  },
-  {
-    "href": "~/Home/News/spring",
-    "img": "./img/news/spring/spring_list.jpg",
+    "href": "/Home/News?id=spring",
+    "img": "/img/news/spring/spring_list.jpg",
     "text": "春睏季節的療癒旅行，精選 4 間寵物友善溫泉飯店，讓毛孩也能享受春天的溫暖！",
-    "category": "探索旅程"
+    "category": "探索旅程",
+    "date": "2026/04/02"
   },
   {
-    "href": "~/Home/News/yilan",
-    "img": "/img/news/yilan/banner_1024x1024.jpg",
-    "text": "帶毛孩輕鬆出遊！宜蘭2天1夜寵物友善小旅行，吃喝玩樂全攻略",
-    "category": "探索旅程"
-  },
-  {
-    "href": "~/Home/News/periodontitis",
-    "img": "/img/news/periodontitis/banner_1024x1024.jpg",
-    "text": "【狗狗口腔真相大公開】從口臭到掉牙，帶你一次看懂狗狗牙周病",
-    "category": "萌寵生活"
-  },
-  {
-    "href": "~/Home/News/games",
-    "img": "/img/news/games/banner_1024x1024.jpg",
-    "text": "買的不是遊戲是回憶！程泓電玩用純粹熱愛，陪伴玩家找回樂趣",
-    "category": "最新消息"
-  },
-  {
-    "href": "~/Home/News/hospitals",
+    "href": "/Home/News?id=hospitals",
     "img": "/img/news/hospitals/hos_list.jpg",
     "text": "DUDUPAY攜手多家寵物醫院，毛孩就醫更安心，合作名單一次看",
-    "category": "萌寵生活"
+    "category": "萌寵生活",
+    "date": "2026/03/17"
   },
   {
-    "href": "~/Home/News/trip",
+    "href": "/Home/News?id=yilan",
+    "img": "/img/news/yilan/banner_1024x1024.jpg",
+    "text": "帶毛孩輕鬆出遊！宜蘭2天1夜寵物友善小旅行，吃喝玩樂全攻略",
+    "category": "探索旅程",
+    "date": "2026/02/26"
+  },
+  {
+    "href": "/Home/News?id=periodontitis",
+    "img": "/img/news/periodontitis/banner_1024x1024.jpg",
+    "text": "【狗狗口腔真相大公開】從口臭到掉牙，帶你一次看懂狗狗牙周病",
+    "category": "萌寵生活",
+    "date": "2026/02/26"
+  },
+  {
+    "href": "/Home/News?id=games",
+    "img": "/img/news/games/banner_1024x1024.jpg",
+    "text": "買的不是遊戲是回憶！程泓電玩用純粹熱愛，陪伴玩家找回樂趣",
+    "category": "重要公告",
+    "date": "2026/02/26"
+  },
+  {
+    "href": "/Home/News?id=trip",
     "img": "/img/news/17trip/17trip.jpg",
     "text": "DUDUPAY 攜手「一起飛旅行社」推出寵物旅遊專屬優惠",
-    "category": "探索旅程"
+    "category": "探索旅程",
+    "date": "2026/01/10"
   },
   {
-    "href": "~/Home/News/fukuoka",
+    "href": "/Home/News?id=fukuoka",
     "img": "/img/news/fukuoka/fukuoka_list.png",
     "text": "春節想出國走走？DUDUPAY 無卡分期買機票成旅遊新選擇",
-    "category": "探索旅程"
+    "category": "探索旅程",
+    "date": "2026/01/05"
   },
   {
-    "href": "~/Home/News/pet_health",
+    "href": "/Home/News?id=pet_health",
     "img": "/img/news/pet/pet_health_1024x1024.jpg",
     "text": "潮濕天氣讓毛孩健康亮紅燈！獸醫提醒：當心毛孩關節與皮膚出狀況，照護要加強",
-    "category": "萌寵生活"
+    "category": "萌寵生活",
+    "date": "2025/12/15"
   },
   {
-    "href": "~/Home/News/pet_2",
+    "href": "/Home/News?id=pet_2",
     "img": "/img/news/pet/pet-2.jpg",
     "text": "DUDUPAY 寵物展超狂活動登場！天天送好康、週末抽大獎，毛爸毛媽必衝！",
     "category": "活動訊息",
+    "date": "2025/12/03",
     "status": "ended"
   },
   {
-    "href": "~/Home/News/pet",
+    "href": "/Home/News?id=pet",
     "img": "/img/news/pet/展場亮點-1024x1024.jpg",
     "text": "DUDUPAY 攜手寵物界品牌大軍進駐寵物展｜現場限量半價組合、抽獎好禮等你帶回家！",
     "category": "活動訊息",
+    "date": "2025/12/03",
     "status": "ended"
   },
   {
-    "href": "~/Home/News/autumn_travel",
+    "href": "/Home/News?id=autumn_travel",
     "img": "/img/news/秋遊季-1024x1024.jpg",
     "text": "DUDUPAY 秋季旅遊特輯｜日本、韓國、東南亞無卡分期買機票，輕鬆出發零壓力！",
-    "category": "探索旅程"
+    "category": "探索旅程",
+    "date": "2025/10/01"
   },
   {
-    "href": "~/Home/News/school_season",
+    "href": "/Home/News?id=school_season",
     "img": "/img/news/news-list/new_8.jpg",
     "text": "開學季｜新學期即將開啟，準備好迎接全新的學習挑戰了嗎？",
-    "category": "最新消息"
+    "category": "重要公告",
+    "date": "2025/09/01"
   },
   {
-    "href": "~/Home/News/pet_oralcare",
+    "href": "/Home/News?id=pet_oralcare",
     "img": "/img/news/news-list/new_7.jpg",
     "text": "毛孩牙齒保健｜寵物口腔護理指南，口腔健康從日常開始！",
-    "category": "萌寵生活"
+    "category": "萌寵生活",
+    "date": "2025/07/22"
   },
   {
-    "href": "~/Home/News/eyebrow_installment",
+    "href": "/Home/News?id=eyebrow_installment",
     "img": "/img/news/news-list/new_6.jpg",
     "text": "不畫也有精緻眉｜ 與其每天早起搏命，不如試試半永久眉毛，找對眉型，整體氣質立刻升級",
-    "category": "最新消息"
+    "category": "重要公告",
+    "date": "2025/07/20"
   },
   {
-    "href": "~/Home/News/newbnpl",
+    "href": "/Home/News?id=newbnpl",
     "img": "/img/news/news-list/new_5.jpg",
     "text": "理性分期｜幸福升級數位分期新選擇 — DUDUPAY 體驗靈活分期，輕鬆又方便！",
-    "category": "最新消息"
+    "category": "重要公告",
+    "date": "2025/07/15"
   },
   {
-    "href": "~/Home/News/pettravelchecklist",
+    "href": "/Home/News?id=pettravelchecklist",
     "img": "/img/news/news-list/new_3.jpg",
     "text": "毛孩出遊必備清單｜規劃旅遊帶著毛孩共同打造專屬的幸福回憶！",
-    "category": "萌寵生活"
+    "category": "萌寵生活",
+    "date": "2025/07/08"
   },
   {
-    "href": "News_1",
+    "href": "/Home/News_1",
     "img": "/img/news/news-list/new_1.jpg",
     "text": "DUDU新會員招募｜現在加入即可獲得消費額度、LINE POINT和DU幣！",
-    "category": "最新消息"
+    "category": "重要公告",
+    "date": "2025/08/27"
   },
   {
-    "href": "~/Home/News/whats_dudupay",
+    "href": "/Home/News?id=whats_dudupay",
     "img": "/img/news/news-list/new_2.jpg",
     "text": "DUDUPAY理性購物新選擇｜秉持「理性分期、幸福升級」理念前提下，採用獨特履約信用升級分期模式，讓您輕鬆且彈性地分期購買所需商品或服務！",
-    "category": "最新消息"
+    "category": "重要公告",
+    "date": "2025/07/01"
   },
   {
-    "href": "~/Home/News/travel_installment",
+    "href": "/Home/News?id=travel_installment",
     "img": "/img/news/news-list/new_4.jpg",
     "text": "出發家族旅行團｜想帶爸媽出國或家族旅遊，不該被預算限制打斷，DUDUPAY旅遊分期讓你想去沒壓力！",
-    "category": "探索旅程"
+    "category": "探索旅程",
+    "date": "2025/07/05"
   }
 ]
