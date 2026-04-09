@@ -1,0 +1,186 @@
+{
+  "stores": [
+    {
+      "store_no": "AE86",
+      "dealer_name": "嘟嘟示範店",
+      "dealer_desc": "精選商品・品質保證",
+      "dealer_address": "台北市信義區信義路五段7號",
+      "member_id": 1,
+      "agent_phone": "0912-345-678",
+      "logo": "img/images.jpg",
+      "products": [
+        {
+          "product_id": 101,
+          "product_name": "無線藍牙耳機 Pro",
+          "image": "img/images.jpg",
+          "min_cash": 1200,
+          "category": "電子產品",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "img/images.jpg",
+            "img/images.jpg",
+            "",
+            ""
+          ],
+          "product_spec": [
+            { "name": "黑色", "cash": 1200, "qty": 8, "car_checked": true, "home_checked": true },
+            { "name": "白色", "cash": 1300, "qty": 3, "car_checked": true, "home_checked": false },
+            { "name": "限定紅（售完）", "cash": 1500, "qty": 0, "car_checked": true, "home_checked": true }
+          ],
+          "product_desc": "<p>高品質無線藍牙耳機，支援主動降噪，續航長達 30 小時。</p><p>附贈充電盒，隨時隨地享受音樂。</p>"
+        },
+        {
+          "product_id": 102,
+          "product_name": "不鏽鋼保溫杯 500ml",
+          "image": "img/images.jpg",
+          "min_cash": 850,
+          "category": "生活用品",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "img/images.jpg",
+            "",
+            "",
+            ""
+          ],
+          "product_spec": [
+            { "name": "霧黑 500ml", "cash": 850, "qty": 15, "car_checked": true, "home_checked": true },
+            { "name": "銀白 500ml", "cash": 850, "qty": 10, "car_checked": true, "home_checked": true },
+            { "name": "森林綠 750ml", "cash": 1050, "qty": 6, "car_checked": true, "home_checked": false }
+          ],
+          "product_desc": "<p>304 不鏽鋼雙層真空保溫杯，保溫保冷效果長達 12 小時。</p><p>輕巧好攜帶，適合日常使用。</p>"
+        },
+        {
+          "product_id": 103,
+          "product_name": "機械鍵盤 RGB 版",
+          "image": "img/images.jpg",
+          "min_cash": 3200,
+          "category": "電子產品",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "img/images.jpg",
+            "img/images.jpg",
+            "img/images.jpg",
+            ""
+          ],
+          "product_spec": [
+            { "name": "青軸 87鍵", "cash": 3200, "qty": 5, "car_checked": true, "home_checked": true },
+            { "name": "紅軸 87鍵", "cash": 3200, "qty": 7, "car_checked": true, "home_checked": true },
+            { "name": "茶軸 104鍵", "cash": 3600, "qty": 4, "car_checked": true, "home_checked": false }
+          ],
+          "product_desc": "<p>全鋁合金外殼機械鍵盤，搭載 Cherry MX 軸體，RGB 背光可自訂。</p><p>適合辦公及遊戲兩用。</p>"
+        },
+        {
+          "product_id": 104,
+          "product_name": "精品手沖咖啡豆 200g",
+          "image": "img/images.jpg",
+          "min_cash": 480,
+          "category": "食品飲料",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "",
+            "",
+            "",
+            ""
+          ],
+          "product_spec": [
+            { "name": "衣索比亞 淺焙", "cash": 480, "qty": 20, "car_checked": true, "home_checked": true },
+            { "name": "哥倫比亞 中焙", "cash": 480, "qty": 15, "car_checked": true, "home_checked": true },
+            { "name": "曼特寧 深焙", "cash": 520, "qty": 10, "car_checked": true, "home_checked": true }
+          ],
+          "product_desc": "<p>嚴選莊園級單品咖啡豆，新鮮烘焙後48小時內出貨。</p><p>適合手沖、法壓壺等多種沖泡方式。</p>"
+        }
+      ]
+    },
+    {
+      "store_no": "MOMO",
+      "dealer_name": "毛毛選物店",
+      "dealer_desc": "每日嚴選・快速出貨",
+      "dealer_address": "台中市西區台灣大道二段2號",
+      "member_id": 2,
+      "agent_phone": "0923-456-789",
+      "logo": "img/images.jpg",
+      "products": [
+        {
+          "product_id": 201,
+          "product_name": "北歐風香氛蠟燭禮盒",
+          "image": "img/images.jpg",
+          "min_cash": 599,
+          "category": "生活用品",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "img/images.jpg",
+            "",
+            "",
+            ""
+          ],
+          "product_spec": [
+            { "name": "薰衣草 3入組", "cash": 599, "qty": 12, "car_checked": true, "home_checked": true },
+            { "name": "玫瑰木 3入組", "cash": 599, "qty": 8, "car_checked": true, "home_checked": true },
+            { "name": "香草雪松 5入禮盒", "cash": 890, "qty": 5, "car_checked": true, "home_checked": false }
+          ],
+          "product_desc": "<p>精選天然大豆蠟，無毒無煙，散發淡雅北歐香氣。</p><p>精美禮盒包裝，適合送禮自用。</p>"
+        },
+        {
+          "product_id": 202,
+          "product_name": "智慧型手錶 健康監測版",
+          "image": "img/images.jpg",
+          "min_cash": 4990,
+          "category": "電子產品",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "img/images.jpg",
+            "img/images.jpg",
+            "",
+            ""
+          ],
+          "product_spec": [
+            { "name": "曜石黑 44mm", "cash": 4990, "qty": 6, "car_checked": true, "home_checked": true },
+            { "name": "星光銀 44mm", "cash": 4990, "qty": 4, "car_checked": true, "home_checked": true },
+            { "name": "玫瑰金 40mm", "cash": 4790, "qty": 3, "car_checked": true, "home_checked": false }
+          ],
+          "product_desc": "<p>支援心率、血氧、睡眠監測，防水 50 公尺，待機長達 7 天。</p><p>相容 iOS 及 Android 系統。</p>"
+        },
+        {
+          "product_id": 203,
+          "product_name": "台灣高山烏龍茶葉 75g",
+          "image": "img/images.jpg",
+          "min_cash": 380,
+          "category": "食品飲料",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "",
+            "",
+            "",
+            ""
+          ],
+          "product_spec": [
+            { "name": "梨山 烏龍 75g", "cash": 380, "qty": 20, "car_checked": true, "home_checked": true },
+            { "name": "阿里山 金萱 75g", "cash": 350, "qty": 18, "car_checked": true, "home_checked": true },
+            { "name": "大禹嶺 頂級 75g（售完）", "cash": 680, "qty": 0, "car_checked": true, "home_checked": true }
+          ],
+          "product_desc": "<p>台灣高山茶園直送，海拔 1500 公尺以上嚴選茶葉。</p><p>回甘清香，獨立鋁箔包裝保持新鮮。</p>"
+        },
+        {
+          "product_id": 204,
+          "product_name": "天然乳木果護手霜 組合",
+          "image": "img/images.jpg",
+          "min_cash": 299,
+          "category": "生活用品",
+          "product_imagelistbase64": [
+            "img/images.jpg",
+            "img/images.jpg",
+            "",
+            "",
+            ""
+          ],
+          "product_spec": [
+            { "name": "玫瑰香 3入組", "cash": 299, "qty": 25, "car_checked": true, "home_checked": true },
+            { "name": "柑橘薄荷 3入組", "cash": 299, "qty": 20, "car_checked": true, "home_checked": true },
+            { "name": "無香精 敏感肌 3入組", "cash": 350, "qty": 12, "car_checked": true, "home_checked": true }
+          ],
+          "product_desc": "<p>富含天然乳木果油，深層滋潤不油膩，適合乾燥季節使用。</p><p>無添加人工香料，敏感肌膚適用。</p>"
+        }
+      ]
+    }
+  ]
+}

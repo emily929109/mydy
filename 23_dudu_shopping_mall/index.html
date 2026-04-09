@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>dudu 購物商城</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- ===== Header ===== -->
+      <header class="site-header">
+        <div class="header-inner">
+          <a href="index.html" class="header-logo">
+            <i class="fa-solid fa-store me-1"></i>dudu 購物商城
+          </a>
+          <div class="header-cart-wrap">
+            <button class="cart-trigger" @click="toggleCartDropdown">
+              <i class="fa-solid fa-cart-shopping"></i>
+              購物車
+              <span class="cart-badge" v-if="cartCount > 0"
+                >{{ cartCount }}</span
+              >
+            </button>
+            <!-- 購物車 Dropdown -->
+            <div class="cart-dropdown" v-show="showCartDropdown" v-cloak>
+              <div v-if="headerCart.length === 0" class="cart-drop-empty">
+                <i
+                  class="fa-solid fa-cart-shopping d-block mb-2"
+                  style="font-size: 1.5rem"
+                ></i>
+                購物車是空的
+              </div>
+              <template v-else>
+                <div
+                  v-for="item in headerCart"
+                  :key="item.cartItemId"
+                  class="cart-drop-item"
+                >
+                  <img :src="item.product_image" :alt="item.product_name" />
+                  <div class="cart-drop-info">
+                    <div class="cart-drop-name">{{ item.product_name }}</div>
+                    <div class="cart-drop-spec">
+                      {{ getSpecName(item.spec_name) }} × {{ item.quantity }}
+                    </div>
+                  </div>
+                  <div class="cart-drop-price">
+                    NT${{ (item.spec_cash * item.quantity).toLocaleString() }}
+                  </div>
+                </div>
+              </template>
+              <div class="cart-drop-footer">
+                <a
+                  href="dudu_shopping_mall.html?view=cart"
+                  class="btn-view-cart"
+                >
+                  查看全部購物車
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== 商品列表 ===== -->
+      <div class="container py-4 mt-5" style="max-width: 1200px">
+        <div v-for="store in stores" :key="store.store_no" class="mb-5">
+          <!-- 店家標題 -->
+          <div class="store-header d-flex align-items-center gap-3 mb-3 pb-2">
+            <img
+              :src="store.logo"
+              class="store-logo"
+              :alt="store.dealer_name"
+            />
+            <div>
+              <div class="store-name">{{ store.dealer_name }}</div>
+              <div class="store-desc">{{ store.dealer_desc }}</div>
+            </div>
+          </div>
+          <!-- 商品格 -->
+          <div class="row g-3">
+            <div
+              v-for="prd in store.products"
+              :key="prd.product_id"
+              class="col-6 col-md-4 col-lg-3"
+            >
+              <a
+                :href="'dudu_shopping_mall.html?store=' + store.store_no + '&product=' + prd.product_id"
+                class="prd-card"
+              >
+                <div class="prd-card-img">
+                  <img :src="prd.image" :alt="prd.product_name" />
+                </div>
+                <div class="prd-card-body">
+                  <div class="prd-card-name">{{ prd.product_name }}</div>
+                  <div class="prd-card-price">
+                    NT${{ prd.min_cash.toLocaleString() }}
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script>
+      const { createApp, ref, computed, onMounted } = Vue;
+
+      createApp({
+        setup() {
+          const stores = ref([]);
+          const showCartDropdown = ref(false);
+          const headerCart = ref([]);
+
+          const cartCount = computed(() =>
+            headerCart.value.reduce((sum, item) => sum + item.quantity, 0),
+          );
+
+          const refreshHeaderCart = () => {
+            headerCart.value =
+              JSON.parse(localStorage.getItem("dudu_cart")) || [];
+          };
+
+          const toggleCartDropdown = () => {
+            showCartDropdown.value = !showCartDropdown.value;
+            if (showCartDropdown.value) refreshHeaderCart();
+          };
+
+          // 取出規格名稱（spec_name 儲存為 JSON 字串）
+          const getSpecName = (specStr) => {
+            try {
+              return JSON.parse(specStr).name || specStr;
+            } catch {
+              return specStr;
+            }
+          };
+
+          onMounted(() => {
+            refreshHeaderCart();
+
+            fetch("products.json")
+              .then((res) => res.json())
+              .then((data) => {
+                stores.value = data.stores;
+              })
+              .catch((err) => console.error("載入 products.json 失敗", err));
+
+            // 點擊外部關閉 dropdown
+            document.addEventListener("click", (e) => {
+              if (!e.target.closest(".header-cart-wrap")) {
+                showCartDropdown.value = false;
+              }
+            });
+          });
+
+          // 從商品頁返回時刷新購物車數量
+          window.addEventListener("focus", refreshHeaderCart);
+
+          return {
+            stores,
+            showCartDropdown,
+            headerCart,
+            cartCount,
+            toggleCartDropdown,
+            getSpecName,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
