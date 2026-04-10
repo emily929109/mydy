@@ -26,13 +26,13 @@
             <button class="cart-trigger" @click="toggleCartDropdown">
               <i class="fa-solid fa-cart-shopping"></i>
               購物車
-              <span class="cart-badge" v-if="cartCount > 0"
-                >{{ cartCount }}</span
+              <span class="cart-badge" v-if="selectedCount > 0"
+                >{{ selectedCount }}</span
               >
             </button>
             <!-- 購物車 Dropdown -->
             <div class="cart-dropdown" v-show="showCartDropdown" v-cloak>
-              <div v-if="headerCart.length === 0" class="cart-drop-empty">
+              <div v-if="cartItems.length === 0" class="cart-drop-empty">
                 <i
                   class="fa-solid fa-cart-shopping d-block mb-2"
                   style="font-size: 1.5rem"
@@ -41,7 +41,7 @@
               </div>
               <template v-else>
                 <div
-                  v-for="item in headerCart"
+                  v-for="item in cartItems"
                   :key="item.cartItemId"
                   class="cart-drop-item"
                 >
@@ -407,13 +407,13 @@
                         <i class="fa-solid fa-cart-shopping me-2"></i
                         ><span>加入購物車</span>
                       </button>
-                      <button
+                      <!-- <button
                         @click="account(p)"
                         class="btn-shop btn mb-4 py-2"
                       >
                         <i class="fa-solid fa-cart-shopping me-2"></i
                         ><span>直接購買</span>
-                      </button>
+                      </button> -->
                     </div>
                   </div>
                 </div>
@@ -453,7 +453,7 @@
           <h5 class="fw-bold mb-3">
             購物車
             <span class="text-muted" style="font-size: 0.9rem"
-              >(共 {{ cartItems.length }} 項商品)</span
+              >(共 {{ selectedCount }} 項商品)</span
             >
           </h5>
 
@@ -526,7 +526,9 @@
                 <img :src="item.product_image" class="cart-item-img" />
                 <div class="cart-item-info">
                   <div class="cart-item-name">{{ item.product_name }}</div>
-                  <div class="cart-item-spec">規格：{{ item.spec_name }}</div>
+                  <div class="cart-item-spec">
+                    規格：{{getSpecName(item.spec_name) }}
+                  </div>
                   <div class="cart-item-price d-md-none mt-1">
                     NT${{ item.spec_cash.toLocaleString() }}
                   </div>
@@ -565,24 +567,24 @@
               </div>
 
               <!-- 店家小計 -->
-              <div class="cart-store-footer">
+              <!-- <div class="cart-store-footer">
                 店家小計：<span
                   >NT${{ items.reduce((s, i) => s + i.spec_cash * i.quantity,
                   0).toLocaleString() }}</span
                 >
-              </div>
+              </div> -->
             </div>
 
             <!-- 底部結帳 bar -->
             <div class="cart-bottom-bar">
-              <input
+              <!-- <input
                 type="checkbox"
                 class="form-check-input"
                 :checked="isAllSelected"
                 @change="toggleAll($event.target.checked)"
                 style="width: 18px; height: 18px; cursor: pointer"
               />
-              <label class="form-check-label ms-1">全選</label>
+              <label class="form-check-label ms-1">全選</label> -->
               <span class="cart-total-label">
                 已選
                 <strong>{{ selectedCount }}</strong> 件&nbsp;&nbsp;合計：<span
@@ -593,9 +595,9 @@
               <button
                 class="btn-checkout"
                 @click="checkout()"
-                :disabled="selectedIds.length === 0"
+                :disabled="cartItems.length === 0"
               >
-                去結帳 ({{ selectedIds.length }})
+                去結帳
               </button>
             </div>
           </div>
@@ -643,11 +645,13 @@
           // ===== Header Cart =====
           const showCartDropdown = ref(false);
           const headerCart = ref([]);
-          const cartCount = computed(() =>
-            headerCart.value.reduce((sum, item) => sum + item.quantity, 0),
-          );
+          // const cartCount = computed(() =>
+          //   headerCart.value.reduce((sum, item) => sum + item.quantity, 0),
+          // );
           const refreshHeaderCart = () => {
             headerCart.value =
+              JSON.parse(localStorage.getItem("dudu_cart")) || [];
+            cartItems.value =
               JSON.parse(localStorage.getItem("dudu_cart")) || [];
           };
           const toggleCartDropdown = () => {
@@ -677,6 +681,7 @@
               if (!groups[item.store_no]) groups[item.store_no] = [];
               groups[item.store_no].push(item);
             });
+            // console.log("cartGroups", groups);
             return groups;
           });
 
@@ -690,6 +695,9 @@
             return cartItems.value
               .filter((item) => selectedIds.value.includes(item.cartItemId))
               .reduce((sum, item) => sum + item.quantity, 0);
+            // return cartItems.value.reduce((sum, item) => {
+            //   return sum + item.quantity;
+            // }, 0);
           });
 
           const isAllSelected = computed(() => {
@@ -789,7 +797,7 @@
           });
 
           specSelected = (_v) => {
-            console.log(_v);
+            // console.log(_v);
 
             // init
             showCarDiv.value = false;
@@ -802,54 +810,54 @@
             p.homeChecked = _v.home_checked;
           };
 
-          account = (_p) => {
-            // 規格
-            if (_p.spec == "") {
-              alert("請選擇商品規格");
-              return;
-            }
+          // account = (_p) => {
+          //   // 規格
+          //   if (_p.spec == "") {
+          //     alert("請選擇商品規格");
+          //     return;
+          //   }
 
-            // 取貨方式
-            if (selectedOption.value == "") {
-              alert("請選擇取貨方式");
-              return;
-            } else if (selectedOption.value == "商家宅配" && !_p.carChecked) {
-              alert("請選擇取貨方式");
-              return;
-            } else if (selectedOption.value == "店內自取" && !_p.homeChecked) {
-              alert("請選擇取貨方式");
-              return;
-            }
+          //   // 取貨方式
+          //   if (selectedOption.value == "") {
+          //     alert("請選擇取貨方式");
+          //     return;
+          //   } else if (selectedOption.value == "商家宅配" && !_p.carChecked) {
+          //     alert("請選擇取貨方式");
+          //     return;
+          //   } else if (selectedOption.value == "店內自取" && !_p.homeChecked) {
+          //     alert("請選擇取貨方式");
+          //     return;
+          //   }
 
-            if (selectedOption.value == "商家宅配") {
-              if (
-                _p.car_name == "" ||
-                _p.car_mobile == "" ||
-                _p.car_address == ""
-              ) {
-                alert("請填收貨人資訊");
-                return;
-              }
-            }
-            if (selectedOption.value == "店內自取") {
-              if (_p.home_name == "" || _p.home_mobile == "") {
-                alert("請填取件人資訊");
-                return;
-              }
-            }
+          //   if (selectedOption.value == "商家宅配") {
+          //     if (
+          //       _p.car_name == "" ||
+          //       _p.car_mobile == "" ||
+          //       _p.car_address == ""
+          //     ) {
+          //       alert("請填收貨人資訊");
+          //       return;
+          //     }
+          //   }
+          //   if (selectedOption.value == "店內自取") {
+          //     if (_p.home_name == "" || _p.home_mobile == "") {
+          //       alert("請填取件人資訊");
+          //       return;
+          //     }
+          //   }
 
-            // 目前登入帳號為店家,無法進行結帳
-            const member = JSON.parse(localStorage.getItem("member"));
-            if (member != null) {
-              if (member.role == "dealer") {
-                alert("請注意,目前登入帳號為店家,無法進行結帳");
-                return;
-              }
-            }
+          //   // 目前登入帳號為店家,無法進行結帳
+          //   const member = JSON.parse(localStorage.getItem("member"));
+          //   if (member != null) {
+          //     if (member.role == "dealer") {
+          //       alert("請注意,目前登入帳號為店家,無法進行結帳");
+          //       return;
+          //     }
+          //   }
 
-            // 模擬直接購買：加入購物車後前往購物車頁
-            addToCart(_p);
-          };
+          //   // 模擬直接購買：加入購物車後前往購物車頁
+          //   addToCart(_p);
+          // };
 
           watch(selectedOption, (newVal) => {
             if (newVal == "商家宅配") {
@@ -866,8 +874,10 @@
           // ===== 購物車：localStorage 讀寫 =====
           loadCart = () => {
             const raw = JSON.parse(localStorage.getItem("dudu_cart")) || [];
+            // console.log("購物車內容：", raw);
             cartItems.value = raw;
             selectedIds.value = raw.map((item) => item.cartItemId);
+            // console.log(selectedIds.value);
           };
 
           saveCart = () => {
@@ -882,8 +892,11 @@
               return;
             }
 
+            // console.log("加入購物車的規格：", _p.spec.name);
+
             const cart = JSON.parse(localStorage.getItem("dudu_cart")) || [];
-            const specName = JSON.stringify(_p.spec);
+            const specName = _p.spec.name;
+            console.log("加入購物車的規格名稱：", specName);
             const existIdx = cart.findIndex(
               (item) =>
                 item.product_id === productJson.value.product_id &&
@@ -1025,7 +1038,7 @@
             // Header Cart
             showCartDropdown,
             headerCart,
-            cartCount,
+            // cartCount,
             toggleCartDropdown,
             getSpecName,
             dealerJson,
@@ -1038,7 +1051,7 @@
             showCarDiv,
             showHomeDiv,
             p,
-            account,
+            // account,
             specJson,
             specSelected,
             groupJson,
@@ -1080,10 +1093,10 @@
         const sliderWrap = document.querySelector(".container_ean-slide");
         if (!sliderWrap) return;
 
-        startAuto();
+        // startAuto();
 
-        sliderWrap.addEventListener("mouseenter", stopAuto);
-        sliderWrap.addEventListener("mouseleave", startAuto);
+        // sliderWrap.addEventListener("mouseenter", stopAuto);
+        // sliderWrap.addEventListener("mouseleave", startAuto);
 
         setNumberText();
 

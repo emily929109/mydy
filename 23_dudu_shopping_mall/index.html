@@ -39,7 +39,7 @@
                 ></i>
                 購物車是空的
               </div>
-              <template v-else>
+              <div v-else>
                 <div
                   v-for="item in headerCart"
                   :key="item.cartItemId"
@@ -56,7 +56,7 @@
                     NT${{ (item.spec_cash * item.quantity).toLocaleString() }}
                   </div>
                 </div>
-              </template>
+              </div>
               <div class="cart-drop-footer">
                 <a
                   href="dudu_shopping_mall.html?view=cart"
@@ -129,6 +129,7 @@
           const refreshHeaderCart = () => {
             headerCart.value =
               JSON.parse(localStorage.getItem("dudu_cart")) || [];
+            // console.log("購物車內容已刷新", headerCart.value);
           };
 
           const toggleCartDropdown = () => {
