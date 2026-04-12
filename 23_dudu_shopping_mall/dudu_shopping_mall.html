@@ -182,10 +182,10 @@
                         >{{productJson.product_name}}</span
                       >
                     </div>
-                    <div class="fs-4 mb-3">
+                    <div class="mb-3">
                       <label
                         style="color: #e54623"
-                        class="col-form-label col-sm-12 fs-0"
+                        class="col-form-label col-sm-12 fs-4"
                         >NT${{p.product_cash.toLocaleString()}}</label
                       >
 
@@ -229,181 +229,33 @@
                             </select>
                           </div>
                         </div>
-                        <div class="d-flex align-items-center">
-                          <label
-                            class="col-sm-4 col-form-label pe-0 form-label"
-                            for="staticEmail"
-                            >取貨方式：</label
-                          >
-                          <div class="col-sm-8 fs-4">
-                            <div
-                              style="align-items: center; margin: 0"
-                              class="form-check form-check-inline"
-                            >
-                              <input
-                                class="form-check-input"
-                                id="inlineRadio1"
-                                :disabled="!p.carChecked"
-                                type="radio"
-                                name="inlineRadioOptions"
-                                value="商家宅配"
-                                v-model.trim="selectedOption"
-                              />
-                              <label
-                                for="inlineRadio1"
-                                :class="[!p.carChecked ? 'text-300' :'' ,'me-3']"
-                                style="margin: 0"
-                                >商家宅配</label
-                              >
-                            </div>
-                            <div
-                              class="form-check form-check-inline"
-                              style="margin: 0"
-                            >
-                              <input
-                                class="form-check-input"
-                                id="inlineRadio2"
-                                :disabled="!p.homeChecked"
-                                type="radio"
-                                name="inlineRadioOptions"
-                                value="店內自取"
-                                v-model.trim="selectedOption"
-                              />
-                              <label
-                                for="inlineRadio2"
-                                :class="[!p.homeChecked ? 'text-300' :'','fs-4']"
-                                style="margin: 0"
-                                >店內自取</label
-                              >
-                            </div>
-                          </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                          <div class="col-sm-12 lh-base">
-                            <div><i class="fa-solid fa-minus"></i> 宅配</div>
-                            <div
-                              style="
-                                margin-left: 22px;
-                                color: rgb(94 110 130 / 70%);
-                              "
-                            >
-                              價格已含運費,請聯繫店家確認物流
-                            </div>
-                            <div>
-                              <i class="fa-solid fa-minus"></i> 店內自取
-                            </div>
-                            <div
-                              style="
-                                margin-left: 22px;
-                                color: rgb(94 110 130 / 70%);
-                              "
-                            >
-                              請聯繫店家確認取貨時間
-                            </div>
-                            <div
-                              style="
-                                margin-left: 22px;
-                                color: rgb(94 110 130 / 70%);
-                              "
-                            >
-                              取貨地址:{{dealerJson.dealer_address}}
-                            </div>
-                          </div>
-                        </div>
-                        <div class="d-flex align-items-center">
-                          <!-- 宅配 div -->
-                          <div class="row fs-5" v-if="showCarDiv">
-                            <div class="col-sm-12">
-                              <label class="col-form-label fw-bold"
-                                >收貨人資訊：</label
-                              ><br />
-                            </div>
-                            <label class="col-form-label col-lg-2 col-sm-1"
-                              >姓名<span class="text-danger">*</span></label
-                            >
-                            <div>
-                              <input
-                                class="form-control"
-                                type="text"
-                                v-model="p.car_name"
-                              />
-                            </div>
-                            <label class="col-form-label col-lg-2 col-sm-1"
-                              >地址<span class="text-danger">*</span></label
-                            >
-                            <div>
-                              <input
-                                class="form-control"
-                                type="text"
-                                v-model="p.car_address"
-                              />
-                            </div>
-                            <label class="col-form-label col-lg-2 col-sm-1"
-                              >電話<span class="text-danger">*</span></label
-                            >
-                            <div>
-                              <input
-                                class="form-control"
-                                type="text"
-                                v-model="p.car_mobile"
-                              />
-                            </div>
-                            <label class="col-form-label col-lg-2 col-sm-1"
-                              >備註</label
-                            >
-                            <div>
-                              <input
-                                class="form-control"
-                                type="text"
-                                v-model="p.car_mark"
-                              />
-                            </div>
-                          </div>
-                          <!-- 店內自取 div -->
-                          <div class="row fs-5" v-if="showHomeDiv">
-                            <div class="col-sm-12">
-                              <label class="col-form-label fw-bold"
-                                >取件人資訊：</label
-                              ><br />
-                            </div>
-                            <label class="col-sm-3 col-form-label"
-                              >姓名<span class="text-danger">*</span></label
-                            >
-                            <div>
-                              <input
-                                class="form-control"
-                                type="text"
-                                v-model="p.home_name"
-                              />
-                            </div>
-                            <label class="col-sm-3 col-form-label"
-                              >電話<span class="text-danger">*</span></label
-                            >
-                            <div>
-                              <input
-                                class="form-control"
-                                type="text"
-                                v-model="p.home_mobile"
-                              />
-                            </div>
-                            <label class="col-sm-3 col-form-label">備註</label>
-                            <div>
-                              <input
-                                class="form-control"
-                                type="text"
-                                v-model="p.home_mark"
-                              />
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </div>
 
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <div>數量：</div>
+                      <div class="qty-ctrl">
+                        <button
+                          class="qty-btn"
+                          @click="buyQty > 1 ? buyQty-- : null"
+                        >
+                          －
+                        </button>
+                        <span class="qty-num">{{ buyQty }}</span>
+                        <button
+                          class="qty-btn"
+                          @click="buyQty < p.product_qty ? buyQty++ : null"
+                        >
+                          ＋
+                        </button>
+                      </div>
+                      <!-- <span class="text-muted" style="font-size: 0.85rem">
+                          庫存 {{ p.product_qty }} 件
+                        </span> -->
+                    </div>
+
                     <div class="d-flex justify-content-between">
-                      <button
-                        @click="addToCart(p)"
-                        class="btn-shop btn mb-4 py-2"
-                      >
+                      <button @click="addToCart(p)" class="btn-shop mb-4 py-2">
                         <i class="fa-solid fa-cart-shopping me-2"></i
                         ><span>加入購物車</span>
                       </button>
@@ -604,6 +456,271 @@
         </div>
       </div>
       <!-- ===== 購物車視圖 結束 ===== -->
+
+      <!-- ===== 結帳視圖 開始 ===== -->
+      <div v-show="currentView === 'checkout'" v-cloak class="fade-in">
+        <div class="container-fluid wrapper py-3">
+          <!-- 返回按鈕 -->
+          <div class="cart-back-btn" @click="goToCart()">
+            <i class="fa-solid fa-arrow-left"></i> 返回購物車
+          </div>
+
+          <h5 class="fw-bold mb-3">
+            確認訂單
+            <span class="text-muted" style="font-size: 0.9rem">
+              （共 {{ Object.keys(checkoutGroups).length }} 筆訂單）
+            </span>
+          </h5>
+
+          <!-- 依店家分組，每家店一個獨立訂單區塊 -->
+          <div
+            v-for="(items, storeNo) in checkoutGroups"
+            :key="storeNo"
+            class="cart-store-block mb-4"
+          >
+            <!-- 店家 header -->
+            <div class="cart-store-header">
+              <i class="fa-solid fa-store ms-1"></i>
+              <span>{{ storeNo }}</span>
+            </div>
+
+            <!-- 商品列表 -->
+            <div class="cart-table-header d-none d-md-flex">
+              <div class="cart-col-img"></div>
+              <div class="cart-col-info">商品</div>
+              <div class="cart-col-price">單價</div>
+              <div class="cart-col-qty">數量</div>
+              <div class="cart-col-sub">小計</div>
+            </div>
+            <div
+              v-for="item in items"
+              :key="item.cartItemId"
+              class="cart-item-row"
+            >
+              <img :src="item.product_image" class="cart-item-img" />
+              <div class="cart-item-info">
+                <div class="cart-item-name">{{ item.product_name }}</div>
+                <div class="cart-item-spec">
+                  規格：{{ getSpecName(item.spec_name) }}
+                </div>
+                <div class="cart-item-price d-md-none mt-1">
+                  NT${{ item.spec_cash.toLocaleString() }}
+                </div>
+              </div>
+              <div
+                class="cart-item-price d-none d-md-block"
+                style="min-width: 80px; text-align: center"
+              >
+                NT${{ item.spec_cash.toLocaleString() }}
+              </div>
+              <div style="min-width: 90px; text-align: center">
+                <span>{{ item.quantity }}</span>
+              </div>
+              <div class="cart-item-subtotal d-none d-md-block">
+                NT${{ (item.spec_cash * item.quantity).toLocaleString() }}
+              </div>
+            </div>
+
+            <!-- 取貨方式 -->
+            <div class="p-3 border-top">
+              <div class="fw-bold mb-2">
+                <i
+                  class="fa-solid fa-truck me-2"
+                  style="color: var(--color-green)"
+                ></i
+                >取貨方式
+              </div>
+              <div class="mb-2">
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    :id="'radio-car-' + storeNo"
+                    type="radio"
+                    :name="'checkoutShipping-' + storeNo"
+                    value="商家宅配"
+                    v-model="checkoutOrders[storeNo].option"
+                  />
+                  <label :for="'radio-car-' + storeNo" class="me-3"
+                    >商家宅配</label
+                  >
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    :id="'radio-home-' + storeNo"
+                    type="radio"
+                    :name="'checkoutShipping-' + storeNo"
+                    value="店內自取"
+                    v-model="checkoutOrders[storeNo].option"
+                  />
+                  <label :for="'radio-home-' + storeNo">店內自取</label>
+                </div>
+              </div>
+
+              <!-- 宅配收件人資訊 -->
+              <div
+                class="mt-3"
+                v-if="checkoutOrders[storeNo]?.option === '商家宅配'"
+              >
+                <div class="mb-1">
+                  <label class="col-form-label fw-bold">收貨人資訊：</label>
+                </div>
+
+                <div class="d-flex gap-4">
+                  <label class="col-form-label"
+                    >姓名<span class="text-danger">*</span></label
+                  >
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="checkoutOrders[storeNo].car_name"
+                    />
+                  </div>
+                  <label class="col-form-label"
+                    >地址<span class="text-danger">*</span></label
+                  >
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="checkoutOrders[storeNo].car_address"
+                    />
+                  </div>
+                  <label class="col-form-label"
+                    >電話<span class="text-danger">*</span></label
+                  >
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="checkoutOrders[storeNo].car_mobile"
+                    />
+                  </div>
+                  <label class="col-form-label">備註</label>
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="checkoutOrders[storeNo].car_mark"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- 店內自取取件人資訊 -->
+              <div
+                class="mt-3"
+                v-if="checkoutOrders[storeNo]?.option === '店內自取'"
+              >
+                <div class="mb-1">
+                  <label class="col-form-label fw-bold">取件人資訊：</label>
+                </div>
+                <div class="d-flex gap-4">
+                  <label class="col-form-label"
+                    >姓名<span class="text-danger">*</span></label
+                  >
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="checkoutOrders[storeNo].home_name"
+                    />
+                  </div>
+                  <label class="col-form-label"
+                    >電話<span class="text-danger">*</span></label
+                  >
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="checkoutOrders[storeNo].home_mobile"
+                    />
+                  </div>
+                  <label class="col-form-label">備註</label>
+                  <div class="mb-2">
+                    <input
+                      class="form-control"
+                      type="text"
+                      v-model="checkoutOrders[storeNo].home_mark"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 本店費用摘要 -->
+            <div
+              class="d-flex flex-column align-items-end px-3 py-2 border-top"
+              style="
+                font-size: 0.9rem;
+                background: #fafafa;
+                border-radius: 0 0 8px 8px;
+              "
+            >
+              <div class="mb-1">
+                商品小計：<span
+                  >NT${{ getStoreSubtotal(storeNo).toLocaleString() }}</span
+                >
+              </div>
+              <div class="mb-1">
+                運費：
+                <span
+                  v-if="checkoutOrders[storeNo]?.option === '店內自取'"
+                  class="text-success"
+                  >免運</span
+                >
+                <span
+                  v-else-if="checkoutOrders[storeNo]?.option === '商家宅配'"
+                >
+                  NT${{ getStoreShipping(storeNo).toLocaleString() }}
+                </span>
+                <span v-else class="text-muted">請選擇取貨方式</span>
+              </div>
+              <div class="fw-bold" style="font-size: 0.95rem">
+                本店合計：<span class="cart-total-price">
+                  NT${{ getStoreTotal(storeNo).toLocaleString() }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 底部：總金額 + 確認送出 -->
+          <div class="cart-bottom-bar">
+            <div
+              class="d-flex flex-column align-items-end gap-1 me-3"
+              style="font-size: 0.92rem"
+            >
+              <div class="text-muted">
+                共 {{ Object.keys(checkoutGroups).length }} 筆訂單
+              </div>
+              <div class="fw-bold" style="font-size: 1rem">
+                訂單總金額：<span class="cart-total-price">
+                  NT${{ checkoutGrandTotal.toLocaleString() }}
+                </span>
+              </div>
+            </div>
+            <button
+              class="btn-checkout"
+              @click="alert('結帳功能開發中')"
+              :disabled="!checkoutAllSelected"
+            >
+              確認送出
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- ===== 結帳視圖 結束 ===== -->
+
+      <!-- ===== 加入購物車 Toast ===== -->
+      <transition name="cart-toast">
+        <div class="cart-toast" v-if="showCartToast" v-cloak>
+          <div class="cart-toast-icon">
+            <i class="fa-solid fa-check"></i>
+          </div>
+          <div class="cart-toast-text">商品已加入購物車</div>
+        </div>
+      </transition>
     </div>
     <!-- 載入 Vue 3 (CDN) -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
@@ -624,6 +741,7 @@
           const showCarDiv = ref(false);
           const showHomeDiv = ref(false);
           const selectedOption = ref("");
+          const buyQty = ref(1);
           const p = reactive({
             product_cash: 0,
             product_qty: "",
@@ -641,6 +759,23 @@
           });
           const groupJson = ref([]);
           const search_value = ref("");
+
+          // ===== 加入購物車 Toast =====
+          const showCartToast = ref(false);
+          let cartToastTimer = null;
+          const triggerCartToast = () => {
+            // console.log("目前計時器編號：", cartToastTimer);
+            if (cartToastTimer) {
+              // console.log("取消舊的計時器：", cartToastTimer);
+              clearTimeout(cartToastTimer);
+            }
+
+            showCartToast.value = true;
+            cartToastTimer = setTimeout(() => {
+              showCartToast.value = false;
+            }, 2500);
+            // console.log("新產生的計時器編號：", cartToastTimer);
+          };
 
           // ===== Header Cart =====
           const showCartDropdown = ref(false);
@@ -667,8 +802,8 @@
           };
 
           // ===== SPA view 狀態 =====
-          const currentView = ref("product"); // 'product' | 'cart'
-          const productScrollY = ref(0);
+          const currentView = ref("product"); // '' | 'cart'
+          const ScrollY = ref(0);
 
           // ===== 購物車狀態 =====
           const cartItems = ref([]);
@@ -681,7 +816,8 @@
               if (!groups[item.store_no]) groups[item.store_no] = [];
               groups[item.store_no].push(item);
             });
-            // console.log("cartGroups", groups);
+            // console.log("cartGr
+            //oups", groups);
             return groups;
           });
 
@@ -691,13 +827,11 @@
               .reduce((sum, item) => sum + item.spec_cash * item.quantity, 0);
           });
 
+          //計算目前購物車中『已勾選商品』的總數量
           const selectedCount = computed(() => {
             return cartItems.value
               .filter((item) => selectedIds.value.includes(item.cartItemId))
               .reduce((sum, item) => sum + item.quantity, 0);
-            // return cartItems.value.reduce((sum, item) => {
-            //   return sum + item.quantity;
-            // }, 0);
           });
 
           const isAllSelected = computed(() => {
@@ -707,8 +841,84 @@
             );
           });
 
+          // ===== 結帳頁狀態 =====
+          const checkoutOrders = ref({});
+          // 每個 key = store_no，value = { option, car_name, ... }
+
+          const checkoutGroups = computed(() => {
+            const groups = {};
+            cartItems.value
+              .filter((item) => selectedIds.value.includes(item.cartItemId))
+              .forEach((item) => {
+                if (!groups[item.store_no]) groups[item.store_no] = [];
+                groups[item.store_no].push(item);
+              });
+            return groups;
+          });
+
+          const getStoreSubtotal = (storeNo) =>
+            cartItems.value
+              .filter(
+                (i) =>
+                  selectedIds.value.includes(i.cartItemId) &&
+                  i.store_no === storeNo,
+              )
+              .reduce((sum, i) => sum + i.spec_cash * i.quantity, 0);
+
+          const getStoreShipping = (storeNo) => {
+            const order = checkoutOrders.value[storeNo];
+            if (!order || order.option !== "商家宅配") return 0;
+            return cartItems.value
+              .filter(
+                (i) =>
+                  selectedIds.value.includes(i.cartItemId) &&
+                  i.store_no === storeNo,
+              )
+              .reduce((sum, i) => sum + (i.spec_shipping_fee || 0), 0);
+          };
+
+          const getStoreTotal = (storeNo) =>
+            getStoreSubtotal(storeNo) + getStoreShipping(storeNo);
+
+          const checkoutGrandTotal = computed(() =>
+            Object.keys(checkoutOrders.value).reduce(
+              (sum, s) => sum + getStoreTotal(s),
+              0,
+            ),
+          );
+
+          const checkoutAllSelected = computed(
+            () =>
+              Object.keys(checkoutOrders.value).length > 0 &&
+              Object.values(checkoutOrders.value).every((o) => o.option !== ""),
+          );
+
+          // 當 checkoutGroups 有內容時，自動補齊 checkoutOrders 的 key
+          // 避免模板在 v-show 為 false 時仍讀取 undefined.option 報錯
+          watch(
+            checkoutGroups,
+            (newGroups) => {
+              Object.keys(newGroups).forEach((storeNo) => {
+                if (!checkoutOrders.value[storeNo]) {
+                  checkoutOrders.value[storeNo] = {
+                    option: "",
+                    car_name: "",
+                    car_address: "",
+                    car_mobile: "",
+                    car_mark: "",
+                    home_name: "",
+                    home_mobile: "",
+                    home_mark: "",
+                  };
+                }
+              });
+            },
+            { immediate: true },
+          );
+
           onMounted(() => {
             refreshHeaderCart();
+            loadCart();
 
             // 點擊外部關閉 dropdown
             document.addEventListener("click", (e) => {
@@ -808,6 +1018,8 @@
             p.product_qty = _v.qty;
             p.carChecked = _v.car_checked;
             p.homeChecked = _v.home_checked;
+            p.spec = _v;
+            buyQty.value = 1; //換規格時數量重置為 1
           };
 
           // account = (_p) => {
@@ -896,30 +1108,26 @@
 
             const cart = JSON.parse(localStorage.getItem("dudu_cart")) || [];
             const specName = _p.spec.name;
-            console.log("加入購物車的規格名稱：", specName);
+            // console.log("加入購物車的規格名稱：", specName);
             const existIdx = cart.findIndex(
               (item) =>
                 item.product_id === productJson.value.product_id &&
                 item.spec_name === specName,
             );
 
-            // 若已存在相同商品+規格，則數量加1；否則新增一筆
+            // 若已存在相同商品+規格，則數量累加；否則新增一筆
             if (existIdx >= 0) {
               const maxQty = _p.spec.qty || 99;
-              if (cart[existIdx].quantity < maxQty) {
-                cart[existIdx].quantity += 1;
+              const newQty = cart[existIdx].quantity + buyQty.value;
+              if (newQty <= maxQty) {
+                cart[existIdx].quantity = newQty;
               } else {
                 alert("已達庫存上限");
                 return;
               }
             } else {
               cart.push({
-                cartItemId:
-                  productJson.value.product_id +
-                  "-" +
-                  specName +
-                  "-" +
-                  Date.now(),
+                cartItemId: productJson.value.product_id + "-" + specName,
                 store_no: dealerJson.value.store_no,
                 dealer_member_id: dealerJson.value.member_id,
                 product_id: productJson.value.product_id,
@@ -928,15 +1136,17 @@
                 spec_name: specName,
                 spec_cash: _p.product_cash,
                 spec_qty_max: _p.spec.qty || 99,
-                quantity: 1,
+                spec_shipping_fee: _p.spec.shipping_fee || 0,
+                quantity: buyQty.value,
               });
             }
 
             localStorage.setItem("dudu_cart", JSON.stringify(cart));
             refreshHeaderCart();
+            triggerCartToast();
 
-            const goNow = confirm("已加入購物車，是否前往查看？");
-            if (goNow) goToCart();
+            // const goNow = confirm("已加入購物車，是否前往查看？");
+            // if (goNow) goToCart();
           };
 
           // ===== SPA 切換 =====
@@ -946,14 +1156,28 @@
             const url = new URL(window.location);
             url.searchParams.set("view", "cart");
             window.history.pushState({ view: "cart" }, "", url);
+            nextTick(() => window.scrollTo(0, 0));
           };
 
           goToProduct = () => {
-            currentView.value = "product";
+            // currentView.value = "product";
+            // const url = new URL(window.location);
+            // url.searchParams.delete("view");
+            // window.history.pushState({ view: "product" }, "", url);
+            // nextTick(() => window.scrollTo(0, productScrollY.value));
+            window.location.href = "index.html";
+          };
+
+          goToCheckout = () => {
+            if (selectedIds.value.length === 0) {
+              alert("請選擇要結帳的商品");
+              return;
+            }
+            currentView.value = "checkout";
             const url = new URL(window.location);
-            url.searchParams.delete("view");
-            window.history.pushState({ view: "product" }, "", url);
-            nextTick(() => window.scrollTo(0, productScrollY.value));
+            url.searchParams.set("view", "checkout");
+            window.history.pushState({ view: "checkout" }, "", url);
+            nextTick(() => window.scrollTo(0, 0));
           };
 
           // 瀏覽器上一頁/下一頁
@@ -963,8 +1187,12 @@
               currentView.value = "cart";
               loadCart();
               nextTick(() => window.scrollTo(0, 0));
+            } else if (params.get("view") === "checkout") {
+              currentView.value = "checkout";
+              nextTick(() => window.scrollTo(0, 0));
             } else {
-              currentView.value = "product";
+              // currentView.value = "product";
+              window.location.href = "index.html";
               nextTick(() => window.scrollTo(0, productScrollY.value));
             }
           };
@@ -1027,14 +1255,12 @@
           };
 
           checkout = () => {
-            if (selectedIds.value.length === 0) {
-              alert("請選擇要結帳的商品");
-              return;
-            }
-            alert("結帳功能開發中");
+            goToCheckout();
           };
 
           return {
+            // Toast
+            showCartToast,
             // Header Cart
             showCartDropdown,
             headerCart,
@@ -1058,10 +1284,12 @@
             search,
             search_value,
             selectedOption,
+            buyQty,
             // SPA
             currentView,
             goToCart,
             goToProduct,
+            goToCheckout,
             // 購物車
             cartItems,
             cartGroups,
@@ -1078,6 +1306,13 @@
             updateQty,
             removeItem,
             checkout,
+            checkoutOrders,
+            checkoutGroups,
+            getStoreSubtotal,
+            getStoreShipping,
+            getStoreTotal,
+            checkoutGrandTotal,
+            checkoutAllSelected,
           };
         },
       });

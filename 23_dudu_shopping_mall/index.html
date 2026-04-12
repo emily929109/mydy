@@ -95,6 +95,7 @@
               <a
                 :href="'dudu_shopping_mall.html?store=' + store.store_no + '&product=' + prd.product_id"
                 class="prd-card"
+                @click="saveScrollY()"
               >
                 <div class="prd-card-img">
                   <img :src="prd.image" :alt="prd.product_name" />
@@ -114,7 +115,7 @@
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script>
-      const { createApp, ref, computed, onMounted } = Vue;
+      const { createApp, ref, computed, onMounted, nextTick } = Vue;
 
       createApp({
         setup() {
@@ -146,13 +147,28 @@
             }
           };
 
+          const saveScrollY = () => {
+            sessionStorage.setItem("scrollY", window.scrollY);
+          };
+
           onMounted(() => {
             refreshHeaderCart();
 
             fetch("products.json")
-              .then((res) => res.json())
+              .then((res) => {
+                return res.json();
+              })
               .then((data) => {
                 stores.value = data.stores;
+                console.log("成功載入 products.json", stores.value);
+                // 商品渲染完後再還原滾動位置
+                const savedScrollY = sessionStorage.getItem("scrollY");
+                if (savedScrollY) {
+                  nextTick(() => {
+                    window.scrollTo(0, parseInt(savedScrollY));
+                    sessionStorage.removeItem("scrollY");
+                  });
+                }
               })
               .catch((err) => console.error("載入 products.json 失敗", err));
 
@@ -174,6 +190,7 @@
             cartCount,
             toggleCartDropdown,
             getSpecName,
+            saveScrollY,
           };
         },
       }).mount("#app");

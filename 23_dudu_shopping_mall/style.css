@@ -2,6 +2,60 @@
   display: none !important;
 }
 
+/* ===== 加入購物車 Toast ===== */
+.cart-toast {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  background: rgba(30, 30, 30, 0.88);
+  color: #fff;
+  border-radius: 16px;
+  padding: 28px 36px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 180px;
+  pointer-events: none;
+}
+
+.cart-toast-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  color: #fff;
+}
+
+.cart-toast-text {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* Vue transition */
+.cart-toast-enter-active,
+.cart-toast-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.cart-toast-enter-from,
+.cart-toast-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -44%);
+}
+.cart-toast-enter-to,
+.cart-toast-leave-from {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+
 /*ul {
         list-style: none;
         padding: 0;
@@ -373,20 +427,21 @@ img {
 .qty-ctrl {
   display: flex;
   align-items: center;
-  gap: 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
 }
 .qty-btn {
   width: 28px;
   height: 28px;
-  border: 1px solid #ddd;
   background: #fff;
-  border-radius: 4px;
   cursor: pointer;
   font-size: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   line-height: 1;
+  border: none;
 }
 .qty-btn:hover {
   background: #f0f0f0;
@@ -701,7 +756,9 @@ img {
   overflow: hidden;
   text-decoration: none;
   color: inherit;
-  transition: box-shadow 0.2s, transform 0.2s;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
   background: #fff;
 }
 .prd-card:hover {
@@ -774,4 +831,13 @@ img {
   .logo img {
     max-width: 100px;
   }
+}
+
+/*商品數量選擇器*/
+.qty-ctrl .qty-btn:first-child {
+  border-right: 1px solid #ddd;
+}
+
+.qty-ctrl .qty-btn:last-child {
+  border-left: 1px solid #ddd;
 }
