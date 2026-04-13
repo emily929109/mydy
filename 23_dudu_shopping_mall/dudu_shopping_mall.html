@@ -829,9 +829,11 @@
 
           //計算目前購物車中『已勾選商品』的總數量
           const selectedCount = computed(() => {
-            return cartItems.value
+            const a = cartItems.value
               .filter((item) => selectedIds.value.includes(item.cartItemId))
               .reduce((sum, item) => sum + item.quantity, 0);
+            console.log("selectedCount", a);
+            return a;
           });
 
           const isAllSelected = computed(() => {
@@ -853,6 +855,7 @@
                 if (!groups[item.store_no]) groups[item.store_no] = [];
                 groups[item.store_no].push(item);
               });
+            console.log("checkoutGroups", groups);
             return groups;
           });
 
@@ -1104,8 +1107,6 @@
               return;
             }
 
-            // console.log("加入購物車的規格：", _p.spec.name);
-
             const cart = JSON.parse(localStorage.getItem("dudu_cart")) || [];
             const specName = _p.spec.name;
             // console.log("加入購物車的規格名稱：", specName);
@@ -1142,6 +1143,7 @@
             }
 
             localStorage.setItem("dudu_cart", JSON.stringify(cart));
+            loadCart(); // 同步更新 cartItems + selectedIds
             refreshHeaderCart();
             triggerCartToast();
 
@@ -1151,8 +1153,11 @@
 
           // ===== SPA 切換 =====
           goToCart = () => {
+            showCartDropdown.value = false;
+            if (currentView.value == "cart") return;
+
             currentView.value = "cart";
-            loadCart();
+            // loadCart();
             const url = new URL(window.location);
             url.searchParams.set("view", "cart");
             window.history.pushState({ view: "cart" }, "", url);
