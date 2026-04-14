@@ -10,9 +10,26 @@
     />
     <meta property="og:image" content="https://picsum.photos/200" />
     <title>test</title>
-    <style></style>
+    <style>
+      html {
+        /* 防止 iOS 上的瀏覽器自動調整文字大小 */
+        -webkit-text-size-adjust: 100%;
+        /* 防止其他移動端瀏覽器自動調整 */
+        -moz-text-size-adjust: 100%;
+        -ms-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      body {
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+      }
+    </style>
   </head>
   <body>
-    <h1>test</h1>
+    <div>test</div>
   </body>
 </html>
