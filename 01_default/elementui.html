@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Element Plus</title>
+    <!-- Element Plus CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-plus/dist/index.css"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <el-dialog
+        v-model="dialogVisible"
+        title="今日特惠"
+        :modal="true"
+        width="400px"
+        align-center
+      >
+        <p>限時優惠活動，即日起至本月底，全館商品 85 折！</p>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="dialogVisible = false">關閉</el-button>
+            <el-button type="primary" @click="dialogVisible = false">
+              前往查看
+            </el-button>
+          </div>
+        </template>
+      </el-dialog>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+    <!-- Element Plus 中文語系 -->
+    <script src="https://unpkg.com/element-plus/dist/locale/zh-tw.js"></script>
+
+    <script>
+      const { createApp, ref } = Vue;
+
+      const app = createApp({
+        setup() {
+          const dialogVisible = ref(true);
+
+          return {
+            dialogVisible,
+          };
+        },
+      });
+
+      app.use(ElementPlus, {
+        locale: ElementPlusLocaleZhTw,
+      });
+
+      app.mount("#app");
+    </script>
+  </body>
+</html>
