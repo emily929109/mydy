@@ -1,8 +1,15 @@
 [
   {
+    "href": "/Home/News?id=promotion_1",
+    "img": "./img/news/promotion_1/banner_1024x1024.jpg",
+    "text": "每週三限時限量破盤開搶毛孩好物，輪番驚喜不間斷，你還在等什麼!",
+    "category": "重要公告",
+    "date": "2026/04/20"
+  },
+  {
     "href": "/Home/News?id=yl",
     "img": "/img/news/yl/banner_1024x1024.jpg",
-    "text": "貓咪心臟病早知道！早期警訊症狀、日常照護到營養關鍵重點整理一次看",
+    "text": "DUDU會員專屬升等中圓寵物家族貴賓卡尊榮禮遇全面升級",
     "category": "萌寵生活",
     "date": "2026/04/13"
   },
