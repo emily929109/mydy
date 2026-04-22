@@ -1,0 +1,92 @@
+========================================
+對話標題：DUDU切換購物車視圖原理
+儲存日期：2026-04-22
+========================================
+
+【對話記錄】
+
+[使用者]
+請說明在dudu_shopping_mall.html中 按瀏覽器返回或下一頁 瀏覽器就知道去哪的原理
+
+----------------------------------------
+
+[Claude]
+這段程式碼使用的是瀏覽器原生的 History API，原理如下：
+
+## 核心機制：History API + URL Query String
+
+### 1. 切換畫面時「寫入歷史紀錄」— pushState
+
+```js
+// 切到購物車
+const url = new URL(window.location);
+url.searchParams.set("view", "cart");       // URL 變成 ?view=cart
+window.history.pushState({ view: "cart" }, "", url);
+```
+
+pushState 做了兩件事：
+- 把目前的狀態（{ view: "cart" }）推進瀏覽器的歷史堆疊
+- 把網址列改成 ?view=cart（不會真的發出 HTTP 請求，頁面不重新載入）
+
+每次切換畫面，堆疊就多一層，所以按上一頁能回去。
+
+---
+
+### 2. 按上一頁/下一頁時「讀取歷史紀錄」— onpopstate
+
+```js
+window.onpopstate = () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("view") === "cart") {
+        currentView.value = "cart";     // Vue 切換畫面
+    } else if (params.get("view") === "checkout") {
+        currentView.value = "checkout";
+    } else {
+        window.location.href = "index.html"; // 回到商品頁
+    }
+};
+```
+
+當使用者按瀏覽器的 ← → 時，popstate 事件被觸發。這時讀取 URL 的 query string（?view=cart），就知道要顯示哪個畫面，並更新 currentView，讓 Vue 重新渲染。
+
+---
+
+## 整體流程圖
+
+```
+使用者點「前往購物車」
+    ↓
+currentView = "cart"  ← Vue 立即切換畫面
+URL 變成 ?view=cart   ← pushState 更新網址（不刷頁）
+瀏覽器歷史堆疊 +1 層
+    ↓
+使用者按「上一頁」
+    ↓
+onpopstate 觸發
+讀取 URL → ?view= 是什麼？
+    ↓              ↓              ↓
+  "cart"      "checkout"      沒有值
+currentView   currentView   跳到 index.html
+ = "cart"    = "checkout"
+```
+
+---
+
+## 關鍵點總結
+
+| 操作 | 用到的 API | 效果 |
+|------|-----------|------|
+| 切換畫面 | history.pushState() | 改 URL、加歷史、不刷頁 |
+| 按上一頁/下一頁 | window.onpopstate | 讀 URL，決定顯示哪個畫面 |
+| 頁面進入時 | URLSearchParams | 解析 URL 決定初始畫面（?view=cart 直接開購物車） |
+
+這就是 SPA（單頁應用）的路由原理，Vue Router 在底層也是同一套機制。
+
+----------------------------------------
+
+[使用者]
+/chatsave → 檔名：DUDU切換購物車視圖原理
+
+========================================
+結束
+========================================
