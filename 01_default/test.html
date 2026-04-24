@@ -7,22 +7,13 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <title>test</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
     <style>
-      html {
-        /* 防止 iOS 上的瀏覽器自動調整文字大小 */
-        -webkit-text-size-adjust: 100%;
-        /* 防止其他移動端瀏覽器自動調整 */
-        -moz-text-size-adjust: 100%;
-        -ms-text-size-adjust: 100%;
-        text-size-adjust: 100%;
-        font-family: sans-serif;
-      }
-
-      /* 針對 Android Chrome/WebView 的強制修復 */
-      html * {
-        max-height: 999999px;
-      }
-
       body {
         height: 100vh;
         display: flex;
@@ -33,13 +24,17 @@
     </style>
   </head>
   <body>
-    <div>test</div>
+    <button class="btn btn-primary" onclick="copyInfo('Hello, World!')">
+      Copy Text
+    </button>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
     <script>
-      const a = 0;
-      if (a) {
-        console.log("a is true");
-      } else {
-        console.log("a is false");
+      function copyInfo(v) {
+        navigator.clipboard.writeText(v);
       }
     </script>
   </body>
