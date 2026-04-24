@@ -1,11 +1,27 @@
 <template>
-  <p>hello</p>
+  <h1>Reaction Timer</h1>
+  <button @click="startTimer">Start</button>
+  <Block v-if="isPlaying" :delay="delay" />
 </template>
 
-<script lang="ts">
+<script>
+import Block from "@/components/Block.vue";
+
 export default {
   name: "App",
-  components: {},
+  components: { Block },
+  data() {
+    return {
+      isPlaying: false,
+      delay: null,
+    };
+  },
+  methods: {
+    startTimer() {
+      this.delay = Math.random() * 5000 + 2000;
+      this.isPlaying = true;
+    },
+  },
 };
 </script>
 
