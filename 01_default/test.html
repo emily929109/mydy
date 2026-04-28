@@ -33,9 +33,46 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      function copyInfo(v) {
-        navigator.clipboard.writeText(v);
-      }
+      const response = {
+        status: "success",
+        products: [
+          {
+            name: "One Plus 7T",
+            categories: ["Technology", "Mobile", "SmartPhone"],
+            description:
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            rating: "4.5",
+          },
+          {
+            name: "MacBook Pro 2018",
+            categories: ["Technology", "Computer", "Laptop"],
+            description:
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            rating: "4.8",
+          },
+          {
+            name: "LG Monitor 221G",
+            categories: ["Technology", "Monitor"],
+            description:
+              "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+            rating: "4.3",
+          },
+        ],
+      };
+
+      const { products } = response;
+
+      const allCategories = products.map((product) => {
+        return product.categories;
+      });
+
+      // const allCategories = products.flatMap((product) => {
+      //   return product.categories;
+      // });
+
+      // const uniqueCategories = [...new Set(allCategories)];
+
+      console.log(allCategories);
     </script>
   </body>
 </html>
