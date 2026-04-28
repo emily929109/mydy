@@ -1,0 +1,979 @@
+
+
+<script src="~/js/vue-quill/quill.min.js"></script>
+<link href="~/js/vue-quill/quill.snow.css" rel="stylesheet">
+<link href="~/js/vue-quill/quill.bubble.css" rel="stylesheet">
+<link href="~/css/cart.css" rel="stylesheet">
+@* 圖片 model *@
+<script src="~/js/vue-quill/image-resize.min.js"></script>
+<script src="https://kit.fontawesome.com/7c6bbc6b90.js"></script>
+<style>
+    [v-cloak] {
+        display: none !important;
+    }
+
+    /*ul {
+        list-style: none;
+        padding: 0;
+    }*/
+
+
+
+    /* image slider */
+    img {
+        vertical-align: middle;
+    }
+
+    /* Position the image container (needed to position the left and right arrows) */
+    .container_ean-slide {
+        position: relative;
+        /*height: 100%;
+        max-height: 530px;*/
+        aspect-ratio: 1 / 1;
+        border: 1px solid #e6e6e6;
+    }
+
+    /* Hide the images by default */
+    .mySlides {
+        /*display: none;*/
+        position: absolute;
+        inset: 0;
+        transition: opacity 0.5s ease;
+        opacity: 0;
+        transition: 1s;
+        transform: scale(0.9, 0.9);
+        filter: brightness(50%) contrast(100%) saturate(100%) blur(5px) hue-rotate(0deg);
+    }
+
+    /* Add a pointer when hovering over the thumbnail images */
+    .cursor {
+        cursor: pointer;
+    }
+
+    /* Next & previous buttons */
+    .prev,
+    .next {
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        padding: 16px;
+        color: white;
+        font-weight: bold;
+        font-size: 20px;
+        user-select: none;
+        -webkit-user-select: none;
+        transform: translateY(-50%);
+        background-color: #80808096;
+    }
+
+    .prev {
+        left: 0;
+    }
+
+    .next {
+        right: 0;
+    }
+
+        /* Position the "next button" to the right */
+        /*.next {
+        right: 0;
+        border-radius: 3px 0 0 3px;
+    }*/
+
+        /* On hover, add a black background color with a little bit see-through */
+        /*.prev:hover,
+        .next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }*/
+
+        .prev:hover,
+        .next:hover {
+            color: #fff;
+        }
+    /* Number text (1/3 etc) */
+    .numbertext {
+        background-color: rgba(66, 66, 66, .6);
+        border-radius: 50px;
+        bottom: 15px;
+        color: #fff;
+        font-size: 11px;
+        margin-left: auto;
+        padding: 3px 7px;
+        position: absolute;
+        right: 15px;
+        width: fit-content;
+    }
+
+    /* Container for image text */
+    .caption-container {
+        text-align: center;
+        background-color: #222;
+        padding: 2px 16px;
+        color: white;
+    }
+
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    /* Six columns side by side */
+    .column {
+        float: left;
+        /*width: 19.66%;*/
+    }
+
+    /* Add a transparency effect for thumnbail images */
+    /*.demo {
+        opacity: 0.6;
+    }*/
+
+    .mySlides.active,
+    .demo:hover {
+        opacity: 1;
+        transform: scale(1, 1);
+        filter: brightness(100%) contrast(100%) saturate(100%) blur(0px) hue-rotate(0deg);
+    }
+    /*------------------------------------------------------*/
+    /*.mySlides {
+        display: none;
+    }
+
+        .mySlides[style*="display: block"] {
+            display: block !important;
+        }*/
+
+
+
+    /*========logo修改=========*/
+    .logo {
+        text-align: center;
+    }
+
+        .logo img {
+            max-width: 200px;
+            object-fit: cover;
+            width: 100%;
+            aspect-ratio: 4 / 4;
+        }
+
+    /*========prd-info修改=========*/
+    .prd-info .d-lg-block img {
+        object-fit: cover;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+    }
+
+        .prd-info .d-lg-block img:hover {
+            border: 2px solid #e6e6e6;
+        }
+
+
+    .mySlides img {
+        object-fit: cover;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+    }
+
+    .wrapper {
+        max-width: 1500px;
+    }
+
+    .form-label {
+        width: fit-content;
+        white-space: nowrap;
+    }
+
+    .btn-danger {
+        width: 100%;
+        max-width: 160px;
+    }
+
+    .form-select {
+        max-width: 200px;
+    }
+
+    .ql-editor * {
+        color: inherit !important;
+        line-height: 120% !important;
+        font-weight: normal;
+    }
+
+
+    .ql-editor * {
+        font-size: 1rem !important;
+        line-height: 160% !important;
+    }
+
+
+    .ql-editor img {
+        width: 100%;
+        max-width: 500px;
+        display: block;
+        margin: 10px auto;
+    }
+
+
+    .col-form-label {
+        white-space: nowrap;
+        width: fit-content;
+    }
+
+    /*==============rwd修正==============*/
+    .wrapper {
+        max-width: 1000px
+    }
+
+    @@media (min-width: 1281px) {
+        .wrapper {
+            max-width: 1200px
+        }
+    }
+
+    /*==============商品圖片==============*/
+    .demo {
+        width: 100%;
+    }
+
+    /*==============按鈕==============*/
+    .btn-shop {
+        width: 100%;
+        max-width: 200px;
+        background-color: rgb(0 171 150 / 85%);
+        color: rgb(255, 255, 255);
+        border: none;
+        outline: none;
+        z-index: 0;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .btn-shop:hover {
+            background-color: rgb(0, 171, 150);
+        }
+
+        /*    商品分類*/
+        .btn-shop * {
+            z-index: 9;
+            position: relative;
+            color: #fff;
+        }
+
+    .category p {
+        background-color: #223453;
+        border-top-left-radius: 16px;
+        border-top-right-radius: 16px;
+        color: #fff;
+    }
+
+    .category {
+        color: inherit;
+        text-align: center;
+    }
+
+        .category > div {
+            background-color: #f7f7f7;
+            min-height: 500px;
+        }
+
+    .category-item:hover {
+        background-color: #26b8a6;
+        color: #fff;
+    }
+
+
+    @@media (max-width: 992px) {
+        .category {
+            overflow-x: auto;
+            margin: 0 -1rem;
+        }
+
+            .category p {
+                display: none;
+            }
+
+            .category > div {
+                background-color: unset;
+                min-height: 0;
+                min-width: 150px;
+                display: flex;
+                align-items: center;
+            }
+
+        .category-item {
+            background-color: #f7f7f7;
+            border-radius: 8px;
+            margin-right: 1rem;
+            min-width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo img {
+            max-width: 100px;
+        }
+    }
+
+    /*左側類別*/
+    .category a {
+        color: inherit;
+        text-decoration: none;
+    }
+
+    /*左側類別*/
+    .prdinfo-container .fix-width {
+        width: 6em;
+    }
+</style>
+
+
+
+<div id="app" class="mb-5 mt-3 mt-lg-5" style="min-height:600px;">
+
+    <!-- ===== 商品頁視圖 開始===== -->
+    <div class="container-fluid wrapper" v-show="currentView === 'product'" v-cloak>
+        <div class="row" v-cloak>
+            <div class="col-12 col-lg-3 col-xl-2 col-xxl-2 mb-3 px-0 px-lg-3">
+                <div class="logo mb-3">
+                    <div class="w-100">
+                        <a :href="'OnlineStore?store=' + dealerJson.store_no"><img style="border-radius:50%;" :src="dealerJson.image_base64" /></a>
+                    </div>
+                </div>
+                <div class="category">
+                    <p style="cursor:pointer" class="fs-0 py-3 mb-0">商品分類</p>
+                    <div class="d-flex flex-lg-column ps-3 ps-lg-0">
+
+                        <div v-for="v in groupJson">
+                            <a :href="'OnlineStore?store=' + dealerJson.store_no + '&class=' + v.class_name">
+                                <div style="cursor:pointer" class="category-item fs-0 px-3 py-2 py-lg-3">
+                                    {{v.class_name}}({{v.count}})
+                                </div>
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-9 col-xl-10 col-xxl-10 mb-3 prd-info px-0 px-lg-3">
+                @* search *@
+                @*<div class="justify-content-center  mb-2">
+                        <div class="p-2 ">
+                            <div class="input-group input-group-lg" >
+                                <input class="form-control shadow-none search" v-model.trim="search_value" type="search" placeholder="限搜此店家分期商品" aria-label="search">
+                                <div class="input-group-text bg-100" @@click="search(search_value)">
+                                    <span class="fa fa-search fa-w-16 fs-0 text-600"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+
+
+                @*<div class="d-flex justify-contfent-center pt-3 ">
+                        <span class="fw-bold fs-1" style="font-size:2.9rem !important;">{{dealerJson.dealer_name}}</span>
+                    </div>
+                    <div class=" d-flex justify-content-center ">
+                        <span class="fs--1" style="font-size:1.5rem !important;">{{dealerJson.dealer_desc}}</span>
+                    </div>*@
+
+                <div class="row mb-3">
+                    @*小圖改到左側*@
+                    <div class="col-12 col-lg-1 pe-0 d-none d-lg-block">
+                        <div class="d-flex flex-column mb-3">
+                            <div v-if="image_product_1 != ''" class="mb-3">
+                                <img class="demo cursor" :src="image_product_1" onclick="currentSlide(1)" alt="The Woods">
+                            </div>
+                            <div v-if="image_product_2 != ''" class="mb-3">
+                                <img class="demo cursor" :src="image_product_2" onclick="currentSlide(2)" alt="Cinque Terre">
+                            </div>
+                            <div v-if="image_product_3 != ''" class="mb-3">
+                                <img class="demo cursor" :src="image_product_3" onclick="currentSlide(3)" alt="Mountains and fjords">
+                            </div>
+                            <div v-if="image_product_4 != ''" class="mb-3">
+                                <img class="demo cursor" :src="image_product_4" onclick="currentSlide(4)" alt="Northern Lights">
+                            </div>
+                            <div v-if="image_product_5 != ''" class="mb-3">
+                                <img class="demo cursor" :src="image_product_5" onclick="currentSlide(5)" alt="Northern Lights">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                        @* imnage slider *@
+                        <div class="container_ean-slide mb-3 text-center">
+
+                            @*改用v-for迴圈 分子分母自動帶入*@
+                            <div v-for="(img, index) in imageList"
+                                 :key="index"
+                                 class="mySlides"
+                                 :class="{ active: index === 0 }">
+                                <div class="numbertext">{{ index + 1 }} / {{ imageList.length }}</div>
+                                <img :src="img">
+                            </div>
+
+                            <a class="prev" onclick="plusSlides(-1)">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </a>
+
+
+                            <a class="next" onclick="plusSlides(1)">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+
+                        </div>
+
+
+
+
+
+                    </div>
+
+
+
+
+                    <div class="col-12 col-lg-6 fs-0 d-flex flex-column gap-2 prdinfo-container">
+
+                        <div class="fs-2 fw-bold" style="color: rgb(27 27 27);"> {{productJson.product_name}} </div>
+
+                        <div style="color: #e54623;" class="fs-3">NT${{p.product_cash.toLocaleString()}}</div>
+                        <div class="d-flex">
+                            <div class="fix-width">剩餘數量：</div>
+                            <div>{{p.product_qty}}</div>
+                        </div>
+                        <!--商品規格-->
+                        <div class="d-flex align-items-center">
+                            <label class="fs-0 mb-0 fix-width" for="specFrom">商品規格：</label>
+                            <select class="form-select" @@change="specSelected(p.spec)" v-model="p.spec" id="specFrom">
+                                <option value="">-- 請選擇 --</option>
+                                <option :class="[v.qty==0 ? 'text-300':'']" :disabled="v.qty==0" v-for="(v,index) in specJson" :value="v">{{v.name}} </option>
+                            </select>
+                        </div>
+                        <!--數量選擇器-->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="fix-width">數量：</div>
+                            <div class="qty-ctrl">
+                                <button class="qty-btn"
+                                        :disabled="buyQty <= 1" @@click="buyQty--">
+                                    －
+                                </button>
+                                <span class="qty-num">{{ buyQty }}</span>
+                                <button class="qty-btn"
+                                        :disabled="buyQty >= p.product_qty" @@click="buyQty++">
+                                    ＋
+                                </button>
+                            </div>
+                        </div>
+
+
+
+
+                        @*<button @@click="account(p)" class="btn-shop btn d-block m-auto mb-4 py-2"><i class="fa-solid fa-cart-shopping me-2"></i><span>立即購買</span></button>*@
+
+                        <div class="d-flex gap-3">
+                            <button @@click="addToCart(p,'1')" class="btn-shop btn d-block py-2"><i class="fa-solid fa-cart-shopping me-2"></i><span>加入購物車</span></button>
+                            <button @@click="addToCart(p,'2')" class="btn-shop btn d-block py-2"><i class="fa-solid fa-cart-shopping me-2"></i><span>立即購買</span></button>
+                        </div>
+
+
+                    </div>
+                </div>
+                <div>
+                    <span class="fw-bold fs-2">描述</span>
+                    <hr style="margin:0">
+                    <div class="ql-editor col-12" style="height: auto; text-align: justify; padding: 1rem 0" v-html="productJson.product_desc"></div>
+                </div>
+
+                <div class="row">
+                    <hr>
+                    <div class="fs-0 sellor-info">
+                        <div class="fw-bold">賣家資訊 & 活動期間</div>
+                        <p class="mb-1">名稱：{{dealerJson.dealer_name}}</p>
+                        @*<p class="mb-1">地址：{{dealerJson.dealer_address}}</p>*@
+                        @*<p>電話：{{dealerJson.agent_phone}}</p>*@
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+    <!-- ===== 商品頁視圖 結束===== -->
+    <!-- ===== 購物車視圖 開始===== -->
+    <div v-show="currentView === 'cart'" v-cloak class="fade-in">
+        <div class="container-fluid wrapper py-3 px-0">
+            <!-- 返回按鈕 -->
+            <div class="cart-back-btn" @@click="goToProduct()">
+                <i class="fa-solid fa-arrow-left"></i> 繼續購物
+            </div>
+
+            <!-- 標題 -->
+            <h5 class="fw-bold mb-3">
+                購物車
+                <span class="text-muted" style="font-size: 0.9rem">(共 {{cartCount}} 項商品)</span>
+            </h5>
+
+            <!-- 購物車空白狀態 -->
+            <div class="cart-empty" v-if="cartCount===0">
+                <i class="fa-solid fa-cart-shopping"></i>
+                <p>購物車是空的</p>
+                <button class="btn btn-outline-secondary" @@click="goToProduct()">
+                    繼續購物
+                </button>
+            </div>
+
+            <!-- 購物車清單 -->
+            <div>
+                <!-- 全選列 -->
+                <div class="d-flex align-items-center mb-2 px-1">
+                    <input type="checkbox"
+                           class="form-check-input me-2"
+                           style="width: 18px; height: 18px; cursor: pointer" />
+                    <label class="form-check-label">全選</label>
+                </div>
+
+                <!-- 依店家分組item -->
+
+                <div v-for="v in productList" class="cart-store-block">
+                    <!-- 店家 header -->
+                    <div class="cart-store-header">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               style="width: 18px; height: 18px; cursor: pointer" />
+                        <i class="fa-solid fa-store ms-1"></i>
+                        <span>{{v.cars[0].dealer_name}}</span>
+                    </div>
+
+                    <!-- 桌機表頭 -->
+                    <div class="cart-table-header d-none d-md-flex">
+                        <div class="cart-col-check"></div>
+                        <div class="cart-col-img"></div>
+                        <div class="cart-col-info">商品</div>
+                        <div class="cart-col-price">單價</div>
+                        <div class="cart-col-qty">數量</div>
+                        <div class="cart-col-sub">小計</div>
+                        <div class="cart-col-del"></div>
+                    </div>
+
+                    <!-- 商品列 -->
+                    <div v-for="vv in v.cars" class="cart-item-row">
+                        <input type="checkbox"
+                               class="form-check-input flex-shrink-0"
+                               style="width: 18px; height: 18px; cursor: pointer" />
+                        <img src="https://picsum.photos/100" class="cart-item-img" />
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">{{vv.item}}</div>
+                            <div class="cart-item-spec">
+                                規格 : {{vv.item_spec.name}}
+                            </div>
+                            <div class="cart-item-price d-md-none mt-1">
+                                NT$
+                            </div>
+                        </div>
+                        <div class="cart-item-price d-none d-md-block"
+                             style="min-width: 80px; text-align: center">
+                            NT${{vv.cash}}
+                        </div>
+                        <div class="qty-ctrl">
+                            <button class="qty-btn"
+                                    @@click="updateQty(vv.product_id, -1)">
+                                －
+                            </button>
+                            <span class="qty-num">{{vv.buy_qty}}</span>
+                            <button class="qty-btn"
+                                    @@click="updateQty(vv.product_id, 1)">
+                                ＋
+                            </button>
+                        </div>
+                        <div class="cart-item-subtotal d-none d-md-block">
+                            NT$ {{vv.cash * vv.buy_qty}}
+                        </div>
+                        <button class="btn-remove"
+                                @@click=""
+                                title="移除">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+
+                    <!-- 店家小計 -->
+                    <div class="cart-store-footer">
+                        店家小計：<span>NT$100</span>
+                    </div>
+                </div>
+
+                <!-- 底部結帳 bar -->
+                <div class="cart-bottom-bar">
+                    <span class="cart-total-label">
+                        已選
+                        <strong>5</strong> 件&nbsp;&nbsp;合計：<span class="cart-total-price">NT$100</span>
+                    </span>
+                    <button class="btn-checkout" @@click="goToCheckout">
+                        去買單
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ===== 購物車視圖 結束===== -->
+    <!-- ===== 結帳頁視圖 開始===== -->
+    <div v-show="currentView === 'checkout'" v-cloak class="fade-in">
+        <div class="container-fluid wrapper py-3 px-0">
+            <!-- 返回按鈕 -->
+            <div class="cart-back-btn" @@click="goToCart()">
+                <i class="fa-solid fa-arrow-left"></i> 返回購物車
+            </div>
+
+            <h5 class="fw-bold mb-3">
+                確認訂單
+                <span class="text-muted" style="font-size: 0.9rem">
+                    （共 2 筆訂單）
+                </span>
+            </h5>
+
+            <!-- =====依店家分組，每家店一個獨立訂單區塊 開始=====-->
+            <div class="cart-store-block mb-4">
+                <!-- 店家 header -->
+                <div class="cart-store-header">
+                    <i class="fa-solid fa-store ms-1"></i>
+                    <span>QQ01</span>
+                </div>
+
+                <!-- 商品列表 -->
+                <div class="cart-table-header d-none d-md-flex">
+                    <div class="cart-col-img"></div>
+                    <div class="cart-col-info">商品</div>
+                    <div class="cart-col-price">單價</div>
+                    <div class="cart-col-qty">數量</div>
+                    <div class="cart-col-sub">小計</div>
+                </div>
+
+                <!-- todo : v-for 渲染 -->
+                <div class="cart-item-row">
+                    <img src="https://picsum.photos/200" class="cart-item-img" />
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">商品一</div>
+                        <div class="cart-item-spec">
+                            規格：XXXXXXX
+                        </div>
+                        <div class="cart-item-price d-md-none mt-1">
+                            NT$100
+                        </div>
+                    </div>
+                    <div class="cart-item-price d-none d-md-block"
+                         style="min-width: 80px; text-align: center">
+                        NT$100
+                    </div>
+                    <div style="min-width: 90px; text-align: center">
+                        <span>2</span>
+                    </div>
+                    <div class="cart-item-subtotal d-none d-md-block">
+                        NT$200
+                    </div>
+                </div>
+                <div class="cart-item-row">
+                    <img src="https://picsum.photos/200" class="cart-item-img" />
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">商品二</div>
+                        <div class="cart-item-spec">
+                            規格：oooooooooooooo
+                        </div>
+                        <div class="cart-item-price d-md-none mt-1">
+                            NT$100
+                        </div>
+                    </div>
+                    <div class="cart-item-price d-none d-md-block"
+                         style="min-width: 80px; text-align: center">
+                        NT$100
+                    </div>
+                    <div style="min-width: 90px; text-align: center">
+                        <span>2</span>
+                    </div>
+                    <div class="cart-item-subtotal d-none d-md-block">
+                        NT$200
+                    </div>
+                </div>
+
+                <!-- 取貨方式 -->
+                <div class="p-3 border-top">
+                    <div class="fw-bold mb-2">
+                        <i class="fa-solid fa-truck me-2"
+                           style="color: var(--color-green)"></i>取貨方式
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-check form-check-inline">
+                            <!-- 缺 input disabled-->
+                            <input class="form-check-input"
+                                   id="A"
+                                   type="radio"
+                                   name="A"
+                                   value="商家宅配"
+                                   v-model="selectedOption" />
+                            <label for="A" class="me-3 fs-0">商家宅配</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input fs-0"
+                                   id="B"
+                                   type="radio"
+                                   name="B"
+                                   value="店內自取"
+                                   v-model="selectedOption" />
+                            <label for="B" class="fs-0">店內自取</label>
+                        </div>
+                    </div>
+
+                    <!-- 收件人資訊 -->
+                    @* 宅配 div  *@
+                    <div class="home-service-wrapper pb-3" v-if="showCarDiv">
+                        <div class="col-form-label fw-bold"> 收貨人資訊</div>
+                        <div class="home-inner-wrapper d-flex gap-2 flex-wrap">
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">姓名<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.car_name" />
+                            </div>
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">地址<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.car_address" />
+                            </div>
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">電話<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.car_mobile" />
+                            </div>
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">備註</label>
+                                <input class="form-control" type="text" v-model="p.car_mark" />
+                            </div>
+                        </div>
+                    </div>
+                    @* 店內自取 div  *@
+                    <div class="self-pickup-wrapper pb-3" v-if="showHomeDiv">
+                        <div class="col-form-label fw-bold"> 取件人資訊 </div>
+                        <div class="self-inner-wrapper d-flex gap-2 flex-wrap">
+                            <div>
+                                <label class="col-sm-3 col-form-label">姓名<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.home_name" />
+                            </div>
+                            <div>
+                                <label class="col-sm-3 col-form-label">電話<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.home_mobile" />
+                            </div>
+                            <div>
+                                <label class="col-sm-3 col-form-label">備註</label>
+                                <input class="form-control" type="text" v-model="p.home_mark" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 底部 : 本店費用 確認送出 -->
+                    <div class="d-flex flex-column align-items-end p-3 border-top"
+                         style="font-size: 0.9rem; background: #fafafa; border-radius: 0 0 8px 8px; ">
+                        <div class="mb-1">
+                            商品小計：<span>NT$400</span>
+                        </div>
+                        <div class="mb-1">
+                            運費：
+                            NT$80
+                            </span>
+                        </div>
+                        <div class="fw-bold mb-3" style="font-size: 0.95rem">
+                            本店合計：<span class="cart-total-price">
+                                NT480
+                            </span>
+                        </div>
+                        <button class="btn-checkout"
+                                @@click="handleCheckout">
+                            確認送出
+                            <!--disabled-->
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- =====依店家分組，每家店一個獨立訂單區塊 結束=====-->
+            <!-- =====依店家分組，每家店一個獨立訂單區塊 開始=====-->
+            <div class="cart-store-block mb-4">
+                <!-- 店家 header -->
+                <div class="cart-store-header">
+                    <i class="fa-solid fa-store ms-1"></i>
+                    <span>AE08</span>
+                </div>
+
+                <!-- 商品列表 -->
+                <div class="cart-table-header d-none d-md-flex">
+                    <div class="cart-col-img"></div>
+                    <div class="cart-col-info">商品</div>
+                    <div class="cart-col-price">單價</div>
+                    <div class="cart-col-qty">數量</div>
+                    <div class="cart-col-sub">小計</div>
+                </div>
+
+                <!-- todo : v-for 渲染 -->
+                <div class="cart-item-row">
+                    <img src="https://picsum.photos/200" class="cart-item-img" />
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">商品一</div>
+                        <div class="cart-item-spec">
+                            規格：XXXXXXX
+                        </div>
+                        <div class="cart-item-price d-md-none mt-1">
+                            NT$100
+                        </div>
+                    </div>
+                    <div class="cart-item-price d-none d-md-block"
+                         style="min-width: 80px; text-align: center">
+                        NT$100
+                    </div>
+                    <div style="min-width: 90px; text-align: center">
+                        <span>2</span>
+                    </div>
+                    <div class="cart-item-subtotal d-none d-md-block">
+                        NT$200
+                    </div>
+                </div>
+                <div class="cart-item-row">
+                    <img src="https://picsum.photos/200" class="cart-item-img" />
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">商品二</div>
+                        <div class="cart-item-spec">
+                            規格：oooooooooooooo
+                        </div>
+                        <div class="cart-item-price d-md-none mt-1">
+                            NT$100
+                        </div>
+                    </div>
+                    <div class="cart-item-price d-none d-md-block"
+                         style="min-width: 80px; text-align: center">
+                        NT$100
+                    </div>
+                    <div style="min-width: 90px; text-align: center">
+                        <span>2</span>
+                    </div>
+                    <div class="cart-item-subtotal d-none d-md-block">
+                        NT$200
+                    </div>
+                </div>
+
+                <!-- 取貨方式 -->
+                <div class="p-3 border-top">
+                    <div class="fw-bold mb-2">
+                        <i class="fa-solid fa-truck me-2"
+                           style="color: var(--color-green)"></i>取貨方式
+                    </div>
+                    <div class="mb-2">
+                        <div class="form-check form-check-inline">
+                            <!-- 缺 input disabled-->
+                            <input class="form-check-input"
+                                   id="C"
+                                   type="radio"
+                                   name="C"
+                                   value="商家宅配"
+                                   v-model="selectedOption" />
+                            <label for="C" class="me-3 fs-0">商家宅配</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input fs-0"
+                                   id="D"
+                                   type="radio"
+                                   name="D"
+                                   value="店內自取"
+                                   v-model="selectedOption" />
+                            <label for="D" class="fs-0">店內自取</label>
+                        </div>
+                    </div>
+
+                    <!-- 收件人資訊 -->
+                    @* 宅配 div  *@
+                    <div class="home-service-wrapper pb-3" v-if="showCarDiv">
+                        <div class="col-form-label fw-bold"> 收貨人資訊</div>
+                        <div class="home-inner-wrapper d-flex gap-2 flex-wrap">
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">姓名<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.car_name" />
+                            </div>
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">地址<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.car_address" />
+                            </div>
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">電話<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.car_mobile" />
+                            </div>
+                            <div>
+                                <label class="col-form-label col-lg-2 col-sm-1">備註</label>
+                                <input class="form-control" type="text" v-model="p.car_mark" />
+                            </div>
+                        </div>
+                    </div>
+                    @* 店內自取 div  *@
+                    <div class="self-pickup-wrapper pb-3" v-if="showHomeDiv">
+                        <div class="col-form-label fw-bold"> 取件人資訊 </div>
+                        <div class="self-inner-wrapper d-flex gap-2 flex-wrap">
+                            <div>
+                                <label class="col-sm-3 col-form-label">姓名<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.home_name" />
+                            </div>
+                            <div>
+                                <label class="col-sm-3 col-form-label">電話<span class="text-danger">*</span></label>
+                                <input class="form-control" type="text" v-model="p.home_mobile" />
+                            </div>
+                            <div>
+                                <label class="col-sm-3 col-form-label">備註</label>
+                                <input class="form-control" type="text" v-model="p.home_mark" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 底部 : 本店費用 確認送出 -->
+                    <div class="d-flex flex-column align-items-end p-3 border-top"
+                         style="font-size: 0.9rem; background: #fafafa; border-radius: 0 0 8px 8px; ">
+                        <div class="mb-1">
+                            商品小計：<span>NT$400</span>
+                        </div>
+                        <div class="mb-1">
+                            運費：
+                            NT$80
+                            </span>
+                        </div>
+                        <div class="fw-bold mb-3" style="font-size: 0.95rem">
+                            本店合計：<span class="cart-total-price">
+                                NT480
+                            </span>
+                        </div>
+                        <button class="btn-checkout"
+                                @@click="handleCheckout">
+                            確認送出
+                            <!--disabled-->
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- =====依店家分組，每家店一個獨立訂單區塊 結束=====-->
+        </div>
+    </div>
+    <!-- ===== 結帳頁視圖 結束===== -->
+    <!-- ===== 加入購物車 Toast ===== -->
+    <transition name="cart-toast">
+        <div class="cart-toast" v-if="showCartToast" v-cloak>
+            <div class="cart-toast-icon">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <div class="cart-toast-text">商品已加入購物車</div>
+        </div>
+    </transition>
+
+
+
+</div>
+<!--===== #app 結束 =====-->
+
+<script src="~/js/common.js?v=1.0"></script>
+<script src="~/js/purchase_2.js"></script>
+
+
