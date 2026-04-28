@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div class="qty-ctrl" id="app">
+      <button class="qty-btn" @click="updateQty(vv.product_id, -1)">－</button>
+      <span class="qty-num">{{vv.buy_qty}}</span>
+      <button class="qty-btn" @click="updateQty(vv.product_id, 1)">＋</button>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      const { createApp, ref } = Vue; // 1. 記得解構出 ref
+
+      createApp({
+        setup() {
+          const vv = ref({
+            product_id: 1,
+            buy_qty: 0,
+          });
+
+          // const productList = ref([{ product_id: 1, buy_qty: 0 }]);
+
+          const updateQty = (id, delta) => {
+            console.log("updateQty觸發", id, delta);
+
+            // 直接操作 ref 的值需要加上 .value
+            // const currentQty = Number(vv.value.buy_qty || 0);
+            // const newQty = currentQty + delta;
+
+            // // 邊界檢查
+            // if (newQty < 0) return;
+
+            // // 更新數值
+            // vv.value.buy_qty = newQty;
+
+            // 如果妳之後要更新 Header，可以在這發送事件
+            // window.dispatchEvent(new CustomEvent('cartUpdated', { detail: ... }));
+          };
+
+          // 4. 【重要】一定要 return，Template 才抓得到
+          return {
+            vv,
+            updateQty,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
