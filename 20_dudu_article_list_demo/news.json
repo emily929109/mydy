@@ -1,10 +1,25 @@
 [
   {
+    "href": "/Home/News?id=17trip_2",
+    "img": "/img/news/17trip_2/banner_1024x1024.jpg",
+    "text": "精選海外行程、專人帶隊更安心，搭配 DUDUPAY 分期支付，享12期零利率輕鬆出發",
+    "category": "探索旅程",
+    "date": "2026/04/30"
+  },
+  {
+    "href": "/Home/News?id=jeju",
+    "img": "/img/news/jeju/banner_1024x1024.jpg",
+    "text": "濟州旅行清單公開 你的夏天準備好了嗎? 直飛濟州機票月付$712起",
+    "category": "探索旅程",
+    "date": "2026/04/30"
+  },
+  {
     "href": "/Home/News?id=promotion_1",
-    "img": "./img/news/promotion_1/banner_1024x1024.jpg",
+    "img": "/img/news/promotion_2/banner_1024x1024.jpg",
     "text": "每週三限時限量破盤開搶毛孩好物，輪番驚喜不間斷，你還在等什麼!",
-    "category": "重要公告",
-    "date": "2026/04/20"
+    "category": "活動訊息",
+    "date": "2026/04/27",
+    "status": "ongoing"
   },
   {
     "href": "/Home/News?id=yl",
