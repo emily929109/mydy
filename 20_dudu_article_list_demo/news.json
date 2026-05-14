@@ -1,10 +1,24 @@
 [
   {
+    "href": "/Home/News?id=vet_clinic_2",
+    "img": "/img/news/vet_clinic_2/banner_1024x1024.jpg",
+    "text": "DUDU會員限定史麥動物醫院三合一健康禮遇，全年安心守護",
+    "category": "萌寵生活",
+    "date": "2026/05/15"
+  },
+  {
+    "href": "/Home/News?id=vet_clinic_1",
+    "img": "/img/news/vet_clinic_1/banner_1024x1024.jpg",
+    "text": "DUDU會員獨享中日醫院安心醫療專屬禮遇，享有免費健康檢查",
+    "category": "萌寵生活",
+    "date": "2026/05/15"
+  },
+  {
     "href": "/Home/News?id=thailand",
     "img": "/img/news/thailand/banner_1024x1024.jpg",
     "text": "從經典寺廟到人氣水上市場，帶你一次感受最道地的泰國魅力",
     "category": "探索旅程",
-    "date": "2026/05/13"
+    "date": "2026/05/15"
   },
   {
     "href": "/Home/News?id=promotion_3",
