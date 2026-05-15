@@ -5,6 +5,7 @@ const App = {
     const dealerJson = ref({});
     const productJson = ref({});
     const productList = ref([]);
+    const productListCheckout = ref([]);
     const specJson = ref([]);
     const image_product_1 = ref("");
     const image_product_2 = ref("");
@@ -22,10 +23,10 @@ const App = {
       car_name: "",
       car_address: "",
       car_mobile: "",
-      car_mark: "",
+      car_mark: "", // 非必填
       home_name: "",
       home_mobile: "",
-      home_mark: "",
+      home_mark: "", // 非必填
       product_spec: "", //規格
       spec: "",
     });
@@ -44,37 +45,57 @@ const App = {
       return imgs || [];
     });
     const buyQty = ref(1);
-    // ===== SPA view 狀態 =====
     const currentView = ref("product"); // '' | 'cart'
-    // ===== 購物車視圖 =====
-    const cartCount = ref(0); //購物車總數量
-    const cartItems = ref([]); //購物車項目列表
+    const productItem = reactive({ sum_cash: 0, shipping_fee: 0 });
+
+    // 驗證取件人資訊表單
+    const requiredFields = {
+      car: ["car_name", "car_address", "car_mobile"], // 商家宅配
+      home: ["home_name", "home_mobile"], // 店內自取
+    };
+
+    const isCheckoutValid = computed(() => {
+      // 決定要檢查哪一組 Key
+      const fieldsToCheck =
+        selectedOption.value === "商家宅配"
+          ? requiredFields.car
+          : requiredFields.home;
+
+      // 檢查是否所有必填欄位都有值
+      return fieldsToCheck.every((key) => {
+        const value = p[key]; // 去p物件裡檢查
+        return value && value.toString().trim() !== "";
+      });
+    });
 
     onMounted(() => {
-      var _store = getUrlParameter("store");
-      var _product = getUrlParameter("product");
-
-      // 從其他頁面跳轉過來時，依 URL 切換視圖
+      var store = getUrlParameter("store");
+      var product = getUrlParameter("product");
       const params = new URLSearchParams(window.location.search);
+      const member = JSON.parse(localStorage.getItem("member"));
+      console.log(member);
+
+      //不論登入與否
+      _getProduct(store, product);
+
+      if (member == null) return;
+
+      //登入後
+      _getCart(member.id); //取得購物車資料
+
       if (params.get("view") === "cart") {
-        const member = JSON.parse(localStorage.getItem("member"));
-        if (member == null) {
-          return;
-        }
-
-        _getCart(member.id); //取得購物車資料
         currentView.value = "cart";
-        return;
       } else if (params.get("view") === "checkout") {
-        currentView.value = "checkout";
-        return;
+        // 應該要先選擇商品才會到結帳頁
+        currentView.value = "cart";
       }
+    });
 
-      //if (_store == 'null' || _product == 'null') {
-      //    window.location.href = '../Home/Index';
-      //    return;
-      //}
+    // =============== 商品頁view 開始 ===============
 
+    _getProduct = (_store, _product) => {
+      //console.log(_store);
+      //console.log(_product);
       blockUI();
       axios({
         method: "post",
@@ -102,13 +123,10 @@ const App = {
 
             //check
             const spec = productJson.value.product_spec[0];
-            //console.log('spec', spec);
-            //單位/件數
-            p.product_cash = spec.cash;
-            p.product_qty = spec.qty;
-            //取貨方式 宅配/自取
-            p.car_checked = spec.car_checked;
-            p.home_checked = spec.home_checked;
+            p.product_cash = spec.cash; //單價
+            p.product_qty = spec.qty; // 剩餘數量
+            p.car_checked = spec.car_checked; // 是否支援宅配
+            p.home_checked = spec.home_checked; // 是否支援自取
 
             //console.log('p', p);
 
@@ -139,29 +157,6 @@ const App = {
         .finally(() => {
           console.log("完成");
         });
-    });
-
-    _getCart = (member_id) => {
-      axios({
-        method: "post",
-        url: "/api/Dealer/GetCart",
-        headers: { "Content-Type": "application/json" },
-        params: { member_id: member_id },
-      })
-        .then((response) => {
-          console.log(response.data);
-          if (response.data.success) productList.value = response.data.groups;
-          //計算數量加總
-          cartCount.value = productList.value
-            .flatMap((dealer) => dealer.cars) // 第一步：把所有 cars 抓出來變成一維陣列
-            .reduce((sum, item) => sum + Number(item.buy_qty || 0), 0); // 第二步：加總
-        })
-        .catch(function (error) {
-          console.log(error);
-        })
-        .finally(() => {
-          console.log("完成");
-        });
     };
 
     //左側商品group
@@ -186,6 +181,370 @@ const App = {
         });
     };
 
+    // =============== 商品頁view 結束 ===============
+
+    // =============== 購物車view 開始===============
+    const cartCount = ref(0); // 購物車總數量
+    const cartItems = ref([]); // 儲存flat後的購物車資料(一維陣列)
+    const selectedIDs = ref([]); // 儲存被選取的品項
+
+    // 登入時取得資料
+    _getCart = (member_id) => {
+      axios({
+        method: "post",
+        url: "/api/Dealer/GetCart",
+        headers: { "Content-Type": "application/json" },
+        params: { member_id: member_id },
+      })
+        .then((response) => {
+          console.log(response.data);
+          if (response.data.success) {
+            _applyCartData(response.data.groups);
+          }
+        })
+        .catch(function (error) {
+          console.log(error);
+        })
+        .finally(() => {
+          console.log("完成");
+        });
+    };
+
+    addToCart = (_p, type) => {
+      const member = JSON.parse(localStorage.getItem("member"));
+      //console.log(member);.
+      //console.log(_p);
+
+      //目前登入帳號為店家,無法進行結帳
+      if (member != null) {
+        if (member.role == "dealer") {
+          alert("請注意,目前登入帳號為店家,無法進行結帳");
+          return;
+        }
+      }
+
+      if (_p.spec == "") {
+        alert("請選擇商品規格");
+        return;
+      }
+
+      // 路人先存入session
+      if (member == null) {
+        //save item 16 char key
+        var item = {
+          dealer_id: dealerJson.value.member_id, //店家序號
+          store_no: getUrlParameter("store"), //AE86
+          product_id: parseInt(getUrlParameter("product")), //品名id
+          item: productJson.value.product_name, //品名
+          cash: _p.product_cash,
+          item_spec: JSON.stringify(_p.spec), //規格
+          buy_qty: buyQty.value,
+        };
+        sessionStorage.setItem("purchase_item", JSON.stringify(item));
+        var purchase_item = JSON.parse(sessionStorage.getItem("purchase_item"));
+        console.log(purchase_item);
+
+        $("#authentication-modal").modal("show");
+        return;
+      }
+
+      saveCart(member.id, _p, type, () => {
+        if (type === "1") {
+          // 加入購物車UI提示框
+          triggerCartToast(member.id, _p);
+        } else if (type === "2") {
+          // 直接購買
+          goToCart();
+        }
+      });
+    };
+
+    // 打至後端儲存資料
+    saveCart = (member_id, _p, type, onSuccess) => {
+      //console.log(member_id);
+      //console.log(buyQty.value);
+      blockUI();
+      axios({
+        method: "post",
+        url: "/api/Dealer/AddCar",
+        headers: { "Content-Type": "application/json" },
+        params: {
+          member_id: member_id, //消費者序號
+          dealer_id: dealerJson.value.member_id, //店家序號
+          store_no: getUrlParameter("store"), //AE86
+          product_id: parseInt(getUrlParameter("product")), //品名id
+          item: productJson.value.product_name, //品名
+          total_cash: _p.product_cash,
+          item_spec: JSON.stringify(_p.spec), //規格
+          buyQty: buyQty.value,
+        },
+      })
+        .then((response) => {
+          $.unblockUI();
+          console.log(response.data);
+          if (response.data.success) {
+            // 若為直接購買，則傳入商品id；若否則傳null
+            const directBuyProductId =
+              type === "2" ? parseInt(getUrlParameter("product")) : null;
+            _applyCartData(response.data.groups, directBuyProductId);
+
+            if (onSuccess) onSuccess(); // 成功後再依據 加入購物車 或 立即購買 做不同事
+          } else {
+            alert(response.data.msg);
+          }
+        })
+        .catch(function (error) {
+          $.unblockUI();
+          console.log(error);
+        })
+        .finally(() => {
+          console.log("完成");
+        });
+    };
+
+    // 負責把後端回傳的 groups 更新前端狀態
+    _applyCartData = (groups, directBuyProductId = null) => {
+      // render 視圖資料
+      productList.value = groups;
+
+      // 更新header icon數字
+      window.dispatchEvent(new CustomEvent("cartUpdated", { detail: groups }));
+
+      // 更新local storage，跳轉至別頁時才會讀到最新的購物車資料
+      const storedMember = JSON.parse(localStorage.getItem("member"));
+      if (storedMember) {
+        storedMember.cart = { success: true, groups: groups };
+        localStorage.setItem("member", JSON.stringify(storedMember));
+      }
+
+      // 決定selectedIDs
+      cartItems.value = productList.value.flatMap((dealer) => dealer.cars);
+
+      if (directBuyProductId != null) {
+        // 直接購買：只選取該商品和上次有勾選的(且要按按鈕才會儲存)
+        selectedIDs.value = cartItems.value
+          .filter(
+            (item) =>
+              item.product_id === directBuyProductId ||
+              item.cust_check === true,
+          )
+          .map((item) => item.car_id);
+      } else {
+        // 加入購物車：全選
+        selectedIDs.value = cartItems.value
+          .filter((item) => item.cust_check === true)
+          .map((item) => item.car_id);
+      }
+
+      // 計算數量，決定視圖是否為空
+      cartCount.value = productList.value
+        .flatMap((dealer) => dealer.cars) // 把所有 cars 抓出來變成一維陣列
+        .reduce((sum, item) => sum + Number(item.buy_qty || 0), 0); // 加總
+    };
+
+    goToCart = () => {
+      if (currentView.value == "cart") return;
+
+      currentView.value = "cart";
+      const url = new URL(window.location);
+      url.searchParams.set("view", "cart");
+      window.history.pushState({ view: "cart" }, "", url);
+    };
+
+    goToProduct = () => {
+      window.location.href = "../Home/ProductList";
+    };
+
+    // 瀏覽器上一頁/下一頁
+    window.onpopstate = () => {
+      const params = new URLSearchParams(window.location.search);
+      const member = JSON.parse(localStorage.getItem("member"));
+
+      // 未登入就進不了購物車頁與結帳頁
+      if (member == null) return;
+
+      // 取得購物車資料
+      _getCart(member.id);
+
+      if (params.get("view") === "cart") {
+        currentView.value = "cart";
+      } else if (params.get("view") === "checkout") {
+        currentView.value = "checkout";
+      } else {
+        currentView.value = "product";
+      }
+    };
+
+    updateQty = (car_id, delta) => {
+      // 用 car_id 找到對應的商品（car_id 唯一，避免同 product_id 不同規格衝突）
+      const item = cartItems.value.find((product) => product.car_id === car_id);
+      //console.log(item)
+
+      if (item) {
+        const newQty = item.buy_qty + delta;
+        const maxQty = item.item_spec.qty; // 規格庫存上限
+
+        if (newQty < 1 || newQty > maxQty) return; // 超出範圍不動作
+        item.buy_qty = newQty;
+
+        _updateCartQty(item);
+      }
+    };
+
+    _updateCartQty = (_item) => {
+      const member = JSON.parse(localStorage.getItem("member"));
+
+      blockUI();
+      axios({
+        method: "post",
+        url: "/api/Dealer/ChangeQty",
+        headers: { "Content-Type": "application/json" },
+        params: {
+          member_id: member.id,
+          product_id: _item.product_id,
+          item_spec: JSON.stringify(_item.item_spec),
+          buyQty: _item.buy_qty,
+        },
+      })
+        .then((response) => {
+          $.unblockUI();
+          //console.log(response.data);
+          if (response.data.success) {
+            //更新header icon數字
+            window.dispatchEvent(
+              new CustomEvent("cartUpdated", { detail: response.data.groups }),
+            );
+          }
+        })
+        .catch(function (error) {
+          $.unblockUI();
+          console.log(error);
+        })
+        .finally(() => {
+          console.log("完成");
+        });
+    };
+
+    removeItem = (_car_id) => {
+      const member = JSON.parse(localStorage.getItem("member"));
+
+      blockUI();
+      axios({
+        method: "post",
+        url: "/api/Dealer/DelCar",
+        headers: { "Content-Type": "application/json" },
+        params: { car_id: _car_id },
+      })
+        .then((response) => {
+          $.unblockUI();
+          console.log(response.data);
+          if (response.data.success) {
+            productList.value = response.data.groups;
+            _getCart(member.id);
+            alert("刪除成功");
+          } else {
+            alert(response.data.msg);
+          }
+        })
+        .catch(function (error) {
+          $.unblockUI();
+          console.log(error);
+        })
+        .finally(() => {
+          console.log("完成");
+        });
+    };
+
+    // 加入購物車UI提示
+    const showCartToast = ref(false);
+    let cartToastTimer = null;
+    triggerCartToast = () => {
+      if (cartToastTimer) {
+        clearTimeout(cartToastTimer);
+      }
+
+      showCartToast.value = true;
+      cartToastTimer = setTimeout(() => {
+        showCartToast.value = false;
+      }, 2500);
+      //console.log(cartToastTimer)
+    };
+
+    // ---- 勾選邏輯 開始 ----
+    // 勾選狀態來源為getCart，上次有勾選且有按去買單才會同步到後端
+    const isAllSelected = computed(() => {
+      return (
+        cartItems.value.length > 0 &&
+        selectedIDs.value.length === cartItems.value.length
+      );
+    });
+
+    const isStoreAllSelected = (dealerId) => {
+      // 儲存單一店家所有商品
+      const storeItems = cartItems.value.filter(
+        (item) => item.dealer_id === dealerId,
+      );
+      return (
+        storeItems.length > 0 &&
+        storeItems.every((item) => selectedIDs.value.includes(item.car_id))
+      );
+    };
+
+    const hasStoreSelected = (dealerId) => {
+      const storeItemIDs = cartItems.value
+        .filter((item) => item.dealer_id === dealerId)
+        .map((item) => item.car_id);
+      return storeItemIDs.some((id) => selectedIDs.value.includes(id));
+    };
+
+    const toggleItem = (item) => {
+      const idx = selectedIDs.value.indexOf(item.car_id);
+      if (idx >= 0) {
+        selectedIDs.value.splice(idx, 1);
+      } else {
+        selectedIDs.value.push(item.car_id);
+      }
+    };
+
+    const toggleStoreAll = (dealerId, checked) => {
+      // 儲存單一店家所有商品
+      const storeItemsIDs = cartItems.value
+        .filter((item) => item.dealer_id === dealerId)
+        .map((cart) => cart.car_id);
+      if (checked) {
+        const merged = new Set([...selectedIDs.value, ...storeItemsIDs]);
+        selectedIDs.value = [...merged];
+      } else {
+        selectedIDs.value = selectedIDs.value.filter(
+          (id) => !storeItemsIDs.includes(id),
+        );
+      }
+    };
+
+    toggleAll = (checked) => {
+      selectedIDs.value = checked
+        ? cartItems.value.map((cart) => cart.car_id)
+        : [];
+    };
+
+    calculateStoreTotal = (dealerId) => {
+      // selectedIDs是否包含item.dealer_id 是的話就存到storeItems中
+      const selectedStoreItems = cartItems.value
+        .filter((item) => item.dealer_id === dealerId)
+        .filter((item) => selectedIDs.value.includes(item.car_id));
+
+      //const storeItems = cartItems.value.filter(item =>
+      //    selectedIDs.value.includes(item.dealer_id)
+      //);
+      const total = selectedStoreItems.reduce(
+        (sum, item) => sum + item.cash * item.buy_qty,
+        0,
+      );
+      return total;
+    };
+    // ---- 勾選邏輯 結束 ----
+
+    // =============== 結帳頁view 開始===============
     specSelected = (_v) => {
       //console.log(_v);
 
@@ -202,7 +561,9 @@ const App = {
     };
 
     watch(selectedOption, (newVal) => {
+      //console.log(selectedOption.value)
       //console.log('radio 變更：', newVal);
+
       if (newVal == "商家宅配") {
         showCarDiv.value = true;
         showHomeDiv.value = false;
@@ -212,161 +573,49 @@ const App = {
       }
     });
 
-    addToCart = (_p, type) => {
+    goToCheckout = (_v) => {
+      console.log(_v);
+      let data2 = [];
+      let _store_no;
+
+      // emily : cust_check依selectedIDs判斷，因店家全選已寫好
+      _v.cars.forEach((x) => {
+        _store_no = x.store_no;
+        data2.push({
+          car_id: x.car_id,
+          product_id: x.product_id,
+          store_no: x.store_no,
+          buy_qty: x.buy_qty,
+          cash: x.cash,
+          cust_check: selectedIDs.value.includes(x.car_id),
+        });
+      });
+      console.log(data2);
+
       const member = JSON.parse(localStorage.getItem("member"));
-      if (member == null) {
-        $("#authentication-modal").modal("show");
-        return;
-      }
-      console.log(member);
-
-      //目前登入帳號為店家,無法進行結帳
-      if (member != null) {
-        if (member.role == "dealer") {
-          alert("請注意,目前登入帳號為店家,無法進行結帳");
-          return;
-        }
-      }
-
-      if (type === "1") {
-        // console.log("加入購物車")
-        // post 到後端 API並更新購物車icon上的數字
-        loadCart(member.id, _p);
-
-        // 成功加入購物車提示框
-        triggerCartToast(member.id, _p);
-
-        // render 購物車頁內容
-        _getCart(member.id);
-      } else if (type === "2") {
-        //console.log("直接購買")
-        // post 到後端 API並更新購物車icon上的數字
-        loadCart(member.id, _p);
-        goToCart();
-        // render 購物車頁內容
-        _getCart(member.id);
-      }
-
-      //console.log(_p);
-      //<select>已綁定v-model="p.spec"
-      if (_p.spec == "") {
-        alert("請選擇商品規格");
-        return;
-      }
-    };
-
-    // ===== SPA 切換 =====
-    goToCart = () => {
-      //showCartDropdown.value = false;
-      if (currentView.value == "cart") return;
-
-      currentView.value = "cart";
-      // loadCart();
-      const url = new URL(window.location);
-      url.searchParams.set("view", "cart");
-      window.history.pushState({ view: "cart" }, "", url);
-      //nextTick(() => window.scrollTo(0, 0));
-    };
-
-    // ===== 購物車視圖 =====
-    goToProduct = () => {
-      window.location.href = "../Home/ProductList";
-    };
-
-    updateQty = (id, delta) => {
-      console.log("updateQty", id, delta);
-      const item = productList.value.find((i) => i.product_id === id);
-      if (!item) return;
-      const newQty = item.buy_qty + delta;
-      //if (newQty < 1 || newQty > item.spec_qty_max) return;
-      item.buy_qty = newQty;
-      console.log(productList.value);
-      //call API 更新header icon
-    };
-
-    removeItem = (id) => {
-      //todo : 1. 過濾掉要刪除的項目(array.filter)
-      //todo : 2. POST到後端 API 更新購物車
-      //todo : 3. 更新購物車icon上的數字
-    };
-
-    //checkout = () => {
-    //    goToCheckout();
-    //};
-
-    // 瀏覽器上一頁/下一頁
-    window.onpopstate = () => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get("view") === "cart") {
-        currentView.value = "cart";
-        //console.log("cart view");
-      } else if (params.get("view") === "checkout") {
-        currentView.value = "checkout";
-      } else {
-        currentView.value = "product";
-      }
-    };
-
-    goToCheckout = () => {
-      // todo : 1. 檢查是否有選擇商品
-
-      currentView.value = "checkout";
-      const url = new URL(window.location);
-      url.searchParams.set("view", "checkout");
-      window.history.pushState({ view: "checkout" }, "", url);
-    };
-
-    handleCheckout = () => {
-      alert("導去orderpurchase");
-      // window.location.href = '...';
-    };
-
-    loadCart = (member_id, _p) => {
-      //console.log(member_id);
-      //console.log(buyQty.value);
 
       blockUI();
       axios({
         method: "post",
-        url: "/api/Dealer/AddCar",
+        url: "/api/Dealer/SaveItemProduct",
         headers: { "Content-Type": "application/json" },
-        params: {
-          member_id: member_id, //消費者序號
-          dealer_id: dealerJson.value.member_id, //店家序號
-          store_no: getUrlParameter("store"), //AE86
-          product_id: parseInt(getUrlParameter("product")), //品名id
-          item: productJson.value.product_name, //品名
-          total_cash: _p.product_cash,
-          item_spec: JSON.stringify(_p.spec), //規格
-          buyQty: buyQty.value,
-          //send_type: selectedOption.value == '商家宅配' ? 0 : 1,//取貨方式0宅配 1自取
-          //home_name: _p.home_name,
-          //home_mobile: _p.home_mobile,
-          //home_mark: _p.home_mark,
-          //car_name: _p.car_name,
-          //car_mobile: _p.car_mobile,
-          //car_address: _p.car_address,
-          //car_mark: _p.car_mark,
+        data: {
+          dealer_id: _v.dealer_id,
+          member_id: member.id,
+          store_no: _store_no,
+          orders: data2,
         },
       })
         .then((response) => {
           $.unblockUI();
           console.log(response.data);
           if (response.data.success) {
-            cartItems.value = response.data.groups; // 陣列中有物件
-            //觸發 header.js cartUpdated事件 更新 header icon 上的數字
-            window.dispatchEvent(
-              new CustomEvent("cartUpdated", { detail: response.data.groups }),
-            );
+            productListCheckout.value = response.data.groups;
+            productItem.sum_cash = response.data.sum_cash;
+            productItem.shipping_fee = response.data.shipping_fee;
 
-            //更新cartCount
-            cartCount.value = cartItems.value.reduce((total, dealer) => {
-              return (
-                total +
-                dealer.cars.reduce((sum, car) => sum + (car.buy_qty || 0), 0)
-              );
-            }, 0);
-            console.log("cartCount", cartCount.value);
+            // 導去結帳頁
+            goToCheckoutView();
           } else {
             alert(response.data.msg);
           }
@@ -380,39 +629,90 @@ const App = {
         });
     };
 
-    // 解析規格名稱，若為 JSON 字串則取出 name 屬性，否則直接回傳原字串
-    getSpecName = (specStr) => {
-      try {
-        return JSON.parse(specStr).name || specStr;
-      } catch {
-        return specStr;
-      }
+    goToCheckoutView = () => {
+      if (currentView.value == "checkout") return;
+
+      currentView.value = "checkout";
+      const url = new URL(window.location);
+      url.searchParams.set("view", "checkout");
+      window.history.pushState({ view: "checkout" }, "", url);
     };
 
-    updateQty = (id, delta) => {
-      //const item = cartItems.value.find((i) => i.product_id === id);
-      //if (!item) return;
-      //const newQty = item.buy_qty + delta;
-      ////if (newQty < 1 || newQty > item.spec_qty_max) return;
-      //item.buy_qty = newQty;
-      //console.log(cartItems.value);
-      ////loadCart(member.id, _p);
-    };
+    const handleCheckout = (_v, _p, _total_cash) => {
+      //console.log(_v.cars[0].store_no);
+      //console.log(_v.cars[0]);
+      //console.log(_p);
+      //console.log(_total_cash);
+      var _store_no = _v.cars[0].store_no;
+      var _dealer_id = _v.cars[0].dealer_id;
 
-    // ===== 成功加入購物車提示 開始 =====
-    const showCartToast = ref(false);
-    let cartToastTimer = null;
-    const triggerCartToast = () => {
-      if (cartToastTimer) {
-        clearTimeout(cartToastTimer);
+      //取貨方式
+      if (selectedOption.value == "") {
+        alert("請選擇取貨方式");
+        return;
       }
 
-      showCartToast.value = true;
-      cartToastTimer = setTimeout(() => {
-        showCartToast.value = false;
-      }, 2500);
+      if (selectedOption.value == "商家宅配") {
+        if (_p.car_name == "" || _p.car_mobile == "" || _p.car_address == "") {
+          alert("請填收貨人資訊");
+          return;
+        }
+      }
+      if (selectedOption.value == "店內自取") {
+        if (_p.home_name == "" || _p.home_mobile == "") {
+          alert("請填取件人資訊");
+          return;
+        }
+      }
+      //目前登入帳號為店家,無法進行結帳
+      const member = JSON.parse(localStorage.getItem("member"));
+      if (member != null) {
+        if (member.role == "dealer") {
+          alert("請注意,目前登入帳號為店家,無法進行結帳");
+          return;
+        }
+      }
+
+      blockUI();
+      axios({
+        method: "post",
+        url: "/api/Dealer/ConfirmOrder",
+        headers: { "Content-Type": "application/json" },
+        params: {
+          member_id: member.id,
+          dealer_id: _dealer_id,
+          store_no: _store_no,
+          send_type: selectedOption.value == "商家宅配" ? 0 : 1, //取貨方式0宅配 1自取
+          home_name: _p.home_name,
+          home_mobile: _p.home_mobile,
+          home_mark: _p.home_mark,
+          car_name: _p.car_name,
+          car_mobile: _p.car_mobile,
+          car_address: _p.car_address,
+          car_mark: _p.car_mark,
+          total_cash: _total_cash,
+        },
+      })
+        .then((response) => {
+          $.unblockUI();
+          console.log(response.data);
+          if (response.data.success) {
+            //alert('ok');
+            location.href = response.data.value;
+          } else {
+            alert(response.data.msg);
+          }
+        })
+        .catch(function (error) {
+          $.unblockUI();
+          console.log(error);
+        })
+        .finally(() => {
+          console.log("完成");
+        });
     };
-    // ===== 成功加入購物車提示 結束 =====
+
+    // =============== 結帳頁view 結束===============
 
     return {
       dealerJson,
@@ -445,9 +745,19 @@ const App = {
       showCartToast,
       cartCount,
       cartItems,
-      getSpecName,
-      updateQty,
       productList,
+      productListCheckout,
+      isAllSelected,
+      isStoreAllSelected,
+
+      toggleItem,
+      toggleStoreAll,
+      toggleAll,
+      calculateStoreTotal,
+      productItem,
+      selectedIDs,
+      hasStoreSelected,
+      isCheckoutValid,
     };
   },
 };
