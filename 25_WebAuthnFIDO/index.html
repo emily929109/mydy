@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebAuthn FIDO Demo</title>
+    <!-- Element Plus CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-plus/dist/index.css"
+    />
+    <style>
+      body {
+        margin: 0;
+        font-family: "Segoe UI", sans-serif;
+        background: #f0f2f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .card {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
+        padding: 48px 40px 40px;
+        width: 380px;
+        text-align: center;
+      }
+      .card h1 {
+        font-size: 22px;
+        color: #303133;
+        margin: 0 0 8px;
+      }
+      .card .subtitle {
+        font-size: 13px;
+        color: #909399;
+        margin-bottom: 36px;
+      }
+      .btn-group {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-bottom: 32px;
+      }
+      .btn-group .el-button {
+        flex: 1;
+        height: 44px;
+        font-size: 15px;
+        border-radius: 8px;
+      }
+      .status-box {
+        background: #f5f7fa;
+        border-radius: 8px;
+        padding: 14px 16px;
+        min-height: 60px;
+        text-align: left;
+      }
+      .status-box .label {
+        font-size: 11px;
+        color: #909399;
+        margin-bottom: 4px;
+      }
+      .status-box .message {
+        font-size: 13px;
+        color: #606266;
+        word-break: break-all;
+        white-space: pre-wrap;
+      }
+      .status-box .message.success {
+        color: #67c23a;
+      }
+      .status-box .message.error {
+        color: #f56c6c;
+      }
+      .status-box .message.info {
+        color: #409eff;
+      }
+      .divider {
+        margin: 0 0 24px;
+        border: none;
+        border-top: 1px solid #ebeef5;
+      }
+      .credential-id {
+        font-size: 11px;
+        color: #c0c4cc;
+        margin-top: 24px;
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="card">
+        <h1>WebAuthn FIDO</h1>
+        <p class="subtitle">純前端生物辨識驗證示範</p>
+        <hr class="divider" />
+
+        <div class="btn-group">
+          <el-button
+            type="primary"
+            :loading="registering"
+            :disabled="registering || authenticating"
+            @click="register"
+          >
+            生物辨識綁定
+          </el-button>
+          <el-button
+            type="success"
+            :loading="authenticating"
+            :disabled="registering || authenticating"
+            @click="authenticate"
+          >
+            登入
+          </el-button>
+        </div>
+
+        <div class="status-box">
+          <div class="label">狀態訊息</div>
+          <div :class="['message', statusType]">
+            {{ statusMsg || '等待操作...' }}
+          </div>
+        </div>
+
+        <div v-if="credentialId" class="credential-id">
+          已綁定 Credential ID：{{ credentialId.slice(0, 32) }}...
+        </div>
+      </div>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- Element Plus JS -->
+    <script src="https://unpkg.com/element-plus"></script>
+
+    <script>
+      const { createApp, ref, onMounted } = Vue;
+      const { ElMessageBox, ElMessage } = ElementPlus;
+
+      // ── 輔助函式 ────────────────────────────────────────────
+
+      /** 產生隨機 challenge (32 bytes) */
+      function generateChallenge() {
+        return window.crypto.getRandomValues(new Uint8Array(32));
+      }
+
+      /** ArrayBuffer / Uint8Array → base64url 字串 */
+      function toBase64url(buffer) {
+        const bytes = new Uint8Array(buffer);
+        let str = "";
+        bytes.forEach((b) => (str += String.fromCharCode(b)));
+        return btoa(str)
+          .replace(/\+/g, "-")
+          .replace(/\//g, "_")
+          .replace(/=/g, "");
+      }
+
+      /** base64url 字串 → ArrayBuffer */
+      function fromBase64url(str) {
+        str = str.replace(/-/g, "+").replace(/_/g, "/");
+        while (str.length % 4) str += "=";
+        const bin = atob(str);
+        const buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        return buf.buffer;
+      }
+
+      const STORAGE_KEY = "webauthn_credential_id";
+      const RP_ID = window.location.hostname; // 'localhost' 或其他 domain，不能為 IP
+      const RP_NAME = "WebAuthn FIDO Demo";
+
+      // ── Vue App ──────────────────────────────────────────────
+
+      createApp({
+        setup() {
+          const registering = ref(false);
+          const authenticating = ref(false);
+          const statusMsg = ref("");
+          const statusType = ref(""); // 'success' | 'error' | 'info'
+          const credentialId = ref(localStorage.getItem(STORAGE_KEY) || "");
+
+          function setStatus(msg, type = "info") {
+            statusMsg.value = msg;
+            statusType.value = type;
+          }
+
+          // ── 生物辨識綁定（Registration）──────────────────────
+          async function register() {
+            if (!window.PublicKeyCredential) {
+              setStatus("此瀏覽器不支援 WebAuthn", "error");
+              return;
+            }
+            registering.value = true;
+            setStatus("正在啟動生物辨識綁定...", "info");
+            try {
+              const credential = await navigator.credentials.create({
+                publicKey: {
+                  challenge: generateChallenge(),
+                  rp: {
+                    id: RP_ID,
+                    name: RP_NAME,
+                  },
+                  user: {
+                    id: window.crypto.getRandomValues(new Uint8Array(16)),
+                    name: "user@demo.local",
+                    displayName: "Demo User",
+                  },
+                  pubKeyCredParams: [
+                    { type: "public-key", alg: -7 }, // ES256
+                    { type: "public-key", alg: -257 }, // RS256 (相容 Windows Hello)
+                  ],
+                  authenticatorSelection: {
+                    authenticatorAttachment: "platform", // 使用裝置內建（Windows Hello / Touch ID）
+                    userVerification: "required",
+                  },
+                  timeout: 60000,
+                },
+              });
+
+              // 儲存 credentialId 供登入使用
+              const id = toBase64url(credential.rawId);
+              localStorage.setItem(STORAGE_KEY, id);
+              credentialId.value = id;
+
+              setStatus("綁定成功！生物辨識憑證已儲存。", "success");
+              ElMessageBox.alert(
+                "您的生物辨識憑證已成功綁定，下次可直接點「登入」。",
+                "綁定成功",
+                { confirmButtonText: "確定", type: "success" },
+              );
+            } catch (err) {
+              handleError(err, "綁定");
+            } finally {
+              registering.value = false;
+            }
+          }
+
+          // ── 登入（Authentication）────────────────────────────
+          async function authenticate() {
+            if (!window.PublicKeyCredential) {
+              setStatus("此瀏覽器不支援 WebAuthn", "error");
+              return;
+            }
+            const storedId = localStorage.getItem(STORAGE_KEY);
+            if (!storedId) {
+              setStatus("尚未綁定！請先點「生物辨識綁定」。", "error");
+              ElMessage.warning("請先完成生物辨識綁定");
+              return;
+            }
+
+            authenticating.value = true;
+            setStatus("正在進行生物辨識驗證...", "info");
+            try {
+              const assertion = await navigator.credentials.get({
+                publicKey: {
+                  challenge: generateChallenge(),
+                  rpId: RP_ID,
+                  allowCredentials: [
+                    { type: "public-key", id: fromBase64url(storedId) },
+                  ],
+                  userVerification: "required",
+                  timeout: 60000,
+                },
+              });
+
+              setStatus(
+                `登入成功！\nCredential ID: ${toBase64url(assertion.rawId).slice(0, 32)}...`,
+                "success",
+              );
+              ElMessageBox.alert("生物辨識驗證通過，登入成功！", "登入成功", {
+                confirmButtonText: "確定",
+                type: "success",
+              });
+            } catch (err) {
+              handleError(err, "登入");
+            } finally {
+              authenticating.value = false;
+            }
+          }
+
+          // ── 統一錯誤處理 ────────────────────────────────────
+          function handleError(err, action) {
+            console.error(`[WebAuthn ${action}]`, err);
+            if (err.name === "NotAllowedError") {
+              setStatus(`${action}已取消，或驗證逾時。`, "error");
+            } else if (err.name === "NotSupportedError") {
+              setStatus("裝置不支援此驗證方式。", "error");
+            } else if (err.name === "InvalidStateError") {
+              setStatus("此憑證已存在，請直接點「登入」。", "error");
+            } else if (err.name === "SecurityError") {
+              setStatus(
+                `安全性錯誤：請確認是透過 http://localhost 開啟。`,
+                "error",
+              );
+            } else {
+              setStatus(`${action}失敗：${err.message}`, "error");
+            }
+          }
+
+          onMounted(() => {
+            if (credentialId.value) {
+              setStatus("偵測到已綁定的憑證，可直接點「登入」。", "info");
+            }
+          });
+
+          return {
+            registering,
+            authenticating,
+            statusMsg,
+            statusType,
+            credentialId,
+            register,
+            authenticate,
+          };
+        },
+      })
+        .use(ElementPlus)
+        .mount("#app");
+    </script>
+  </body>
+</html>
