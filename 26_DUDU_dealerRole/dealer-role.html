@@ -1,919 +1,1515 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>角色權限管理 - DUDUPAY</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Microsoft JhengHei', 'Noto Sans TC', Arial, sans-serif;
-      background-color: #eef2f7;
-      color: #444;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ===== HEADER ===== */
-    .site-header {
-      background: #fff;
-      padding: 16px 32px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-      position: relative;
-    }
-
-    .header-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 26px;
-      font-weight: 900;
-      letter-spacing: 1px;
-      color: #222;
-      text-decoration: none;
-    }
-
-    .logo .logo-icon {
-      font-size: 28px;
-    }
-
-    .logo .logo-pay {
-      color: #1DBAAB;
-    }
-
-    .site-nav {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .site-nav a {
-      color: #555;
-      text-decoration: none;
-      font-size: 14px;
-      padding: 4px 8px;
-      transition: color 0.2s;
-    }
-
-    .site-nav a:hover { color: #1DBAAB; }
-    .site-nav a.active { font-weight: 700; color: #222; }
-
-    .site-nav .divider {
-      color: #ccc;
-      font-size: 14px;
-    }
-
-    .cart-btn {
-      position: absolute;
-      right: 24px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 13px;
-      color: #555;
-      cursor: pointer;
-    }
-
-    .cart-btn .badge-cart {
-      background: #e74c3c;
-      color: #fff;
-      font-size: 10px;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ===== MAIN ===== */
-    .page-wrapper {
-      max-width: 1400px;
-      margin: 36px auto;
-      padding: 0 20px;
-      width: 100%;
-      flex: 1;
-    }
-
-    .page-title {
-      text-align: center;
-      font-size: 22px;
-      font-weight: 700;
-      color: #1DBAAB;
-      margin-bottom: 24px;
-      letter-spacing: 2px;
-    }
-
-    /* ===== CARD ===== */
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
-      padding: 24px 28px;
-    }
-
-    /* ===== TOP BAR ===== */
-    .top-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .top-bar-left {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 18px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: opacity 0.2s, transform 0.1s;
-      white-space: nowrap;
-    }
-
-    .btn:hover { opacity: 0.88; }
-    .btn:active { transform: scale(0.97); }
-
-    .btn-primary {
-      background: #28C76F;
-      color: #fff;
-    }
-
-    .user-info {
-      font-size: 12px;
-      color: #999;
-      align-self: center;
-    }
-
-    /* ===== TABLE ===== */
-    .table-responsive {
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 700px;
-    }
-
-    thead tr {
-      background: #f6f9fc;
-    }
-
-    th {
-      padding: 11px 12px;
-      text-align: left;
-      font-size: 13px;
-      font-weight: 600;
-      color: #666;
-      border-bottom: 2px solid #e8ecf0;
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 11px 12px;
-      font-size: 13px;
-      color: #444;
-      border-bottom: 1px solid #f2f4f6;
-      vertical-align: middle;
-    }
-
-    tbody tr:last-child td { border-bottom: none; }
-
-    tbody tr:hover td { background: #fafcff; }
-
-    tbody tr.is-editing td { background: #f0faf8; }
-
-    /* ===== TOGGLE ===== */
-    .toggle-wrap {
-      display: inline-block;
-      width: 40px;
-      height: 22px;
-      position: relative;
-    }
-
-    .toggle-wrap input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-      position: absolute;
-    }
-
-    .toggle-track {
-      position: absolute;
-      inset: 0;
-      background: #ccc;
-      border-radius: 22px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .toggle-track::before {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-radius: 50%;
-      top: 3px;
-      left: 3px;
-      transition: transform 0.3s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    }
-
-    .toggle-wrap input:checked + .toggle-track { background: #28C76F; }
-    .toggle-wrap input:checked + .toggle-track::before { transform: translateX(18px); }
-
-    /* ===== PERMISSION BADGES ===== */
-    .badge-perm {
-      display: inline-block;
-      padding: 3px 8px;
-      background: #e6f7f5;
-      color: #1DBAAB;
-      border: 1px solid #b5e8e3;
-      border-radius: 4px;
-      font-size: 11px;
-      font-weight: 600;
-      margin: 2px 2px 2px 0;
-      white-space: nowrap;
-    }
-
-    /* ===== INLINE EDIT INPUTS ===== */
-    .edit-input,
-    .edit-select {
-      display: block;
-      width: 100%;
-      min-width: 70px;
-      padding: 5px 8px;
-      border: 1.5px solid #1DBAAB;
-      border-radius: 5px;
-      font-size: 13px;
-      color: #333;
-      background: #fff;
-      outline: none;
-      transition: box-shadow 0.2s;
-    }
-
-    .edit-input:focus,
-    .edit-select:focus {
-      box-shadow: 0 0 0 3px rgba(29,186,171,0.18);
-    }
-
-    /* ===== ACTION ICONS ===== */
-    .action-cell {
-      white-space: nowrap;
-      text-align: right;
-      min-width: 80px;
-    }
-
-    .action-group {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .btn-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border: none;
-      border-radius: 5px;
-      background: transparent;
-      cursor: pointer;
-      font-size: 14px;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .btn-icon.btn-edit   { color: #1DBAAB; }
-    .btn-icon.btn-edit:hover   { background: #e6f7f5; }
-
-    .btn-icon.btn-delete { color: #e74c3c; }
-    .btn-icon.btn-delete:hover { background: #fdecea; }
-
-    .btn-icon.btn-save   { color: #28C76F; }
-    .btn-icon.btn-save:hover   { background: #eafaf1; }
-
-    .btn-icon.btn-cancel { color: #f39c12; }
-    .btn-icon.btn-cancel:hover { background: #fef6e6; }
-
-    .btn-icon.btn-key    { color: #aaa; }
-    .btn-icon.btn-key:hover    { color: #1DBAAB; background: #e6f7f5; }
-
-    /* show/hide action groups */
-    .edit-actions { display: none; }
-
-    /* ===== FOOTER ===== */
-    .site-footer {
-      background: #1DBAAB;
-      color: #fff;
-      padding: 40px 32px 32px;
-      margin-top: auto;
-    }
-
-    .footer-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 32px;
-    }
-
-    .footer-col h4 {
-      font-size: 14px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      opacity: 0.9;
-    }
-
-    .footer-col a {
-      display: block;
-      color: rgba(255,255,255,0.75);
-      text-decoration: none;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-
-    .footer-col a:hover { color: #fff; }
-
-    .footer-logo {
-      font-size: 22px;
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-
-    /* ===== RWD ===== */
-    @media (max-width: 900px) {
-      .card { padding: 16px; }
-
-      th, td { padding: 9px 8px; font-size: 12px; }
-
-      .btn { padding: 7px 13px; font-size: 13px; }
-    }
-
-    @media (max-width: 600px) {
-      .page-wrapper { margin: 20px auto; padding: 0 12px; }
-
-      .page-title { font-size: 18px; }
-
-      .site-header { padding: 14px 16px; }
-
-      .cart-btn { right: 12px; }
-
-      .site-nav a { font-size: 12px; padding: 3px 5px; }
-
-      .top-bar { flex-direction: column; align-items: flex-start; }
-
-      .badge-perm { font-size: 10px; padding: 2px 5px; }
-
-      th:nth-child(3),
-      td:nth-child(3) { display: none; } /* hide 重設密碼 on very small screens */
-    }
-  </style>
-</head>
-<body>
-
-<!-- ===== HEADER ===== -->
-<header class="site-header">
-  <div class="header-inner">
-    <a href="#" class="logo">
-      <span class="logo-icon"><i class="fa-solid fa-paw"></i></span>
-      DUDU<span class="logo-pay">PAY</span>
-    </a>
-    <nav class="site-nav">
-      <a href="#">特約商帳務</a>
-      <span class="divider">|</span>
-      <a href="#" class="active">DUDUPAY介紹</a>
-      <span class="divider">|</span>
-      <a href="#">最新消息</a>
-      <span class="divider">|</span>
-      <a href="#">旅遊好康</a>
-      <span class="divider">|</span>
-      <a href="#">購物專區</a>
-    </nav>
-  </div>
-  <div class="cart-btn">
-    購物車 <span class="badge-cart">0</span>
-  </div>
-</header>
-
-<!-- ===== MAIN ===== -->
-<main class="page-wrapper">
-  <h1 class="page-title">角色權限管理</h1>
-
-  <div class="card">
-    <!-- 頂部操作列 -->
-    <div class="top-bar">
-      <div class="top-bar-left">
-        <button class="btn btn-primary">
-          <i class="fa-solid fa-user-plus"></i> 新增帳號
-        </button>
-        <button class="btn btn-primary">
-          <i class="fa-solid fa-user-gear"></i> 角色管理
-        </button>
-      </div>
-      <div class="user-info">使用者：QQ0199　權限：test1</div>
-    </div>
-
-    <!-- 表格 -->
-    <div class="table-responsive">
-      <table id="roleTable">
-        <thead>
-          <tr>
-            <th>啟用</th>
-            <th>登入帳號</th>
-            <th>重設密碼</th>
-            <th>角色名稱</th>
-            <th>分店名稱</th>
-            <th>使用者</th>
-            <th>權限內容</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-
-          <!-- Row 1：母帳號，無 toggle -->
-          <tr>
-            <td></td>
-            <td>QQ01</td>
-            <td></td>
-            <td data-field="role" data-type="select">負責人</td>
-            <td data-field="branch" data-type="select">總公司</td>
-            <td data-field="user" data-type="input"></td>
-            <td>
-              <span class="badge-perm">訂單查詢</span>
-              <span class="badge-perm">申請報數</span>
-              <span class="badge-perm">角色權限</span>
-              <span class="badge-perm">商品管理</span>
-            </td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-          <!-- Row 2 -->
-          <tr>
-            <td>
-              <label class="toggle-wrap">
-                <input type="checkbox" checked>
-                <span class="toggle-track"></span>
-              </label>
-            </td>
-            <td>QQ0101</td>
-            <td>
-              <button class="btn-icon btn-key" title="重設密碼">
-                <i class="fa-solid fa-key"></i>
-              </button>
-            </td>
-            <td data-field="role" data-type="select">分店長</td>
-            <td data-field="branch" data-type="select">新竹分部</td>
-            <td data-field="user" data-type="input">111</td>
-            <td>
-              <span class="badge-perm">訂單查詢</span>
-              <span class="badge-perm">申請報數</span>
-            </td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-          <!-- Row 3 -->
-          <tr>
-            <td>
-              <label class="toggle-wrap">
-                <input type="checkbox" checked>
-                <span class="toggle-track"></span>
-              </label>
-            </td>
-            <td>QQ0102</td>
-            <td>
-              <button class="btn-icon btn-key" title="重設密碼">
-                <i class="fa-solid fa-key"></i>
-              </button>
-            </td>
-            <td data-field="role" data-type="select">店長</td>
-            <td data-field="branch" data-type="select">屏東店</td>
-            <td data-field="user" data-type="input">2</td>
-            <td>
-              <span class="badge-perm">訂單查詢</span>
-              <span class="badge-perm">申請報數</span>
-              <span class="badge-perm">角色權限</span>
-            </td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-          <!-- Row 4：toggle 未啟用 -->
-          <tr>
-            <td>
-              <label class="toggle-wrap">
-                <input type="checkbox">
-                <span class="toggle-track"></span>
-              </label>
-            </td>
-            <td>QQ0105</td>
-            <td>
-              <button class="btn-icon btn-key" title="重設密碼">
-                <i class="fa-solid fa-key"></i>
-              </button>
-            </td>
-            <td data-field="role" data-type="select">土城店長</td>
-            <td data-field="branch" data-type="select">苗栗分部</td>
-            <td data-field="user" data-type="input">5</td>
-            <td>
-              <span class="badge-perm">訂單查詢</span>
-              <span class="badge-perm">申請報數</span>
-            </td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-          <!-- Row 5 -->
-          <tr>
-            <td>
-              <label class="toggle-wrap">
-                <input type="checkbox" checked>
-                <span class="toggle-track"></span>
-              </label>
-            </td>
-            <td>QQ01100</td>
-            <td>
-              <button class="btn-icon btn-key" title="重設密碼">
-                <i class="fa-solid fa-key"></i>
-              </button>
-            </td>
-            <td data-field="role" data-type="select">工讀生</td>
-            <td data-field="branch" data-type="select">苗栗分部</td>
-            <td data-field="user" data-type="input">55</td>
-            <td>
-              <span class="badge-perm">訂單查詢</span>
-              <span class="badge-perm">角色權限</span>
-            </td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-          <!-- Row 6 -->
-          <tr>
-            <td>
-              <label class="toggle-wrap">
-                <input type="checkbox" checked>
-                <span class="toggle-track"></span>
-              </label>
-            </td>
-            <td>QQ01666</td>
-            <td>
-              <button class="btn-icon btn-key" title="重設密碼">
-                <i class="fa-solid fa-key"></i>
-              </button>
-            </td>
-            <td data-field="role" data-type="select">工讀生</td>
-            <td data-field="branch" data-type="select">鹿港店</td>
-            <td data-field="user" data-type="input">DDD</td>
-            <td></td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-          <!-- Row 7 -->
-          <tr>
-            <td>
-              <label class="toggle-wrap">
-                <input type="checkbox" checked>
-                <span class="toggle-track"></span>
-              </label>
-            </td>
-            <td>QQ0103</td>
-            <td>
-              <button class="btn-icon btn-key" title="重設密碼">
-                <i class="fa-solid fa-key"></i>
-              </button>
-            </td>
-            <td data-field="role" data-type="select">工讀生</td>
-            <td data-field="branch" data-type="select">苗栗分部</td>
-            <td data-field="user" data-type="input">33</td>
-            <td>
-              <span class="badge-perm">訂單查詢</span>
-              <span class="badge-perm">角色權限</span>
-            </td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-          <!-- Row 8 -->
-          <tr>
-            <td>
-              <label class="toggle-wrap">
-                <input type="checkbox" checked>
-                <span class="toggle-track"></span>
-              </label>
-            </td>
-            <td>QQ0199</td>
-            <td>
-              <button class="btn-icon btn-key" title="重設密碼">
-                <i class="fa-solid fa-key"></i>
-              </button>
-            </td>
-            <td data-field="role" data-type="select">test1</td>
-            <td data-field="branch" data-type="select">苗栗分部</td>
-            <td data-field="user" data-type="input">333</td>
-            <td></td>
-            <td class="action-cell">
-              <span class="view-actions action-group">
-                <button class="btn-icon btn-edit" onclick="startEdit(this)" title="編輯">
-                  <i class="fa-solid fa-pen-to-square"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-              <span class="edit-actions action-group">
-                <button class="btn-icon btn-save" onclick="saveRow(this)" title="儲存">
-                  <i class="fa-solid fa-floppy-disk"></i>
-                </button>
-                <button class="btn-icon btn-cancel" onclick="cancelEdit(this)" title="取消">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-                <button class="btn-icon btn-delete" onclick="deleteRow(this)" title="刪除">
-                  <i class="fa-solid fa-trash-can"></i>
-                </button>
-              </span>
-            </td>
-          </tr>
-
-        </tbody>
-      </table>
-    </div><!-- /table-responsive -->
-  </div><!-- /card -->
-</main>
-
-<!-- ===== FOOTER ===== -->
-<footer class="site-footer">
-  <div class="footer-inner">
-    <div class="footer-col">
-      <div class="footer-logo">DUDU<span style="opacity:.7">PAY</span></div>
-    </div>
-    <div class="footer-col">
-      <h4>關於我們</h4>
-      <a href="#">公司簡介</a>
-      <a href="#">服務條款</a>
-      <a href="#">隱私權政策</a>
-    </div>
-    <div class="footer-col">
-      <h4>商家專區</h4>
-      <a href="#">特約商申請</a>
-      <a href="#">帳務管理</a>
-      <a href="#">分店管理</a>
-    </div>
-    <div class="footer-col">
-      <h4>聯絡我們</h4>
-      <a href="#">客服信箱</a>
-      <a href="#">聯絡電話</a>
-      <a href="#">FAQ</a>
-    </div>
-  </div>
-</footer>
-
-<script>
-  // ─── 可選項目（實際使用時從 API 取得）───
-  const ROLE_OPTIONS   = ['負責人', '分店長', '店長', '土城店長', '工讀生', 'test1'];
-  const BRANCH_OPTIONS = ['總公司', '新竹分部', '屏東店', '苗栗分部', '鹿港店'];
-
-  /**
-   * 進入編輯模式
-   */
-  function startEdit(btn) {
-    const row = btn.closest('tr');
-    if (row.classList.contains('is-editing')) return;
-
-    // 切換 action 按鈕
-    row.querySelector('.view-actions').style.display = 'none';
-    row.querySelector('.edit-actions').style.display  = 'inline-flex';
-    row.classList.add('is-editing');
-
-    // 將 data-field 欄位替換為 input / select
-    row.querySelectorAll('td[data-field]').forEach(td => {
-      const val  = td.textContent.trim();
-      const type = td.dataset.type;
-      td.dataset.original = val;   // 備份原始值
-
-      if (type === 'select') {
-        const options = td.dataset.field === 'role' ? ROLE_OPTIONS : BRANCH_OPTIONS;
-        td.innerHTML = `<select class="edit-select">
-          ${options.map(o => `<option${o === val ? ' selected' : ''}>${o}</option>`).join('')}
-        </select>`;
-      } else {
-        td.innerHTML = `<input type="text" class="edit-input" value="${val}">`;
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>角色權限管理 - DUDUPAY</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-plus/dist/index.css"
+    />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
-    });
-  }
 
-  /**
-   * 儲存並離開編輯模式
-   */
-  function saveRow(btn) {
-    const row = btn.closest('tr');
+      body {
+        font-family: "Microsoft JhengHei", "Noto Sans TC", Arial, sans-serif;
+        background-color: #eef2f7;
+        color: #444;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-    row.querySelectorAll('td[data-field]').forEach(td => {
-      const control = td.querySelector('input, select');
-      td.textContent = control ? control.value : (td.dataset.original || '');
-    });
+      /* ===== HEADER ===== */
+      .site-header {
+        background: #fff;
+        padding: 16px 32px;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        position: relative;
+      }
 
-    exitEdit(row);
-  }
+      .header-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
 
-  /**
-   * 取消並還原原始值
-   */
-  function cancelEdit(btn) {
-    const row = btn.closest('tr');
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 26px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: #222;
+        text-decoration: none;
+      }
 
-    row.querySelectorAll('td[data-field]').forEach(td => {
-      td.textContent = td.dataset.original || '';
-    });
+      .logo .logo-icon {
+        font-size: 28px;
+      }
 
-    exitEdit(row);
-  }
+      .logo .logo-pay {
+        color: #1dbaab;
+      }
 
-  /**
-   * 共用：還原 action 按鈕、移除編輯樣式
-   */
-  function exitEdit(row) {
-    row.querySelector('.view-actions').style.display = 'inline-flex';
-    row.querySelector('.edit-actions').style.display  = 'none';
-    row.classList.remove('is-editing');
-  }
+      .site-nav {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
 
-  /**
-   * 刪除整行（含確認提示）
-   */
-  function deleteRow(btn) {
-    const row    = btn.closest('tr');
-    const account = row.querySelector('td:nth-child(2)').textContent.trim();
-    if (confirm(`確定要刪除帳號「${account}」嗎？`)) {
-      row.remove();
-    }
-  }
-</script>
-</body>
+      .site-nav a {
+        color: #555;
+        text-decoration: none;
+        font-size: 14px;
+        padding: 4px 8px;
+        transition: color 0.2s;
+      }
+
+      .site-nav a:hover {
+        color: #1dbaab;
+      }
+      .site-nav a.active {
+        font-weight: 700;
+        color: #222;
+      }
+
+      .site-nav .divider {
+        color: #ccc;
+        font-size: 14px;
+      }
+
+      .cart-btn {
+        position: absolute;
+        right: 24px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 13px;
+        color: #555;
+        cursor: pointer;
+      }
+
+      .cart-btn .badge-cart {
+        background: #e74c3c;
+        color: #fff;
+        font-size: 10px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* ===== MAIN ===== */
+      .page-wrapper {
+        max-width: 1400px;
+        margin: 36px auto;
+        padding: 0 20px;
+        width: 100%;
+        flex: 1;
+      }
+
+      .page-title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 700;
+        color: #1dbaab;
+        margin-bottom: 24px;
+        letter-spacing: 2px;
+      }
+
+      /* ===== CARD ===== */
+      .card {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.07);
+        padding: 24px 28px;
+      }
+
+      /* ===== TOP BAR ===== */
+      .top-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .top-bar-left {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 600;
+        transition:
+          opacity 0.2s,
+          transform 0.1s;
+        white-space: nowrap;
+      }
+
+      .btn:hover {
+        opacity: 0.88;
+      }
+      .btn:active {
+        transform: scale(0.97);
+      }
+
+      .btn-primary {
+        background: #28c76f;
+        color: #fff;
+      }
+
+      .user-info {
+        font-size: 12px;
+        color: #999;
+        align-self: center;
+      }
+
+      /* ===== TABLE ===== */
+      .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+      }
+
+      thead tr {
+        background: #f6f9fc;
+      }
+
+      th {
+        padding: 11px 12px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        color: #666;
+        border-bottom: 2px solid #e8ecf0;
+        white-space: nowrap;
+      }
+
+      td {
+        padding: 11px 12px;
+        font-size: 13px;
+        color: #444;
+        border-bottom: 1px solid #f2f4f6;
+        vertical-align: middle;
+      }
+
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+
+      tbody tr:hover td {
+        background: #fafcff;
+      }
+
+      tbody tr.is-editing td {
+        background: #f0faf8;
+      }
+
+      /* ===== TOGGLE ===== */
+      .toggle-wrap {
+        display: inline-block;
+        width: 40px;
+        height: 22px;
+        position: relative;
+      }
+
+      .toggle-wrap input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
+      }
+
+      .toggle-track {
+        position: absolute;
+        inset: 0;
+        background: #ccc;
+        border-radius: 22px;
+        cursor: pointer;
+        transition: background 0.3s;
+      }
+
+      .toggle-track::before {
+        content: "";
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        background: #fff;
+        border-radius: 50%;
+        top: 3px;
+        left: 3px;
+        transition: transform 0.3s;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+
+      .toggle-wrap input:checked + .toggle-track {
+        background: #28c76f;
+      }
+      .toggle-wrap input:checked + .toggle-track::before {
+        transform: translateX(18px);
+      }
+
+      /* ===== PERMISSION BADGES ===== */
+      .badge-perm {
+        display: inline-block;
+        padding: 3px 8px;
+        background: #e6f7f5;
+        color: #1dbaab;
+        border: 1px solid #b5e8e3;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        margin: 2px 2px 2px 0;
+        white-space: nowrap;
+      }
+
+      /* ===== INLINE EDIT INPUTS ===== */
+      .edit-input,
+      .edit-select {
+        display: block;
+        width: 100%;
+        min-width: 70px;
+        padding: 5px 8px;
+        border: 1.5px solid #1dbaab;
+        border-radius: 5px;
+        font-size: 13px;
+        color: #333;
+        background: #fff;
+        outline: none;
+        transition: box-shadow 0.2s;
+      }
+
+      .edit-input:focus,
+      .edit-select:focus {
+        box-shadow: 0 0 0 3px rgba(29, 186, 171, 0.18);
+      }
+
+      /* ===== ACTION ICONS ===== */
+      .action-cell {
+        white-space: nowrap;
+        text-align: right;
+        min-width: 80px;
+      }
+
+      .action-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+      }
+
+      .btn-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border: none;
+        border-radius: 5px;
+        background: transparent;
+        cursor: pointer;
+        font-size: 14px;
+        transition:
+          background 0.15s,
+          color 0.15s;
+      }
+
+      .btn-icon.btn-edit {
+        color: #1dbaab;
+      }
+      .btn-icon.btn-edit:hover {
+        background: #e6f7f5;
+      }
+
+      .btn-icon.btn-delete {
+        color: #e74c3c;
+      }
+      .btn-icon.btn-delete:hover {
+        background: #fdecea;
+      }
+
+      .btn-icon.btn-save {
+        color: #28c76f;
+      }
+      .btn-icon.btn-save:hover {
+        background: #eafaf1;
+      }
+
+      .btn-icon.btn-cancel {
+        color: #f39c12;
+      }
+      .btn-icon.btn-cancel:hover {
+        background: #fef6e6;
+      }
+
+      .btn-icon.btn-key {
+        color: #aaa;
+      }
+      .btn-icon.btn-key:hover {
+        color: #1dbaab;
+        background: #e6f7f5;
+      }
+
+      /* show/hide action groups */
+      .edit-actions {
+        display: none;
+      }
+
+      /* ===== FOOTER ===== */
+      .site-footer {
+        background: #1dbaab;
+        color: #fff;
+        padding: 40px 32px 32px;
+        margin-top: auto;
+      }
+
+      .footer-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 32px;
+      }
+
+      .footer-col h4 {
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 12px;
+        opacity: 0.9;
+      }
+
+      .footer-col a {
+        display: block;
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .footer-col a:hover {
+        color: #fff;
+      }
+
+      .footer-logo {
+        font-size: 22px;
+        font-weight: 900;
+        letter-spacing: 1px;
+      }
+
+      /* ===== RWD ===== */
+      @media (max-width: 900px) {
+        .card {
+          padding: 16px;
+        }
+
+        th,
+        td {
+          padding: 9px 8px;
+          font-size: 12px;
+        }
+
+        .btn {
+          padding: 7px 13px;
+          font-size: 13px;
+        }
+      }
+
+      @media (max-width: 600px) {
+        .page-wrapper {
+          margin: 20px auto;
+          padding: 0 12px;
+        }
+
+        .page-title {
+          font-size: 18px;
+        }
+
+        .site-header {
+          padding: 14px 16px;
+        }
+
+        .cart-btn {
+          right: 12px;
+        }
+
+        .site-nav a {
+          font-size: 12px;
+          padding: 3px 5px;
+        }
+
+        .top-bar {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .badge-perm {
+          font-size: 10px;
+          padding: 2px 5px;
+        }
+
+        th:nth-child(3),
+        td:nth-child(3) {
+          display: none;
+        } /* hide 重設密碼 on very small screens */
+      }
+
+      /* ===== ROLE MODAL ===== */
+      .role-modal .el-dialog__header {
+        padding-bottom: 0;
+      }
+      .role-modal .el-dialog__body {
+        padding-top: 0;
+      }
+
+      .new-role-section {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+        margin-bottom: 20px;
+        overflow: hidden;
+      }
+
+      .new-role-section .el-input {
+        width: 130px !important;
+        flex-shrink: 0;
+      }
+
+      .new-role-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #444;
+        white-space: nowrap;
+      }
+
+      .perm-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        background: #333;
+        color: #fff;
+        border-radius: 20px;
+        font-size: 12px;
+        cursor: pointer;
+        user-select: none;
+        transition:
+          background 0.15s,
+          opacity 0.15s;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      .perm-chip.inactive {
+        background: #bbb;
+      }
+
+      .existing-roles-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #444;
+        margin-bottom: 10px;
+      }
+
+      .role-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding: 10px 0;
+        border-bottom: 1px solid #f2f4f6;
+        min-height: 46px;
+      }
+
+      .role-row:last-child {
+        border-bottom: none;
+      }
+
+      .role-name {
+        font-size: 13px;
+        font-weight: 600;
+        color: #333;
+        min-width: 60px;
+      }
+
+      .role-row .action-group {
+        margin-left: auto;
+        flex-shrink: 0;
+      }
+
+      .role-row .edit-input {
+        width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ===== HEADER ===== -->
+    <header class="site-header">
+      <div class="header-inner">
+        <a href="#" class="logo">
+          <span class="logo-icon"><i class="fa-solid fa-paw"></i></span>
+          DUDU<span class="logo-pay">PAY</span>
+        </a>
+        <nav class="site-nav">
+          <a href="#">特約商帳務</a>
+          <span class="divider">|</span>
+          <a href="#" class="active">DUDUPAY介紹</a>
+          <span class="divider">|</span>
+          <a href="#">最新消息</a>
+          <span class="divider">|</span>
+          <a href="#">旅遊好康</a>
+          <span class="divider">|</span>
+          <a href="#">購物專區</a>
+        </nav>
+      </div>
+      <div class="cart-btn">購物車 <span class="badge-cart">0</span></div>
+    </header>
+
+    <!-- ===== MAIN ===== -->
+    <main class="page-wrapper">
+      <h1 class="page-title">角色權限管理</h1>
+
+      <div class="card">
+        <!-- 頂部操作列 -->
+        <div class="top-bar">
+          <div class="top-bar-left">
+            <button class="btn btn-primary">
+              <i class="fa-solid fa-user-plus"></i> 新增帳號
+            </button>
+            <button class="btn btn-primary" onclick="openRoleModal()">
+              <i class="fa-solid fa-user-gear"></i> 角色管理
+            </button>
+          </div>
+          <div class="user-info">使用者：QQ0199　權限：test1</div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="table-responsive">
+          <table id="roleTable">
+            <thead>
+              <tr>
+                <th>啟用</th>
+                <th>登入帳號</th>
+                <th>重設密碼</th>
+                <th>角色名稱</th>
+                <th>分店名稱</th>
+                <th>使用者</th>
+                <th>權限內容</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Row 1：母帳號，無 toggle -->
+              <tr>
+                <td></td>
+                <td>QQ01</td>
+                <td></td>
+                <td data-field="role" data-type="select">負責人</td>
+                <td data-field="branch" data-type="select">總公司</td>
+                <td data-field="user" data-type="input"></td>
+                <td>
+                  <span class="badge-perm">訂單查詢</span>
+                  <span class="badge-perm">申請報數</span>
+                  <span class="badge-perm">角色權限</span>
+                  <span class="badge-perm">商品管理</span>
+                </td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Row 2 -->
+              <tr>
+                <td>
+                  <label class="toggle-wrap">
+                    <input type="checkbox" checked />
+                    <span class="toggle-track"></span>
+                  </label>
+                </td>
+                <td>QQ0101</td>
+                <td>
+                  <button class="btn-icon btn-key" title="重設密碼">
+                    <i class="fa-solid fa-key"></i>
+                  </button>
+                </td>
+                <td data-field="role" data-type="select">分店長</td>
+                <td data-field="branch" data-type="select">新竹分部</td>
+                <td data-field="user" data-type="input">111</td>
+                <td>
+                  <span class="badge-perm">訂單查詢</span>
+                  <span class="badge-perm">申請報數</span>
+                </td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Row 3 -->
+              <tr>
+                <td>
+                  <label class="toggle-wrap">
+                    <input type="checkbox" checked />
+                    <span class="toggle-track"></span>
+                  </label>
+                </td>
+                <td>QQ0102</td>
+                <td>
+                  <button class="btn-icon btn-key" title="重設密碼">
+                    <i class="fa-solid fa-key"></i>
+                  </button>
+                </td>
+                <td data-field="role" data-type="select">店長</td>
+                <td data-field="branch" data-type="select">屏東店</td>
+                <td data-field="user" data-type="input">2</td>
+                <td>
+                  <span class="badge-perm">訂單查詢</span>
+                  <span class="badge-perm">申請報數</span>
+                  <span class="badge-perm">角色權限</span>
+                </td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Row 4：toggle 未啟用 -->
+              <tr>
+                <td>
+                  <label class="toggle-wrap">
+                    <input type="checkbox" />
+                    <span class="toggle-track"></span>
+                  </label>
+                </td>
+                <td>QQ0105</td>
+                <td>
+                  <button class="btn-icon btn-key" title="重設密碼">
+                    <i class="fa-solid fa-key"></i>
+                  </button>
+                </td>
+                <td data-field="role" data-type="select">土城店長</td>
+                <td data-field="branch" data-type="select">苗栗分部</td>
+                <td data-field="user" data-type="input">5</td>
+                <td>
+                  <span class="badge-perm">訂單查詢</span>
+                  <span class="badge-perm">申請報數</span>
+                </td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Row 5 -->
+              <tr>
+                <td>
+                  <label class="toggle-wrap">
+                    <input type="checkbox" checked />
+                    <span class="toggle-track"></span>
+                  </label>
+                </td>
+                <td>QQ01100</td>
+                <td>
+                  <button class="btn-icon btn-key" title="重設密碼">
+                    <i class="fa-solid fa-key"></i>
+                  </button>
+                </td>
+                <td data-field="role" data-type="select">工讀生</td>
+                <td data-field="branch" data-type="select">苗栗分部</td>
+                <td data-field="user" data-type="input">55</td>
+                <td>
+                  <span class="badge-perm">訂單查詢</span>
+                  <span class="badge-perm">角色權限</span>
+                </td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Row 6 -->
+              <tr>
+                <td>
+                  <label class="toggle-wrap">
+                    <input type="checkbox" checked />
+                    <span class="toggle-track"></span>
+                  </label>
+                </td>
+                <td>QQ01666</td>
+                <td>
+                  <button class="btn-icon btn-key" title="重設密碼">
+                    <i class="fa-solid fa-key"></i>
+                  </button>
+                </td>
+                <td data-field="role" data-type="select">工讀生</td>
+                <td data-field="branch" data-type="select">鹿港店</td>
+                <td data-field="user" data-type="input">DDD</td>
+                <td></td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Row 7 -->
+              <tr>
+                <td>
+                  <label class="toggle-wrap">
+                    <input type="checkbox" checked />
+                    <span class="toggle-track"></span>
+                  </label>
+                </td>
+                <td>QQ0103</td>
+                <td>
+                  <button class="btn-icon btn-key" title="重設密碼">
+                    <i class="fa-solid fa-key"></i>
+                  </button>
+                </td>
+                <td data-field="role" data-type="select">工讀生</td>
+                <td data-field="branch" data-type="select">苗栗分部</td>
+                <td data-field="user" data-type="input">33</td>
+                <td>
+                  <span class="badge-perm">訂單查詢</span>
+                  <span class="badge-perm">角色權限</span>
+                </td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Row 8 -->
+              <tr>
+                <td>
+                  <label class="toggle-wrap">
+                    <input type="checkbox" checked />
+                    <span class="toggle-track"></span>
+                  </label>
+                </td>
+                <td>QQ0199</td>
+                <td>
+                  <button class="btn-icon btn-key" title="重設密碼">
+                    <i class="fa-solid fa-key"></i>
+                  </button>
+                </td>
+                <td data-field="role" data-type="select">test1</td>
+                <td data-field="branch" data-type="select">苗栗分部</td>
+                <td data-field="user" data-type="input">333</td>
+                <td></td>
+                <td class="action-cell">
+                  <span class="view-actions action-group">
+                    <button
+                      class="btn-icon btn-edit"
+                      onclick="startEdit(this)"
+                      title="編輯"
+                    >
+                      <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                  <span class="edit-actions action-group">
+                    <button
+                      class="btn-icon btn-save"
+                      onclick="saveRow(this)"
+                      title="儲存"
+                    >
+                      <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-cancel"
+                      onclick="cancelEdit(this)"
+                      title="取消"
+                    >
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button
+                      class="btn-icon btn-delete"
+                      onclick="deleteRow(this)"
+                      title="刪除"
+                    >
+                      <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- /table-responsive -->
+      </div>
+      <!-- /card -->
+    </main>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <div class="footer-logo">
+            DUDU<span style="opacity: 0.7">PAY</span>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>關於我們</h4>
+          <a href="#">公司簡介</a>
+          <a href="#">服務條款</a>
+          <a href="#">隱私權政策</a>
+        </div>
+        <div class="footer-col">
+          <h4>商家專區</h4>
+          <a href="#">特約商申請</a>
+          <a href="#">帳務管理</a>
+          <a href="#">分店管理</a>
+        </div>
+        <div class="footer-col">
+          <h4>聯絡我們</h4>
+          <a href="#">客服信箱</a>
+          <a href="#">聯絡電話</a>
+          <a href="#">FAQ</a>
+        </div>
+      </div>
+    </footer>
+
+    <!-- ===== ROLE MODAL (Vue + Element Plus) ===== -->
+    <div id="role-modal-app">
+      <el-dialog
+        v-model="roleModalVisible"
+        width="680px"
+        :show-close="true"
+        class="role-modal"
+        :close-on-click-modal="true"
+        top="80px"
+      >
+        <el-tabs v-model="activeTab" class="role-modal-tabs">
+          <!-- Tab 1: 角色與權限設定 -->
+          <el-tab-pane name="role">
+            <template #label>
+              <span
+                ><i
+                  class="fa-regular fa-circle-dot"
+                  style="margin-right: 4px"
+                ></i
+                >角色與權限設定</span
+              >
+            </template>
+
+            <!-- 建立新角色 -->
+            <div class="new-role-section">
+              <span class="new-role-label">建立新角色</span>
+              <el-input
+                v-model="newRoleName"
+                style="width: 160px"
+                size="default"
+              ></el-input>
+              <span
+                v-for="perm in ALL_PERMS"
+                :key="perm"
+                class="perm-chip"
+                :class="{ inactive: !newRolePerms.includes(perm) }"
+                @click="toggleNewPerm(perm)"
+                >{{ perm }}</span
+              >
+              <el-button
+                type="primary"
+                @click="addRole"
+                style="flex-shrink: 0; margin-left: auto"
+                >新增角色</el-button
+              >
+            </div>
+
+            <!-- 現有角色管理 -->
+            <div class="existing-roles-label">現有角色管理</div>
+
+            <div v-for="(role, idx) in roles" :key="idx" class="role-row">
+              <!-- 檢視模式 -->
+              <template v-if="editingIdx !== idx">
+                <span class="role-name">{{ role.name }}</span>
+                <span v-for="p in role.perms" :key="p" class="perm-chip"
+                  >{{ p }}</span
+                >
+                <span class="view-actions action-group">
+                  <button
+                    class="btn-icon btn-edit"
+                    @click="startEditRole(idx)"
+                    title="編輯"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+                  <button
+                    class="btn-icon btn-delete"
+                    @click="deleteRole(idx)"
+                    title="刪除"
+                  >
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </span>
+              </template>
+
+              <!-- 編輯模式 -->
+              <template v-else>
+                <input class="edit-input" v-model="editingName" />
+                <span
+                  v-for="perm in ALL_PERMS"
+                  :key="perm"
+                  class="perm-chip"
+                  :class="{ inactive: !editingPerms.includes(perm) }"
+                  @click="toggleEditPerm(perm)"
+                  >{{ perm }}</span
+                >
+                <span class="edit-actions action-group">
+                  <button
+                    class="btn-icon btn-save"
+                    @click="saveRole"
+                    title="儲存"
+                  >
+                    <i class="fa-solid fa-floppy-disk"></i>
+                  </button>
+                  <button
+                    class="btn-icon btn-cancel"
+                    @click="cancelEditRole"
+                    title="取消"
+                  >
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                  <button
+                    class="btn-icon btn-delete"
+                    @click="deleteRole(idx)"
+                    title="刪除"
+                  >
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </span>
+              </template>
+            </div>
+          </el-tab-pane>
+
+          <!-- Tab 2: 分店據點設定 -->
+          <el-tab-pane name="branch">
+            <template #label>
+              <span
+                ><i
+                  class="fa-solid fa-location-dot"
+                  style="margin-right: 4px"
+                ></i
+                >分店據點設定</span
+              >
+            </template>
+            <div
+              style="
+                padding: 24px 0;
+                color: #aaa;
+                text-align: center;
+                font-size: 13px;
+              "
+            >
+              分店據點設定功能開發中…
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </el-dialog>
+    </div>
+
+    <script>
+      // ─── 可選項目（實際使用時從 API 取得）───
+      const ROLE_OPTIONS = [
+        "負責人",
+        "分店長",
+        "店長",
+        "土城店長",
+        "工讀生",
+        "test1",
+      ];
+      const BRANCH_OPTIONS = [
+        "總公司",
+        "新竹分部",
+        "屏東店",
+        "苗栗分部",
+        "鹿港店",
+      ];
+
+      /**
+       * 進入編輯模式
+       */
+      function startEdit(btn) {
+        const row = btn.closest("tr");
+        if (row.classList.contains("is-editing")) return;
+
+        // 切換 action 按鈕
+        row.querySelector(".view-actions").style.display = "none";
+        row.querySelector(".edit-actions").style.display = "inline-flex";
+        row.classList.add("is-editing");
+
+        // 將 data-field 欄位替換為 input / select
+        row.querySelectorAll("td[data-field]").forEach((td) => {
+          const val = td.textContent.trim();
+          const type = td.dataset.type;
+          td.dataset.original = val; // 備份原始值
+
+          if (type === "select") {
+            const options =
+              td.dataset.field === "role" ? ROLE_OPTIONS : BRANCH_OPTIONS;
+            td.innerHTML = `<select class="edit-select">
+          ${options.map((o) => `<option${o === val ? " selected" : ""}>${o}</option>`).join("")}
+        </select>`;
+          } else {
+            td.innerHTML = `<input type="text" class="edit-input" value="${val}">`;
+          }
+        });
+      }
+
+      /**
+       * 儲存並離開編輯模式
+       */
+      function saveRow(btn) {
+        const row = btn.closest("tr");
+
+        row.querySelectorAll("td[data-field]").forEach((td) => {
+          const control = td.querySelector("input, select");
+          td.textContent = control ? control.value : td.dataset.original || "";
+        });
+
+        exitEdit(row);
+      }
+
+      /**
+       * 取消並還原原始值
+       */
+      function cancelEdit(btn) {
+        const row = btn.closest("tr");
+
+        row.querySelectorAll("td[data-field]").forEach((td) => {
+          td.textContent = td.dataset.original || "";
+        });
+
+        exitEdit(row);
+      }
+
+      /**
+       * 共用：還原 action 按鈕、移除編輯樣式
+       */
+      function exitEdit(row) {
+        row.querySelector(".view-actions").style.display = "inline-flex";
+        row.querySelector(".edit-actions").style.display = "none";
+        row.classList.remove("is-editing");
+      }
+
+      /**
+       * 刪除整行（含確認提示）
+       */
+      function deleteRow(btn) {
+        const row = btn.closest("tr");
+        const account = row.querySelector("td:nth-child(2)").textContent.trim();
+        if (confirm(`確定要刪除帳號「${account}」嗎？`)) {
+          row.remove();
+        }
+      }
+    </script>
+
+    <script>
+      /* ===== Vue 3 + Element Plus：角色管理 Modal ===== */
+      const { createApp, ref } = Vue;
+
+      const ALL_PERMS = ["訂單查詢", "申請報數", "角色管理", "商品管理"];
+
+      const roleApp = createApp({
+        setup() {
+          const roleModalVisible = ref(false);
+          const activeTab = ref("role");
+
+          /* 建立新角色 */
+          const newRoleName = ref("");
+          const newRolePerms = ref([...ALL_PERMS]); // 預設全選
+
+          function toggleNewPerm(perm) {
+            const i = newRolePerms.value.indexOf(perm);
+            if (i >= 0) newRolePerms.value.splice(i, 1);
+            else newRolePerms.value.push(perm);
+          }
+
+          function addRole() {
+            const name = newRoleName.value.trim();
+            if (!name) return;
+            roles.value.push({ name, perms: [...newRolePerms.value] });
+            newRoleName.value = "";
+            newRolePerms.value = [...ALL_PERMS];
+          }
+
+          /* 現有角色 */
+          const roles = ref([
+            {
+              name: "負責人",
+              perms: ["訂單查詢", "申請報數", "角色管理", "商品管理"],
+            },
+            { name: "店長", perms: ["訂單查詢", "申請報數", "角色管理"] },
+            { name: "店員", perms: ["訂單查詢"] },
+          ]);
+
+          function deleteRole(idx) {
+            if (confirm(`確定要刪除角色「${roles.value[idx].name}」嗎？`)) {
+              roles.value.splice(idx, 1);
+              if (editingIdx.value === idx) editingIdx.value = -1;
+            }
+          }
+
+          /* 角色內聯編輯 */
+          const editingIdx = ref(-1);
+          const editingName = ref("");
+          const editingPerms = ref([]);
+
+          function startEditRole(idx) {
+            editingIdx.value = idx;
+            editingName.value = roles.value[idx].name;
+            editingPerms.value = [...roles.value[idx].perms];
+          }
+
+          function toggleEditPerm(perm) {
+            const i = editingPerms.value.indexOf(perm);
+            if (i >= 0) editingPerms.value.splice(i, 1);
+            else editingPerms.value.push(perm);
+          }
+
+          function saveRole() {
+            const name = editingName.value.trim();
+            if (!name) return;
+            roles.value[editingIdx.value].name = name;
+            roles.value[editingIdx.value].perms = [...editingPerms.value];
+            editingIdx.value = -1;
+          }
+
+          function cancelEditRole() {
+            editingIdx.value = -1;
+          }
+
+          /* 暴露給外部按鈕呼叫 */
+          window.openRoleModal = () => {
+            roleModalVisible.value = true;
+          };
+
+          return {
+            roleModalVisible,
+            activeTab,
+            ALL_PERMS,
+            newRoleName,
+            newRolePerms,
+            toggleNewPerm,
+            addRole,
+            roles,
+            deleteRole,
+            editingIdx,
+            editingName,
+            editingPerms,
+            startEditRole,
+            toggleEditPerm,
+            saveRole,
+            cancelEditRole,
+          };
+        },
+      });
+
+      roleApp.use(ElementPlus);
+      roleApp.mount("#role-modal-app");
+    </script>
+  </body>
 </html>

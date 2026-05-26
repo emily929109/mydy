@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Element Plus Checkable Tag 狀態切換範例</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-plus/dist/index.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+      /* 編輯模式下的標籤 Hover 效果提示 */
+      .editable-tag {
+        cursor: pointer !important;
+        transition: all 0.2s ease;
+      }
+      .editable-tag:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100 p-8">
+    <div id="app" class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+      <h2 class="text-xl font-bold mb-6 text-gray-800">
+        角色權限設定 (與唯讀/編輯切換)
+      </h2>
+
+      <div
+        class="border border-gray-200 rounded-lg p-4"
+        :class="{ 'bg-yellow-50/50 border-yellow-200': isEditing }"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-gray-700">店長</span>
+            <span
+              v-if="isEditing"
+              class="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded"
+              >編輯模式</span
+            >
+          </div>
+
+          <div>
+            <el-button
+              v-if="!isEditing"
+              size="small"
+              type="primary"
+              plain
+              @click="enterEditMode"
+            >
+              <span class="el-icon-edit mr-1"></span> 編輯
+            </el-button>
+            <div v-else class="flex gap-2">
+              <el-button size="small" type="success" @click="saveChanges"
+                >儲存</el-button
+              >
+              <el-button size="small" type="info" plain @click="cancelEditMode"
+                >取消</el-button
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 min-h-[40px] items-center">
+          <template v-if="!isEditing">
+            <el-tag
+              v-for="auth in currentAuthList"
+              :key="auth.id"
+              effect="dark"
+              type="info"
+              class="px-3 py-1 text-sm bg-gray-800 border-gray-800 text-white rounded-md"
+            >
+              {{ auth.name }}
+            </el-tag>
+            <span
+              v-if="currentAuthList.length === 0"
+              class="text-gray-400 text-sm"
+              >暫無任何權限</span
+            >
+          </template>
+
+          <template v-else>
+            <el-check-tag
+              v-for="auth in allAvailableAuths"
+              :key="auth.id"
+              :checked="auth.tempChecked"
+              class="editable-tag px-3 py-1.5 text-sm rounded-md border"
+              @change="toggleAuth(auth)"
+            >
+              {{ auth.name }}
+            </el-check-tag>
+          </template>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+
+    <script>
+      const { createApp, ref, computed } = Vue;
+
+      createApp({
+        setup() {
+          // 是否為編輯模式
+          const isEditing = ref(false);
+
+          // 系統內「所有」可供設定的權限清單
+          // 在實際專案中，這裡的 active 欄位代表該角色目前是否擁有此權限
+          const allAvailableAuths = ref([
+            {
+              id: "order_query",
+              name: "訂單查詢",
+              active: true,
+              tempChecked: true,
+            },
+            {
+              id: "payout_apply",
+              name: "申請撥款",
+              active: true,
+              tempChecked: true,
+            },
+            {
+              id: "role_manage",
+              name: "角色管理",
+              active: true,
+              tempChecked: true,
+            },
+            {
+              id: "product_manage",
+              name: "商品管理",
+              active: false,
+              tempChecked: false,
+            },
+          ]);
+
+          // 計算屬性：篩選出目前「已啟用(active === true)」的權限，用於唯讀模式渲染
+          const currentAuthList = computed(() => {
+            return allAvailableAuths.value.filter((auth) => auth.active);
+          });
+
+          // 點擊編輯：進入編輯模式
+          const enterEditMode = () => {
+            // 初始化暫存狀態 (tempChecked)，複製一份當前的 active 狀態
+            // 這樣如果使用者按「取消」，才不會污染到原本的資料
+            allAvailableAuths.value.forEach((auth) => {
+              auth.tempChecked = auth.active;
+            });
+            isEditing.value = true;
+          };
+
+          // 點擊 Checkable Tag：切換該標籤的選取狀態
+          const toggleAuth = (auth) => {
+            auth.tempChecked = !auth.tempChecked;
+          };
+
+          // 點擊儲存：將暫存狀態應用到正式狀態上，並關閉編輯模式
+          const saveChanges = () => {
+            allAvailableAuths.value.forEach((auth) => {
+              auth.active = auth.tempChecked;
+            });
+            // 這裡通常會加上：呼叫後端 API (例如：_applyCartData 或 ChangeRoleAuth API)
+            ElementPlus.ElMessage.success("角色權限更新成功");
+            isEditing.value = false;
+          };
+
+          // 點擊取消：不保留任何異動，直接退回唯讀模式
+          const cancelEditMode = () => {
+            isEditing.value = false;
+          };
+
+          return {
+            isEditing,
+            allAvailableAuths,
+            currentAuthList,
+            enterEditMode,
+            toggleAuth,
+            saveChanges,
+            cancelEditMode,
+          };
+        },
+      })
+        .use(ElementPlus)
+        .mount("#app");
+    </script>
+  </body>
+</html>
