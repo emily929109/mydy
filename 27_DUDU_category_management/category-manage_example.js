@@ -120,10 +120,68 @@ const app = createApp({
         type: "success",
       });
     };
-    const handleAddCategory = (levelLabel) => {
+    const handleAddCategory = async (levelLabel) => {
+      // ***** 待理解 *****
+      const level = levelLabel === "主" ? 1 : levelLabel === "次" ? 2 : 3;
+
+      let parentId = null;
+      if (level === 2) {
+        if (!selectedMainId.value) {
+          ElementPlus.ElMessage({
+            message: "請先選擇主分類",
+            type: "warning",
+          });
+          return;
+        }
+        parentId = selectedMainId.value;
+      } else if (level === 3) {
+        if (!selectedSubId.value) {
+          ElementPlus.ElMessage({
+            message: "請先選擇次分類",
+            type: "warning",
+          });
+          return;
+        }
+        parentId = selectedSubId.value;
+      }
+
+      let name;
+      try {
+        const result = await ElementPlus.ElMessageBox.prompt(
+          `請輸入${levelLabel}分類名稱`,
+          `新增${levelLabel}分類`,
+          {
+            confirmButtonText: "確認",
+            cancelButtonText: "取消",
+
+            // ***** inputValidator 待理解 *****
+            inputValidator: (val) =>
+              (val && val.trim().length > 0) || "名稱不可空白",
+          },
+        );
+        name = result.value.trim();
+      } catch {
+        return;
+      }
+
+      const newId = categories.value.reduce((m, c) => Math.max(m, c.id), 0) + 1;
+      const newItem = {
+        id: newId,
+        level,
+        parentId,
+        name,
+        enabled: false,
+      };
+      if (level === 3) newItem.productCount = 0;
+
+      categories.value.push(newItem);
+
+      if (level === 1) selectMain(newId);
+      else if (level === 2) selectSub(newId);
+
       ElementPlus.ElMessage({
-        message: `「+ 新增${levelLabel}分類」功能將於下一階段實作`,
-        type: "info",
+        message: `已新增${levelLabel}分類「${name}」`,
+        type: "success",
       });
     };
 
