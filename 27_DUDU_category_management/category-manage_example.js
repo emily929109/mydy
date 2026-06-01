@@ -100,6 +100,8 @@ const app = createApp({
       const firstSub = categories.value.find(
         (c) => c.level === 2 && c.parentId === id,
       );
+
+      // 這個主分類底下「沒有任何次分類」→ find 回傳 undefined
       selectedSubId.value = firstSub ? firstSub.id : null;
     };
     const selectSub = (id) => {
