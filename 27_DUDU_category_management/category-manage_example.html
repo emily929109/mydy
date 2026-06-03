@@ -257,6 +257,42 @@
         margin-bottom: 6px;
         display: block;
       }
+
+      /* ---------- 操作列 ---------- */
+      .category-row__action {
+        padding: 4px;
+        border-radius: 4px;
+        opacity: 0;
+        transition: all 0.3s ease;
+      }
+
+      .category-row__action.bg-white button {
+        background: none;
+        outline: none;
+        border: none;
+        font-size: 14px;
+        color: rgb(156 163 175);
+        cursor: pointer;
+      }
+
+      .category-row:hover .category-row__action {
+        opacity: 1;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .category-row__action .action_up:hover,
+        .category-row__action .action_down:hover {
+          color: #409eff;
+        }
+
+        .category-row__action .action_edit:hover {
+          color: rgb(22 163 74);
+        }
+
+        .category-row__action .action_transfer:hover {
+          color: rgb(245 158 11);
+        }
+      }
     </style>
   </head>
 
@@ -326,6 +362,24 @@
               <span class="category-row__switch-wrap" @click.stop>
                 <el-switch v-model="item.enabled" />
               </span>
+              <div class="category-row__action bg-white">
+                <!--上移-->
+                <button class="action_up">
+                  <i class="fa-solid fa-arrow-up"></i>
+                </button>
+                <!--下移-->
+                <button class="action_down">
+                  <i class="fa-solid fa-arrow-down"></i>
+                </button>
+                <!--編輯-->
+                <button class="action_edit" @click="edit(item)">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <!--轉移-->
+                <button class="action_transfer">
+                  <i class="fa-solid fa-truck-moving"></i>
+                </button>
+              </div>
               <span class="category-row__badge"
                 >{{ getProductCount(item) }}</span
               >

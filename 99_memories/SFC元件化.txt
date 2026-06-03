@@ -1,0 +1,115 @@
+========================================
+對話標題：SFC元件化
+儲存日期：2026-06-03
+========================================
+
+【對話記錄】
+
+[使用者]
+若將本專案開發環境改成 SFC + composition API Vue，
+line 365 category-row__action 要如何做成組件，因為次分類與子分類的 v-for 也要用？
+（選取 category-manage_example.html 第 364 行：category-row__action）
+
+----------------------------------------
+
+[Claude]
+（先探索程式碼，釐清現況）
+
+關鍵發現：
+- category-row__action 操作工具列（上移 / 下移 / 編輯 / 轉移四顆按鈕）目前「只」存在於主分類欄（HTML 365–382 行）。
+- 次分類、子分類欄只渲染 num / name / switch / badge。
+- 整個 .category-row 區塊在三欄各被重複了一次（共三次）。
+- JS 為 Composition API（setup()），三層資料以扁平 categories 陣列 + parentId 串接，enabled 有 cascade 邏輯，productCount 只存在於 level 3。
+
+接著用 AskUserQuestion 釐清三個設計決策，使用者回覆：
+1. 元件粒度 → 抽「整個 CategoryRow」（推薦）
+2. 建置工具 → 採用「Vite + Vue SFC」（推薦）
+3. 按鈕層級 → 「三層都顯示四顆鈕」
+
+----------------------------------------
+
+[Claude]
+（將計畫寫入 plan 檔，重點摘要）
+
+# 將分類管理改成 Vite + SFC，並抽出可重用的 <CategoryRow> 元件
+
+目標檔案結構：
+----------------------------------------
+27_DUDU_category_management/
+├── index.html              ← 取代 example.html，只留 <div id="app"></div>
+├── package.json            ← 新增
+├── vite.config.js          ← 新增
+├── public/
+│   └── category_data.json  ← 沿用現有假資料
+└── src/
+    ├── main.js             ← createApp、app.use(ElementPlus)、mount
+    ├── App.vue             ← 頁面（navbar / banner / 三欄 / 角色切換器）
+    ├── components/
+    │   └── CategoryRow.vue ← 重點：可重用的列元件
+    └── composables/
+        └── useCategories.js ← 把 .js 的所有邏輯搬進這裡
+----------------------------------------
+
+實作步驟：
+1. 建立 Vite 骨架（package.json 依賴 vue / element-plus，dev 依賴 vite / @vitejs/plugin-vue；index.html 移除 Vue、Element Plus 的 CDN script，FontAwesome 保留 CDN link；main.js 用 import 引入並 mount）。category_data.json 放 public/，fetch 路徑改 /category_data.json。
+
+2. 把 category-manage_example.js 的 setup() 內容原封不動搬成 useCategories() composable，回傳同一組 state / computed / 方法；ElMessage、ElMessageBox 改用 import { ElMessage, ElMessageBox } from 'element-plus'。
+
+3. 建立 CategoryRow.vue（核心），用 <script setup>，以 props 接收衍生值、用 emits 往上拋事件：
+   - Props：item(必填)、index、selected、effectiveEnabled、count
+   - Emits：select、toggle、up、down、edit、transfer
+   - 模板沿用既有 class，補上 action 那排四顆按鈕
+   - el-switch 用 :model-value + @update:model-value 拋 toggle，避免子元件直接改 prop
+   - action 容器加 @click.stop，避免點按鈕誤觸整列 select
+   - .category-row* 與 .category-row__action* CSS 搬進 <style scoped>
+
+   範例模板：
+----------------------------------------
+<div
+  class="category-row"
+  :class="{ 'category-row--selected': selected, 'category-row--disabled': !effectiveEnabled }"
+  @click="emit('select', item.id)"
+>
+  <span class="category-row__num">{{ index + 1 }}</span>
+  <span class="category-row__name">{{ item.name }}</span>
+  <span class="category-row__switch-wrap" @click.stop>
+    <el-switch :model-value="item.enabled" @update:model-value="emit('toggle', $event)" />
+  </span>
+  <div class="category-row__action bg-white" @click.stop>
+    <button class="action_up"       @click="emit('up', item)"><i class="fa-solid fa-arrow-up"></i></button>
+    <button class="action_down"     @click="emit('down', item)"><i class="fa-solid fa-arrow-down"></i></button>
+    <button class="action_edit"     @click="emit('edit', item)"><i class="fa-solid fa-pen"></i></button>
+    <button class="action_transfer" @click="emit('transfer', item)"><i class="fa-solid fa-truck-moving"></i></button>
+  </div>
+  <span class="category-row__badge">{{ count }}</span>
+</div>
+----------------------------------------
+
+4. 在 App.vue 三欄共用 <CategoryRow>，差異只在 selected 綁定與 @select handler：
+----------------------------------------
+<!-- 主分類 -->
+<CategoryRow
+  v-for="(item, idx) in mainList" :key="item.id"
+  :item="item" :index="idx"
+  :selected="selectedMainId === item.id"
+  :effective-enabled="effectiveEnabled(item)"
+  :count="getProductCount(item)"
+  @select="selectMain" @toggle="item.enabled = $event" @edit="edit"
+  @up="onMoveUp(item)" @down="onMoveDown(item)" @transfer="onTransfer(item)"
+/>
+<!-- 次分類：改綁 selectedSubId / selectSub -->
+<!-- 子分類：最末層無選取，:selected="false" -->
+----------------------------------------
+   業務邏輯範圍：edit 已實作可直接接；up / down / transfer 尚未實作，本次先接到 stub handler（ElMessage 提示「待實作」），實際排序／轉移邏輯為後續工作。
+
+5. 收尾：封存舊的 example.html / .js（建議移到 legacy/）；可選更新 CLAUDE.md 反映新架構。
+
+備註：此計畫刻意偏離 CLAUDE.md 既有「禁止 SFC／無建置」規範，因使用者明確要求改成 SFC 環境。
+
+驗證方式：npm install → npm run dev；確認三欄渲染一致、三層都出現四顆操作鈕、編輯可改名、@click.stop 生效、switch 連動 disabled 樣式與 effective 數字、主/次切換連動、up/down/transfer stub 事件正確往上拋。
+
+（提出 ExitPlanMode 請求核可，使用者中斷未採用，改為儲存對話。）
+
+========================================
+結束
+========================================

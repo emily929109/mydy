@@ -187,6 +187,41 @@ const app = createApp({
       });
     };
 
+    const edit = (item) => {
+      ElementPlus.ElMessageBox.prompt(
+        `修改「${item.name}」的商城前台顯示名稱：`,
+        "輸入資訊",
+        {
+          confirmButtonText: "確認",
+          cancelButtonText: "取消",
+          inputErrorMessage: "請輸入欲修改的名稱",
+          inputPlaceholder: "請輸入新的顯示名稱",
+          inputValue: item.name,
+          inputValidator: (value) => {
+            if (!value || value.trim() === "") {
+              return "名稱不可為空"; // 回傳字串，此字串會自動替代 inputErrorMessage 顯示
+            }
+            return true;
+          },
+        },
+      )
+        .then(({ value }) => {
+          item.name = value.trim();
+          ElementPlus.ElMessage({
+            type: "success",
+            message: `已成功修改名稱`,
+          });
+        })
+        .catch((action) => {
+          if (action === "cancel" || action === "close") {
+            ElementPlus.ElMessage({
+              type: "info",
+              message: "已取消修改",
+            });
+          }
+        });
+    };
+
     return {
       currentRole,
       isAdmin,
@@ -205,6 +240,7 @@ const app = createApp({
       totalLeafActive,
       handleSave,
       handleAddCategory,
+      edit,
     };
   },
 });
