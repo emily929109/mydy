@@ -1,50 +1,69 @@
 <script setup>
-defineProps({
+import { computed } from 'vue'
+import { useCategories } from '../composables/useCategories'
+
+const props = defineProps({
   item: { type: Object, required: true },
   index: { type: Number, required: true },
-  selected: { type: Boolean, default: false },
-  effectiveEnabled: { type: Boolean, default: true },
-  count: { type: Number, default: 0 },
 })
 
-const emit = defineEmits([
-  'select',
-  'toggle',
-  'up',
-  'down',
-  'edit',
-  'transfer',
-])
+// 直接取用共享單例的狀態與方法，不再靠 props 餵入
+const {
+  effectiveEnabled,
+  getProductCount,
+  selectedMainId,
+  selectedSubId,
+  selectMain,
+  selectSub,
+  onMoveUp,
+  onMoveDown,
+  edit,
+  onTransfer,
+} = useCategories()
+
+// 衍生值：依 item.level 自行判斷選取狀態
+const isSelected = computed(() =>
+  props.item.level === 1
+    ? selectedMainId.value === props.item.id
+    : props.item.level === 2
+      ? selectedSubId.value === props.item.id
+      : false,
+)
+const effEnabled = computed(() => effectiveEnabled(props.item))
+const count = computed(() => getProductCount(props.item))
+
+// 點擊整列：主分類選主、次分類選次、子分類不選取
+function onSelect() {
+  if (props.item.level === 1) selectMain(props.item.id)
+  else if (props.item.level === 2) selectSub(props.item.id)
+}
 </script>
 
 <template>
   <div
     class="category-row"
     :class="{
-      'category-row--selected': selected,
-      'category-row--disabled': !effectiveEnabled,
+      'category-row--selected': isSelected,
+      'category-row--disabled': !effEnabled,
     }"
-    @click="emit('select', item.id)"
+    @click="onSelect"
   >
     <span class="category-row__num">{{ index + 1 }}</span>
     <span class="category-row__name">{{ item.name }}</span>
     <span class="category-row__switch-wrap" @click.stop>
-      <el-switch
-        :model-value="item.enabled"
-        @update:model-value="emit('toggle', $event)"
-      />
+      <el-switch :model-value="item.enabled" @update:model-value="item.enabled = $event" />
     </span>
     <div class="category-row__action bg-white" @click.stop>
-      <button class="action_up" @click="emit('up', item)">
+      <button class="action_up" @click="onMoveUp(item)">
         <i class="fa-solid fa-arrow-up"></i>
       </button>
-      <button class="action_down" @click="emit('down', item)">
+      <button class="action_down" @click="onMoveDown(item)">
         <i class="fa-solid fa-arrow-down"></i>
       </button>
-      <button class="action_edit" @click="emit('edit', item)">
+      <button class="action_edit" @click="edit(item)">
         <i class="fa-solid fa-pen"></i>
       </button>
-      <button class="action_transfer" @click="emit('transfer', item)">
+      <button class="action_transfer" @click="onTransfer(item)">
         <i class="fa-solid fa-truck-moving"></i>
       </button>
     </div>

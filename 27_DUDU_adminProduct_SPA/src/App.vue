@@ -2,28 +2,19 @@
 import CategoryRow from './components/CategoryRow.vue'
 import { useCategories } from './composables/useCategories'
 
+// 選取/列內動作已移入 CategoryRow 自行處理，這裡只留版面與統計用到的
 const {
   currentRole,
   isAdmin,
   mainList,
   subList,
   leafList,
-  selectedMainId,
-  selectedSubId,
   selectedMain,
   selectedSub,
-  selectMain,
-  selectSub,
-  effectiveEnabled,
-  getProductCount,
   getEffectiveProductCount,
   totalLeafActive,
   handleSave,
   handleAddCategory,
-  edit,
-  onMoveUp,
-  onMoveDown,
-  onTransfer,
 } = useCategories()
 </script>
 
@@ -38,11 +29,7 @@ const {
     </div>
 
     <div class="app-navbar__menu">
-      <a
-        v-if="isAdmin"
-        href="#"
-        class="app-navbar__link app-navbar__link--admin"
-      >
+      <a v-if="isAdmin" href="#" class="app-navbar__link app-navbar__link--admin">
         <i class="fa-solid fa-circle-user"></i>
         系統總後台
       </a>
@@ -73,30 +60,18 @@ const {
   <div class="category-board">
     <!-- 主分類 -->
     <div class="category-column">
-      <div class="category-column__header">
-        主分類(全 {{ mainList.length }} 項)
-      </div>
+      <div class="category-column__header">主分類(全 {{ mainList.length }} 項)</div>
       <div class="category-column__body">
-        <CategoryRow
-          v-for="(item, idx) in mainList"
-          :key="item.id"
-          :item="item"
-          :index="idx"
-          :selected="selectedMainId === item.id"
-          :effective-enabled="effectiveEnabled(item)"
-          :count="getProductCount(item)"
-          @select="selectMain"
-          @toggle="item.enabled = $event"
-          @up="onMoveUp(item)"
-          @down="onMoveDown(item)"
-          @edit="edit(item)"
-          @transfer="onTransfer(item)"
-        />
+        <CategoryRow v-for="(item, idx) in mainList" :key="item.id" :item="item" :index="idx" />
       </div>
       <div class="category-column__footer">
-        <span>主類別: <b>{{ mainList.length }}</b> 項</span>
+        <span
+          >主類別: <b>{{ mainList.length }}</b> 項</span
+        >
         <span class="divider"></span>
-        <span>全站上架數: <b>{{ totalLeafActive }}</b> 件</span>
+        <span
+          >全站上架數: <b>{{ totalLeafActive }}</b> 件</span
+        >
       </div>
       <div class="category-column__action">
         <el-button @click="handleAddCategory('主')">+ 新增主分類</el-button>
@@ -105,28 +80,14 @@ const {
 
     <!-- 次分類 -->
     <div class="category-column">
-      <div class="category-column__header">
-        次分類(全 {{ subList.length }} 項)
-      </div>
+      <div class="category-column__header">次分類(全 {{ subList.length }} 項)</div>
       <div class="category-column__body">
-        <CategoryRow
-          v-for="(item, idx) in subList"
-          :key="item.id"
-          :item="item"
-          :index="idx"
-          :selected="selectedSubId === item.id"
-          :effective-enabled="effectiveEnabled(item)"
-          :count="getProductCount(item)"
-          @select="selectSub"
-          @toggle="item.enabled = $event"
-          @up="onMoveUp(item)"
-          @down="onMoveDown(item)"
-          @edit="edit(item)"
-          @transfer="onTransfer(item)"
-        />
+        <CategoryRow v-for="(item, idx) in subList" :key="item.id" :item="item" :index="idx" />
       </div>
       <div class="category-column__footer">
-        <span>次類別小計: <b>{{ subList.length }}</b> 項</span>
+        <span
+          >次類別小計: <b>{{ subList.length }}</b> 項</span
+        >
         <span class="divider"></span>
         <span>
           主類別上架數:
@@ -141,27 +102,14 @@ const {
 
     <!-- 子分類 -->
     <div class="category-column">
-      <div class="category-column__header">
-        子分類(全 {{ leafList.length }} 項)
-      </div>
+      <div class="category-column__header">子分類(全 {{ leafList.length }} 項)</div>
       <div class="category-column__body">
-        <CategoryRow
-          v-for="(item, idx) in leafList"
-          :key="item.id"
-          :item="item"
-          :index="idx"
-          :selected="false"
-          :effective-enabled="effectiveEnabled(item)"
-          :count="getProductCount(item)"
-          @toggle="item.enabled = $event"
-          @up="onMoveUp(item)"
-          @down="onMoveDown(item)"
-          @edit="edit(item)"
-          @transfer="onTransfer(item)"
-        />
+        <CategoryRow v-for="(item, idx) in leafList" :key="item.id" :item="item" :index="idx" />
       </div>
       <div class="category-column__footer">
-        <span>子分類小計: <b>{{ leafList.length }}</b> 項</span>
+        <span
+          >子分類小計: <b>{{ leafList.length }}</b> 項</span
+        >
         <span class="divider"></span>
         <span>
           次類別內上架數:
