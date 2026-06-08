@@ -1,6 +1,8 @@
 <script setup>
 import CategoryRow from './components/CategoryRow.vue'
 import { useCategories } from './composables/useCategories'
+import CategoryMenu from './components/CategoryMenu.vue'
+import { ref } from 'vue'
 
 // 選取/列內動作已移入 CategoryRow 自行處理，這裡只留版面與統計用到的
 const {
@@ -16,6 +18,52 @@ const {
   handleSave,
   handleAddCategory,
 } = useCategories()
+
+const categoryTree = ref([
+  {
+    categoryId: 1,
+    name: '服飾',
+    children: [
+      {
+        categoryId: 2,
+        name: '男裝',
+        children: [
+          { categoryId: 4, name: '外套' },
+          { categoryId: 5, name: '牛仔褲' },
+        ],
+      },
+      {
+        categoryId: 3,
+        name: '女裝',
+        children: [{ categoryId: 6, name: '洋裝' }],
+      },
+    ],
+  },
+  {
+    categoryId: 7,
+    name: '鞋類',
+    children: [
+      {
+        categoryId: 8,
+        name: '運動鞋',
+        children: [
+          { categoryId: 10, name: '慢跑鞋' },
+          { categoryId: 11, name: '籃球鞋' },
+        ],
+      },
+      {
+        categoryId: 9,
+        name: '皮鞋',
+        children: [], // 即使沒有子層，空陣列也不會讓程式崩潰
+      },
+    ],
+  },
+])
+
+const handleSelect = (index) => {
+  console.log('使用者點擊了最末端的子分類，其 categoryId 為:', index)
+  // 這裡通常會拿去執行 router.push 或是重新發送 API 撈商品清單
+}
 </script>
 
 <template>
@@ -132,6 +180,8 @@ const {
       <el-radio-button value="guest">guest</el-radio-button>
     </el-radio-group>
   </div>
+
+  <CategoryMenu :tree="categoryTree" default-active="" @select="handleSelect" />
 </template>
 
 <style scoped>
