@@ -1,15 +1,25 @@
 <script setup>
-defineProps({
+import { Grid } from '@element-plus/icons-vue'
+
+// 1. 💡 接收父元件傳進來的參數，對應 :tree="categoryTree"
+const props = defineProps({
   tree: { type: Array, default: () => [] },
   defaultActive: { type: String, default: '' },
 })
+
+// 2. 💡 定義要傳回給父元件的自訂事件
 const emit = defineEmits(['select'])
+
+// 3. 💡 當 el-menu 觸發 select 時，負責把 index 轉發給父元件
+const handleSelect = (index) => {
+  emit('select', index)
+}
 </script>
 
 <template>
   <div class="sidebar-menu-wrapper" style="width: 250px">
     <el-menu
-      default-active="4"
+      :default-active="props.defaultActive"
       class="el-menu-vertical-demo"
       background-color="#ffffff"
       text-color="#333333"
@@ -17,7 +27,7 @@ const emit = defineEmits(['select'])
       @select="handleSelect"
     >
       <el-sub-menu
-        v-for="main in categoryTree"
+        v-for="main in props.tree"
         :key="main.categoryId"
         :index="String(main.categoryId)"
       >

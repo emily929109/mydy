@@ -62,7 +62,6 @@ const categoryTree = ref([
 
 const handleSelect = (index) => {
   console.log('使用者點擊了最末端的子分類，其 categoryId 為:', index)
-  // 這裡通常會拿去執行 router.push 或是重新發送 API 撈商品清單
 }
 </script>
 
@@ -103,6 +102,8 @@ const handleSelect = (index) => {
       儲存所有變更
     </el-button>
   </div>
+
+  <CategoryMenu :tree="categoryTree" defaultActive="1" @select="handleSelect" />
 
   <!-- ===== 三欄分類管理 ===== -->
   <div class="category-board">
@@ -180,8 +181,6 @@ const handleSelect = (index) => {
       <el-radio-button value="guest">guest</el-radio-button>
     </el-radio-group>
   </div>
-
-  <CategoryMenu :tree="categoryTree" default-active="" @select="handleSelect" />
 </template>
 
 <style scoped>
