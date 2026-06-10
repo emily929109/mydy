@@ -9,56 +9,9 @@ const props = defineProps({
 
 const emit = defineEmits(['select'])
 
+// 點擊任一層（主／次／葉）皆把該分類 categoryId 往上拋給父元件
 const handleMenuClick = (categoryId) => {
   emit('select', categoryId)
-}
-
-const handleMenuClick = (id) => {
-  // 只對手機版有用
-  drawerVisible.value = false
-
-  // todo : call api
-  fetch('/js/adminProduct/fakeProduct.json')
-    .then((res) => res.json())
-    .then((data) => {
-      // 因json商品全部都掛在leaf category
-      // 取得「此分類 + 其所有子孫分類」的 categoryId 集合
-      // 找不到（categories 尚未載入）時退回只比對自己
-      const ids = _findCategoryIds(categories.value, id) || [id]
-
-      productList.value = data.filter((p) => ids.includes(p.categoryId))
-      //productList.value = data.filter(p => p.categoryId===id);
-      console.log(productList.value)
-    })
-    .catch((err) => {
-      console.error('Failed to load product data:', err)
-    })
-}
-
-// 收集某節點底下所有子孫的 categoryId（含自己）
-const _collectDescendantIds = (node) => {
-  let ids = [node.categoryId]
-
-  if (node.children && node.children.length > 0) {
-    node.children.forEach((child) => {
-      ids = ids.concat(_collectDescendantIds(child))
-    })
-  }
-  return ids
-}
-
-// 在分類樹中找到 targetId 的節點，回傳其所有子孫 id 陣列；找不到回傳 null
-const _findCategoryIds = (nodes, targetId) => {
-  if (!nodes) return null
-
-  for (const node of nodes) {
-    if (node.categoryId === targetId) {
-      return _collectDescendantIds(node)
-    }
-    const found = _findCategoryIds(node.children, targetId)
-    if (found) return found
-  }
-  return null
 }
 </script>
 

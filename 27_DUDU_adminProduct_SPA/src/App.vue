@@ -2,7 +2,11 @@
 import CategoryRow from './components/CategoryRow.vue'
 import { useCategories } from './composables/useCategories'
 import CategoryMenu from './components/CategoryMenu.vue'
+import Storefront from './components/storefront/Storefront.vue'
 import { ref } from 'vue'
+
+// 前後台切換：'admin'（後台分類管理）/ 'store'（前台商品列表）
+const view = ref('admin')
 
 // 選取/列內動作已移入 CategoryRow 自行處理，這裡只留版面與統計用到的
 const {
@@ -76,20 +80,33 @@ const handleSelect = (index) => {
     </div>
 
     <div class="app-navbar__menu">
-      <a v-if="isAdmin" href="#" class="app-navbar__link app-navbar__link--admin">
+      <a
+        v-if="isAdmin"
+        href="#"
+        class="app-navbar__link app-navbar__link--admin"
+        :class="{ 'is-active': view === 'admin' }"
+        @click.prevent="view = 'admin'"
+      >
         <i class="fa-solid fa-circle-user"></i>
         系統總後台
       </a>
       <a href="#" class="app-navbar__link">DUDUPAY介紹</a>
       <a href="#" class="app-navbar__link">最新消息</a>
       <a href="#" class="app-navbar__link">旅遊好康</a>
-      <a href="#" class="app-navbar__cta">
+      <a
+        href="#"
+        class="app-navbar__cta"
+        :class="{ 'is-active': view === 'store' }"
+        @click.prevent="view = 'store'"
+      >
         <i class="fa-solid fa-bag-shopping"></i>
         購物專區
       </a>
     </div>
   </nav>
 
+  <!-- ===== 後台：分類管理 ===== -->
+  <template v-if="view === 'admin'">
   <!-- ===== Page Banner ===== -->
   <div class="page-banner">
     <div class="page-banner__title">
@@ -171,6 +188,10 @@ const handleSelect = (index) => {
       </div>
     </div>
   </div>
+  </template>
+
+  <!-- ===== 前台：商品列表 ===== -->
+  <Storefront v-else :tree="categoryTree" />
 
   <!-- ===== Demo 角色切換器 ===== -->
   <div class="role-switcher">
@@ -250,6 +271,13 @@ const handleSelect = (index) => {
 }
 .app-navbar__cta:hover {
   background: #ffb420;
+}
+.app-navbar__cta.is-active {
+  background: #ffb420;
+  box-shadow: 0 0 0 3px rgba(255, 180, 32, 0.35);
+}
+.app-navbar__link--admin.is-active {
+  text-decoration: underline;
 }
 
 /* ---------- Page banner ---------- */
