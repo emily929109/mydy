@@ -1,66 +1,79 @@
 <script setup>
-import { Grid } from '@element-plus/icons-vue'
+import { ref } from 'vue'
+import { ArrowDown } from '@element-plus/icons-vue'
+import CategoryMenuTree from './CategoryMenuTree.vue'
 
-// 1. 💡 接收父元件傳進來的參數，對應 :tree="categoryTree"
+// 接收父元件傳進來的參數，對應 :tree="categoryTree"
 const props = defineProps({
   tree: { type: Array, default: () => [] },
   defaultActive: { type: String, default: '' },
 })
 
-// 2. 💡 定義要傳回給父元件的自訂事件
+// 定義要傳回給父元件的自訂事件
 const emit = defineEmits(['select'])
 
-// 3. 💡 當 el-menu 觸發 select 時，負責把 index 轉發給父元件
+// 控制手機版全屏面板的開關
+const drawerVisible = ref(false)
+
+// 轉發 select 給父元件；手機版選到分類後自動收起全屏面板
 const handleSelect = (index) => {
   emit('select', index)
+  drawerVisible.value = false
 }
 </script>
 
 <template>
-  <div class="sidebar-menu-wrapper" style="width: 250px">
-    <el-menu
+  <!-- 桌機：左側垂直收合選單（維持原樣） -->
+  <div class="sidebar-menu-wrapper cm-desktop" style="width: 250px">
+    <CategoryMenuTree
+      :tree="props.tree"
       :default-active="props.defaultActive"
-      class="el-menu-vertical-demo"
-      background-color="#ffffff"
-      text-color="#333333"
-      active-text-color="#00a896"
       @select="handleSelect"
-    >
-      <el-sub-menu
-        v-for="main in props.tree"
-        :key="main.categoryId"
-        :index="String(main.categoryId)"
-      >
-        <template #title>
-          <el-icon><Grid /></el-icon> <span>{{ main.name }}</span>
-        </template>
-
-        <el-sub-menu
-          v-for="sub in main.children"
-          :key="sub.categoryId"
-          :index="String(sub.categoryId)"
-        >
-          <template #title>
-            <span>{{ sub.name }}</span>
-          </template>
-
-          <el-menu-item
-            v-for="leaf in sub.children"
-            :key="leaf.categoryId"
-            :index="String(leaf.categoryId)"
-          >
-            {{ leaf.name }}
-          </el-menu-item>
-        </el-sub-menu>
-      </el-sub-menu>
-    </el-menu>
+    />
   </div>
+
+  <!-- 手機：下拉按鈕，點擊開啟全屏面板 -->
+  <el-button class="cm-mobile-trigger" round @click="drawerVisible = true">
+    分類選單
+    <el-icon class="cm-mobile-trigger__arrow"><ArrowDown /></el-icon>
+  </el-button>
+
+  <!-- 手機：全屏面板，沿用同一份 el-menu -->
+  <el-drawer
+    v-model="drawerVisible"
+    title="分類選單"
+    direction="ltr"
+    size="100%"
+    class="cm-mobile-drawer"
+  >
+    <CategoryMenuTree
+      :tree="props.tree"
+      :default-active="props.defaultActive"
+      @select="handleSelect"
+    />
+  </el-drawer>
 </template>
 
 <style scoped>
-.el-menu-item.is-active {
-  background-color: #f2fbf9 !important; /* 淡淡的底色 */
-  border-left: 4px solid #00a896; /* 👈 左側那條經典的綠線 */
-  padding-left: 16px !important; /* 修正微調因為多出 4px 造成的文字偏移 */
+/* 預設（桌機）：顯示側欄、隱藏手機按鈕 */
+.cm-desktop {
+  display: block;
+}
+.cm-mobile-trigger {
+  display: none;
+}
+.cm-mobile-trigger__arrow {
+  margin-left: 4px;
+}
+
+/* 手機（< 768px）：隱藏側欄、改顯示下拉按鈕 */
+@media (max-width: 768px) {
+  .cm-desktop {
+    display: none;
+  }
+  .cm-mobile-trigger {
+    display: inline-flex;
+    margin: 16px 36px;
+  }
 }
 </style>
