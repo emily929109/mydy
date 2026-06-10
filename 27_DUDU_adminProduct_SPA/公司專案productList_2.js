@@ -1,3 +1,5 @@
+const nextTick = Vue.nextTick
+
 const App = Vue.createApp({
   setup() {
     //----page
@@ -228,6 +230,7 @@ const App = Vue.createApp({
         .then((res) => res.json())
         .then((data) => {
           productList.value = data
+          triggerProductsFadeUp()
           console.log(productList.value)
         })
         .catch((err) => {
@@ -275,6 +278,9 @@ const App = Vue.createApp({
 
           productList.value = data.filter((p) => ids.includes(p.categoryId))
           //productList.value = data.filter(p => p.categoryId===id);
+          nextTick(() => {
+            triggerProductsFadeUp()
+          })
           console.log(productList.value)
         })
         .catch((err) => {
@@ -306,6 +312,31 @@ const App = Vue.createApp({
         if (found) return found
       }
       return null
+    }
+
+    const triggerProductsFadeUp = () => {
+      const isMobile = window.innerWidth < 768
+      const options_x = {
+        root: null,
+        threshold: isMobile ? 0.1 : 0.3,
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('show')
+            // 觸發後解除監聽，優化效能
+            observer.unobserve(entry.target)
+          }
+        })
+      }, options_x)
+
+      const targets = document.querySelectorAll('.fadeUp')
+
+      targets.forEach((el) => {
+        el.classList.remove('show')
+        observer.observe(el)
+      })
     }
 
     // -------- 三層分類管理 結束 -----------
@@ -526,27 +557,4 @@ const App = Vue.createApp({
 App.use(ElementPlus)
 App.mount('#app')
 
-$(window).on('load', function () {
-  //---------淡入效果 開始---------
-  //fadeUp
-  const isMobile = window.innerWidth < 768
-  const options_x = {
-    root: null,
-    threshold: isMobile ? 0.1 : 0.3,
-  }
-  const observer = new IntersectionObserver(fadeUp, options_x)
-  const target = document.querySelectorAll('.fadeUp')
-
-  target.forEach((el) => observer.observe(el))
-
-  function fadeUp(entries) {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('show')
-        observer.unobserve(entry.target)
-      }
-    })
-  }
-
-  //---------淡入效果 結束---------
-})
+$(window).on('load', function () {})
