@@ -3,16 +3,20 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 
 // === 共享單例狀態（module 層級，全 app 共用同一份）===
 const categories = ref([])
+const rawCategories = ref([])
+const _sortedCategories = ref([])
 
 // 只在 module 載入時 fetch 一次，避免每個呼叫端重複請求
 let initialized = false
 function loadCategories() {
   if (initialized) return
   initialized = true
-  fetch('/category_data.json')
+  fetch('/fakeCategoryTreeData.json')
     .then((res) => res.json())
     .then((data) => {
-      categories.value = data
+      rawCategories.value = data.categories
+      _sortedCategories.value = _sortCategoryTree(rawCategories.value)
+      console.log('Category data loaded:', data.categories)
     })
     .catch((err) => {
       console.error('Failed to load category data:', err)
@@ -25,63 +29,93 @@ const currentRole = ref('admin')
 const isAdmin = computed(() => currentRole.value === 'admin')
 
 // === Helpers ===
+// 依據 sort排序
+const _sortCategoryTree = (nodes) => {
+  if (!nodes || nodes.length === 0) return []
+
+  // 因 sort 會直接改動原陣列複，故複製一份到新陣列進行排序與遞迴處理，最後回傳新陣列
+  // nodes是陣列，node是陣列裡的物件
+  return [...nodes]
+    .sort((a, b) => {
+      return a.sort - b.sort // 遞增
+    })
+    .map((node) => {
+      if (node.children && node.children.length > 0) {
+        // 開一個新物件，先把 node 的所有屬性攤進去，再用新的 children 覆蓋掉原本的 children
+        // 展開運算子 ... 一定要放在某個「容器字面值」裡面
+        // nodes 是陣列 → 用 []；node 是物件 → 用 {}。就這個差別而已。
+        return {
+          ...node,
+          children: _sortCategoryTree(node.children),
+        }
+      }
+      return node
+    })
+}
+
 // id → item map（查父層用）
-const categoryMap = computed(() => {
-  const m = new Map()
-  for (const c of categories.value) m.set(c.id, c)
-  return m
-})
+// const categoryMap = computed(() => {
+//   const m = new Map()
+//   for (const c of _sortedCategories.value) m.set(c.id, c)
+//   return m
+// })
 
 // 衍生狀態 derived state：自己 enabled 且祖先皆 enabled 才視為 enabled
-const effectiveEnabled = (item) => {
-  let cur = item
-  while (cur) {
-    if (!cur.enabled) return false
-    cur = cur.parentId == null ? null : categoryMap.value.get(cur.parentId)
-  }
-  return true
-}
+// const effectiveEnabled = (item) => {
+//   let cur = item
+//   while (cur) {
+//     if (!cur.enabled) return false
+//     cur = cur.parentId == null ? null : categoryMap.value.get(cur.parentId)
+//   }
+//   return true
+// }
 
 // 取得該分類底下所有 leaf descendants（level 3 自己就是 leaf）
-const getDescendantLeaves = (item) => {
-  if (item.level === 3) return [item]
-  const result = []
-  const stack = categories.value.filter((c) => c.parentId === item.id)
-  while (stack.length) {
-    const c = stack.shift()
-    if (c.level === 3) result.push(c)
-    else stack.push(...categories.value.filter((x) => x.parentId === c.id))
-  }
-  return result
-}
+// const getDescendantLeaves = (item) => {
+//   if (item.level === 3) return [item]
+//   const result = []
+//   const stack = _sortedCategories.value.filter((c) => c.parentId === item.id)
+//   while (stack.length) {
+//     const c = stack.shift()
+//     if (c.level === 3) result.push(c)
+//     else stack.push(..._sortedCategories.value.filter((x) => x.parentId === c.id))
+//   }
+//   return result
+// }
 
 // Raw productCount（不考慮 cascade）
-const getProductCount = (item) => {
-  if (item.level === 3) return item.productCount
-  return getDescendantLeaves(item).reduce((s, l) => s + l.productCount, 0)
-}
+// const getProductCount = (item) => {
+//   if (item.level === 3) return item.productCount
+//   return getDescendantLeaves(item).reduce((s, l) => s + l.productCount, 0)
+// }
 
 // Effective productCount（考慮 cascade — 只算 effectiveEnabled 的 leaves）
-const getEffectiveProductCount = (item) => {
-  if (item.level === 3) return effectiveEnabled(item) ? item.productCount : 0
-  return getDescendantLeaves(item)
-    .filter((l) => effectiveEnabled(l))
-    .reduce((s, l) => s + l.productCount, 0)
-}
+// const getEffectiveProductCount = (item) => {
+//   if (item.level === 3) return effectiveEnabled(item) ? item.productCount : 0
+//   return getDescendantLeaves(item)
+//     .filter((l) => effectiveEnabled(l))
+//     .reduce((s, l) => s + l.productCount, 0)
+// }
 
 // === 三欄選中狀態 ===
-const selectedMainId = ref(1)
-const selectedSubId = ref(11)
+const selectedMainId = ref(null)
+const selectedSubId = ref(null)
 
 const bySort = (a, b) => a.sort - b.sort
 
-const mainList = computed(() => categories.value.filter((c) => c.level === 1).sort(bySort))
-const subList = computed(() =>
-  categories.value.filter((c) => c.level === 2 && c.parentId === selectedMainId.value).sort(bySort),
-)
-const leafList = computed(() =>
-  categories.value.filter((c) => c.level === 3 && c.parentId === selectedSubId.value).sort(bySort),
-)
+const mainList = computed(() => {
+  return _sortedCategories.value
+})
+
+//  const subList = computed(() => {
+//       const main = _sortedCategories.value.find((c) => c.categoryId === selectedMainId.value)
+//       //console.log(main.children)
+//       return main?.children ?? []
+//     })
+
+// const leafList = computed(() =>
+//   _sortedCategories.value.filter((c) => c.level === 3 && c.parentId === selectedSubId.value).sort(bySort),
+// )
 
 const selectedMain = computed(() => categoryMap.value.get(selectedMainId.value))
 const selectedSub = computed(() => categoryMap.value.get(selectedSubId.value))
@@ -89,7 +123,9 @@ const selectedSub = computed(() => categoryMap.value.get(selectedSubId.value))
 const selectMain = (id) => {
   selectedMainId.value = id
   // 選 sort 最小的次分類為第一個
-  const subs = categories.value.filter((c) => c.level === 2 && c.parentId === id).sort(bySort)
+  const subs = _sortedCategories.value
+    .filter((c) => c.level === 2 && c.parentId === id)
+    .sort(bySort)
   selectedSubId.value = subs.length ? subs[0].id : null
 }
 const selectSub = (id) => {
@@ -98,7 +134,7 @@ const selectSub = (id) => {
 
 // === 全站上架數（effective）===
 const totalLeafActive = computed(() =>
-  categories.value
+  _sortedCategories.value
     .filter((c) => c.level === 3 && effectiveEnabled(c))
     .reduce((s, c) => s + c.productCount, 0),
 )
@@ -145,9 +181,9 @@ const handleAddCategory = async (levelLabel) => {
     return
   }
 
-  const newId = categories.value.reduce((m, c) => Math.max(m, c.id), 0) + 1
+  const newId = _sortedCategories.value.reduce((m, c) => Math.max(m, c.id), 0) + 1
   // sort = 同層最大值 + 1（排在該欄最底部）
-  const maxSort = categories.value
+  const maxSort = _sortedCategories.value
     .filter((c) => c.level === level && c.parentId === parentId)
     .reduce((m, c) => Math.max(m, c.sort ?? 0), 0)
   const newItem = {
@@ -160,7 +196,7 @@ const handleAddCategory = async (levelLabel) => {
   }
   if (level === 3) newItem.productCount = 0
 
-  categories.value.push(newItem)
+  _sortedCategories.value.push(newItem)
 
   if (level === 1) selectMain(newId)
   else if (level === 2) selectSub(newId)
@@ -198,7 +234,7 @@ const edit = (item) => {
 
 // 在同層兄弟（同 level、同 parentId）內調整順序：與相鄰一筆對調 sort 值
 const moveItem = (item, dir) => {
-  const siblings = categories.value
+  const siblings = _sortedCategories.value
     .filter((c) => c.level === item.level && c.parentId === item.parentId)
     .sort(bySort)
 
@@ -226,8 +262,8 @@ export function useCategories() {
     currentRole,
     isAdmin,
     mainList,
-    subList,
-    leafList,
+    // subList,
+    // leafList,
     selectedMainId,
     selectedSubId,
     selectedMain,

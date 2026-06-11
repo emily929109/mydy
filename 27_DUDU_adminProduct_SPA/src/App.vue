@@ -107,87 +107,85 @@ const handleSelect = (index) => {
 
   <!-- ===== 後台：分類管理 ===== -->
   <template v-if="view === 'admin'">
-  <!-- ===== Page Banner ===== -->
-  <div class="page-banner">
-    <div class="page-banner__title">
-      <i class="fa-solid fa-sitemap"></i>
-      商城分類管理
-      <i class="fa-solid fa-circle-info"></i>
-    </div>
-    <el-button type="warning" round @click="handleSave">
-      <i class="fa-solid fa-floppy-disk" style="margin-right: 6px"></i>
-      儲存所有變更
-    </el-button>
-  </div>
-
-  <CategoryMenu :tree="categoryTree" defaultActive="1" @select="handleSelect" />
-
-  <!-- ===== 三欄分類管理 ===== -->
-  <div class="category-board">
-    <!-- 主分類 -->
-    <div class="category-column">
-      <div class="category-column__header">主分類(全 {{ mainList.length }} 項)</div>
-      <div class="category-column__body">
-        <CategoryRow v-for="(item, idx) in mainList" :key="item.id" :item="item" :index="idx" />
+    <!-- ===== Page Banner ===== -->
+    <div class="page-banner">
+      <div class="page-banner__title">
+        <i class="fa-solid fa-sitemap"></i>
+        商城分類管理
+        <i class="fa-solid fa-circle-info"></i>
       </div>
-      <div class="category-column__footer">
-        <span
-          >主類別: <b>{{ mainList.length }}</b> 項</span
-        >
-        <span class="divider"></span>
-        <span
-          >全站上架數: <b>{{ totalLeafActive }}</b> 件</span
-        >
-      </div>
-      <div class="category-column__action">
-        <el-button @click="handleAddCategory('主')">+ 新增主分類</el-button>
-      </div>
+      <el-button type="warning" round @click="handleSave">
+        <i class="fa-solid fa-floppy-disk" style="margin-right: 6px"></i>
+        儲存所有變更
+      </el-button>
     </div>
 
-    <!-- 次分類 -->
-    <div class="category-column">
-      <div class="category-column__header">次分類(全 {{ subList.length }} 項)</div>
-      <div class="category-column__body">
-        <CategoryRow v-for="(item, idx) in subList" :key="item.id" :item="item" :index="idx" />
+    <!-- ===== 三欄分類管理 ===== -->
+    <div class="category-board">
+      <!-- 主分類 -->
+      <div class="category-column">
+        <div class="category-column__header">主分類(全 {{ mainList.length }} 項)</div>
+        <div class="category-column__body">
+          <CategoryRow v-for="(item, idx) in mainList" :key="item.id" :item="item" :index="idx" />
+        </div>
+        <div class="category-column__footer">
+          <span
+            >主類別: <b>{{ mainList.length }}</b> 項</span
+          >
+          <span class="divider"></span>
+          <span
+            >全站上架數: <b>{{ totalLeafActive }}</b> 件</span
+          >
+        </div>
+        <div class="category-column__action">
+          <el-button @click="handleAddCategory('主')">+ 新增主分類</el-button>
+        </div>
       </div>
-      <div class="category-column__footer">
-        <span
-          >次類別小計: <b>{{ subList.length }}</b> 項</span
-        >
-        <span class="divider"></span>
-        <span>
-          主類別上架數:
-          <b>{{ selectedMain ? getEffectiveProductCount(selectedMain) : 0 }}</b>
-          件
-        </span>
-      </div>
-      <div class="category-column__action">
-        <el-button @click="handleAddCategory('次')">+ 新增次分類</el-button>
-      </div>
-    </div>
 
-    <!-- 子分類 -->
-    <div class="category-column">
-      <div class="category-column__header">子分類(全 {{ leafList.length }} 項)</div>
-      <div class="category-column__body">
-        <CategoryRow v-for="(item, idx) in leafList" :key="item.id" :item="item" :index="idx" />
-      </div>
-      <div class="category-column__footer">
-        <span
-          >子分類小計: <b>{{ leafList.length }}</b> 項</span
-        >
-        <span class="divider"></span>
-        <span>
-          次類別內上架數:
-          <b>{{ selectedSub ? getEffectiveProductCount(selectedSub) : 0 }}</b>
-          件
-        </span>
-      </div>
-      <div class="category-column__action">
-        <el-button @click="handleAddCategory('子')">+ 新增子分類</el-button>
-      </div>
+      <!-- 次分類 -->
+      <!-- <div class="category-column">
+        <div class="category-column__header">次分類(全 {{ subList.length }} 項)</div>
+        <div class="category-column__body">
+          <CategoryRow v-for="(item, idx) in subList" :key="item.id" :item="item" :index="idx" />
+        </div>
+        <div class="category-column__footer">
+          <span
+            >次類別小計: <b>{{ subList.length }}</b> 項</span
+          >
+          <span class="divider"></span>
+          <span>
+            主類別上架數:
+            <b>{{ selectedMain ? getEffectiveProductCount(selectedMain) : 0 }}</b>
+            件
+          </span>
+        </div>
+        <div class="category-column__action">
+          <el-button @click="handleAddCategory('次')">+ 新增次分類</el-button>
+        </div>
+      </div> -->
+
+      <!-- 子分類 -->
+      <!-- <div class="category-column">
+        <div class="category-column__header">子分類(全 {{ leafList.length }} 項)</div>
+        <div class="category-column__body">
+          <CategoryRow v-for="(item, idx) in leafList" :key="item.id" :item="item" :index="idx" />
+        </div>
+        <div class="category-column__footer">
+          <span
+            >子分類小計: <b>{{ leafList.length }}</b> 項</span
+          >
+          <span class="divider"></span>
+          <span>
+            次類別內上架數:
+            <b>{{ selectedSub ? getEffectiveProductCount(selectedSub) : 0 }}</b>
+            件
+          </span>
+        </div>
+        <div class="category-column__action">
+          <el-button @click="handleAddCategory('子')">+ 新增子分類</el-button>
+        </div>
+      </div> -->
     </div>
-  </div>
   </template>
 
   <!-- ===== 前台：商品列表 ===== -->
@@ -203,7 +201,6 @@ const handleSelect = (index) => {
     </el-radio-group>
   </div>
 </template>
-
 <style scoped>
 /* ---------- Navbar ---------- */
 .app-navbar {
