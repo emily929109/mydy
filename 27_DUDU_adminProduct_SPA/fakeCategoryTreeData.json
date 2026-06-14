@@ -1,0 +1,118 @@
+{
+  "categories": [
+    {
+      "extendId": 1,
+      "name": "服飾",
+      "nickName": "服飾.",
+      "categoryId": 1,
+      "sort": 1,
+      "isVisible": false,
+      "productCount": 412,
+      "children": [
+        {
+          "extendId": 2,
+          "name": "男裝",
+          "nickName": "最新男裝",
+          "categoryId": 2,
+          "sort": 2,
+          "isVisible": true,
+          "productCount": 186,
+          "children": [
+            {
+              "extendId": 4,
+              "name": "外套",
+              "nickName": "外套33",
+              "categoryId": 4,
+              "sort": 1,
+              "isVisible": true,
+              "productCount": 58,
+              "children": []
+            },
+            {
+              "extendId": 5,
+              "name": "牛仔褲",
+              "nickName": "牛仔褲66..",
+              "categoryId": 5,
+              "sort": 2,
+              "isVisible": false,
+              "productCount": 43,
+              "children": []
+            }
+          ]
+        },
+        {
+          "extendId": 3,
+          "name": "女裝",
+          "nickName": "即將停售",
+          "categoryId": 3,
+          "sort": 3,
+          "isVisible": false,
+          "productCount": 226,
+          "children": [
+            {
+              "extendId": 6,
+              "name": "洋裝",
+              "nickName": "洋裝",
+              "categoryId": 6,
+              "sort": 1,
+              "isVisible": true,
+              "productCount": 74,
+              "children": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "extendId": 7,
+      "name": "鞋類",
+      "nickName": "鞋類...",
+      "categoryId": 7,
+      "sort": 2,
+      "isVisible": true,
+      "productCount": 205,
+      "children": [
+        {
+          "extendId": 8,
+          "name": "運動鞋",
+          "nickName": "運動鞋",
+          "categoryId": 8,
+          "sort": 1,
+          "isVisible": true,
+          "productCount": 92,
+          "children": []
+        },
+        {
+          "extendId": 9,
+          "name": "皮鞋",
+          "nickName": "皮鞋",
+          "categoryId": 9,
+          "sort": 2,
+          "isVisible": true,
+          "productCount": 37,
+          "children": []
+        },
+        {
+          "extendId": 10,
+          "name": "拖鞋",
+          "nickName": "拖鞋",
+          "categoryId": 10,
+          "sort": 3,
+          "isVisible": false,
+          "productCount": 19,
+          "children": []
+        },
+        {
+          "extendId": 11,
+          "name": "測試商品數量",
+          "nickName": "測試商品數量",
+          "categoryId": 0,
+          "sort": 20,
+          "isVisible": false,
+          "productCount": 19,
+          "children": []
+        }
+      ]
+    }
+  ]
+}
