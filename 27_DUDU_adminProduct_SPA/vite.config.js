@@ -12,5 +12,5 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  base: '/mydy/',
+  base: '/mydy/27_DUDU_adminProduct_SPA/',
 })
