@@ -5,12 +5,13 @@ import { useCategories } from '../composables/useCategories'
 const props = defineProps({
   item: { type: Object, required: true },
   index: { type: Number, required: true },
+  level: { type: Number, required: true }, // 新增：1=主 2=次 3=子
 })
 
 // 直接取用共享單例的狀態與方法，不再靠 props 餵入
 const {
   effectiveEnabled,
-  getProductCount,
+  // getProductCount,
   selectedMainId,
   selectedSubId,
   selectMain,
@@ -22,20 +23,20 @@ const {
 } = useCategories()
 
 // 衍生值：依 item.level 自行判斷選取狀態
-const isSelected = computed(() =>
-  props.item.level === 1
-    ? selectedMainId.value === props.item.id
-    : props.item.level === 2
-      ? selectedSubId.value === props.item.id
-      : false,
-)
+const isSelected = computed(() => {
+  const isMatched =
+    (props.level === 1 && selectedMainId.value === props.item.categoryId) ||
+    (props.level === 2 && selectedSubId.value === props.item.categoryId)
+
+  return isMatched ? true : false
+})
 const effEnabled = computed(() => effectiveEnabled(props.item))
-const count = computed(() => getProductCount(props.item))
+// const count = computed(() => getProductCount(props.item))
 
 // 點擊整列：主分類選主、次分類選次、子分類不選取
 function onSelect() {
-  if (props.item.level === 1) selectMain(props.item.id)
-  else if (props.item.level === 2) selectSub(props.item.id)
+  if (props.level === 1) selectMain(props.item.categoryId)
+  else if (props.level === 2) selectSub(props.item.categoryId)
 }
 </script>
 
@@ -51,7 +52,8 @@ function onSelect() {
     <span class="category-row__num">{{ index + 1 }}</span>
     <span class="category-row__name">{{ item.name }}</span>
     <span class="category-row__switch-wrap" @click.stop>
-      <el-switch :model-value="item.enabled" @update:model-value="item.enabled = $event" />
+      <!-- <el-switch :model-value="item.isVisible" @update:model-value="item.isVisible = $event" /> -->
+      <el-switch v-model="item.isVisible" />
     </span>
     <div class="category-row__action bg-white" @click.stop>
       <button class="action_up" @click="onMoveUp(item)">
@@ -67,7 +69,7 @@ function onSelect() {
         <i class="fa-solid fa-truck-moving"></i>
       </button>
     </div>
-    <span class="category-row__badge">{{ count }}</span>
+    <!-- <span class="category-row__badge">{{ count }}</span> -->
   </div>
 </template>
 

@@ -1,4 +1,4 @@
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 // === 共享單例狀態（module 層級，全 app 共用同一份）===
@@ -17,6 +17,13 @@ function loadCategories() {
       rawCategories.value = data.categories
       _sortedCategories.value = _sortCategoryTree(rawCategories.value)
       console.log('Category data loaded:', data.categories)
+      // 預設初載時顯示第一個主分類
+      const firstMain = _sortedCategories.value[0]
+      selectedMainId.value = firstMain ? firstMain.categoryId : null
+
+      // 預設顯示第一個次分類
+      const firstSub = firstMain?.children?.[0]
+      selectedSubId.value = firstSub ? firstSub.categoryId : null
     })
     .catch((err) => {
       console.error('Failed to load category data:', err)
@@ -53,22 +60,27 @@ const _sortCategoryTree = (nodes) => {
     })
 }
 
-// id → item map（查父層用）
-// const categoryMap = computed(() => {
-//   const m = new Map()
-//   for (const c of _sortedCategories.value) m.set(c.id, c)
-//   return m
-// })
+// 走整棵樹，將父層的顯示狀態往下傳遞，算出每個分類的最終顯示結果
+const effectiveEnabledMap = computed(() => {
+  const m = new Map()
+  const walk = (nodes, parentEnabled) => {
+    for (const c of nodes) {
+      // 父層有開、且自己也有開，才算顯示
+      const enabled = parentEnabled && !!c.isVisible
+      m.set(c.categoryId, enabled)
 
-// 衍生狀態 derived state：自己 enabled 且祖先皆 enabled 才視為 enabled
-// const effectiveEnabled = (item) => {
-//   let cur = item
-//   while (cur) {
-//     if (!cur.enabled) return false
-//     cur = cur.parentId == null ? null : categoryMap.value.get(cur.parentId)
-//   }
-//   return true
-// }
+      if (c.children && c.children.length) {
+        walk(c.children, enabled)
+      }
+    }
+  }
+  walk(_sortedCategories.value, true)
+  return m
+})
+
+const effectiveEnabled = (item) => {
+  return effectiveEnabledMap.value.get(item.categoryId) ?? false
+}
 
 // 取得該分類底下所有 leaf descendants（level 3 自己就是 leaf）
 // const getDescendantLeaves = (item) => {
@@ -103,41 +115,49 @@ const selectedSubId = ref(null)
 
 const bySort = (a, b) => a.sort - b.sort
 
+// --- computed
 const mainList = computed(() => {
   return _sortedCategories.value
 })
 
-//  const subList = computed(() => {
-//       const main = _sortedCategories.value.find((c) => c.categoryId === selectedMainId.value)
-//       //console.log(main.children)
-//       return main?.children ?? []
-//     })
+// 次選單由 selectedMainId 決定
+const subList = computed(() => {
+  const main = _sortedCategories.value.find((c) => c.categoryId === selectedMainId.value)
+  // console.log(main.children)
+  return main?.children ?? []
+})
 
-// const leafList = computed(() =>
-//   _sortedCategories.value.filter((c) => c.level === 3 && c.parentId === selectedSubId.value).sort(bySort),
-// )
+// 子選單由 selectedSubId
+const leafList = computed(() => {
+  const main = _sortedCategories.value.find((c) => c.categoryId === selectedMainId.value)
+  const sub = main?.children?.find((c) => c.categoryId === selectedSubId.value)
+  return sub?.children ?? [] // ??為空值合併運算子
+})
 
-const selectedMain = computed(() => categoryMap.value.get(selectedMainId.value))
-const selectedSub = computed(() => categoryMap.value.get(selectedSubId.value))
+// const selectedMain = computed(() => categoryMap.value.get(selectedMainId.value))
+// const selectedSub = computed(() => categoryMap.value.get(selectedSubId.value))
 
 const selectMain = (id) => {
+  // 1. 改變 sub menu
   selectedMainId.value = id
-  // 選 sort 最小的次分類為第一個
-  const subs = _sortedCategories.value
-    .filter((c) => c.level === 2 && c.parentId === id)
-    .sort(bySort)
-  selectedSubId.value = subs.length ? subs[0].id : null
+
+  // 2. leaf menu 預設顯示第一個sub的第一個leaf
+  const main = _sortedCategories.value.find((c) => c.categoryId === selectedMainId.value)
+  const subs = main?.children ?? []
+  selectedSubId.value = subs.length ? subs[0].categoryId : null
 }
+
 const selectSub = (id) => {
+  // 改變子選單
   selectedSubId.value = id
 }
 
 // === 全站上架數（effective）===
-const totalLeafActive = computed(() =>
-  _sortedCategories.value
-    .filter((c) => c.level === 3 && effectiveEnabled(c))
-    .reduce((s, c) => s + c.productCount, 0),
-)
+// const totalLeafActive = computed(() =>
+//   _sortedCategories.value
+//     .filter((c) => c.level === 3 && effectiveEnabled(c))
+//     .reduce((s, c) => s + c.productCount, 0),
+// )
 
 // === Action handlers ===
 const handleSave = () => {
@@ -232,28 +252,103 @@ const edit = (item) => {
     })
 }
 
-// 在同層兄弟（同 level、同 parentId）內調整順序：與相鄰一筆對調 sort 值
 const moveItem = (item, dir) => {
-  const siblings = _sortedCategories.value
-    .filter((c) => c.level === item.level && c.parentId === item.parentId)
-    .sort(bySort)
+  // 在樹中找到「包含此項目的同層陣列」當作 siblings (不依賴 categoryParentId)
+  const findSiblings = (nodes) => {
+    if (nodes.some((c) => c.categoryId === item.categoryId)) return nodes
+    for (const c of nodes) {
+      if (c.children && c.children.length) {
+        const found = findSiblings(c.children)
+        if (found) return found
+      }
+    }
+    return null
+  }
 
-  // 先取得現在的索引
-  const i = siblings.findIndex((c) => c.id === item.id)
+  const siblings = findSiblings(_sortedCategories.value)
+  if (!siblings) return
 
-  // 取得交換的鄰居索引
-  const j = dir === 'up' ? i - 1 : i + 1 // 前一個或下一個索引
-  if (j < 0 || j >= siblings.length) return // 已在頂/底，靜默不動
-  const tmp = siblings[i].sort // 存入現在的排序值
-  siblings[i].sort = siblings[j].sort // 改變現在的排序值為鄰居的排序值
-  siblings[j].sort = tmp // 改變鄰居的排序值為原本的排序值
+  // siblings 已在 _sortCategoryTree 依 sort 排好序，直接用陣列順序找索引
+  const i = siblings.findIndex((c) => c.categoryId === item.categoryId)
+  const j = dir === 'up' ? i - 1 : i + 1
+  if (j < 0 || j >= siblings.length) return // 已在頂/底則不動
+
+  const a = siblings[i]
+  const b = siblings[j]
+
+  // 1. 交換 sort 值 (存後端時排序才正確)
+  const tmp = a.sort
+  a.sort = b.sort
+  b.sort = tmp
+
+  // 2. 交換陣列位置 (讓畫面即時更新)
+  siblings[i] = b
+  siblings[j] = a
 }
 const onMoveUp = (item) => moveItem(item, 'up')
 const onMoveDown = (item) => moveItem(item, 'down')
 
-// transfer 為 stub，後續再實作
+// ----------- 轉移 下架 -----------
+const dialogFormVisible = ref(false)
+const formLabelWidth = '140px'
+const currentItem = ref(null) // 標題顯示哪個分類要隱藏
+const subListForTrans = ref([])
+const leafListForTrans = ref([])
+const form = reactive({
+  actionType: 'TRANSFER', // 預設勾選轉移
+  mainCategoryId: null,
+  subCategoryId: null,
+  leafCategoryId: null,
+})
+
 const onTransfer = (item) => {
-  ElMessage({ type: 'info', message: `轉移「${item.name}」：待實作` })
+  dialogFormVisible.value = true
+  currentItem.value = item
+
+  resetTransForm()
+}
+
+const resetTransForm = () => {
+  form.mainCategoryId = null
+  form.subCategoryId = null
+  form.leafCategoryId = null
+
+  subListForTrans.value = []
+  leafListForTrans.value = []
+}
+
+// EP 預設會傳新值
+const handleMainChange = (val) => {
+  // 清空
+  form.subCategoryId = null
+  form.leafCategoryId = null
+  leafListForTrans.value = []
+
+  form.mainCategoryId = val
+  console.log('handleMainChange', val)
+  const main = _sortedCategories.value.find((c) => c.categoryId === val)
+  subListForTrans.value = main?.children ?? []
+  console.log('handleMainChange', val, subListForTrans.value)
+}
+
+const handleSubChange = (val) => {
+  // 清空
+  form.leafCategoryId = null
+
+  form.subCategoryId = val
+  const main = _sortedCategories.value.find((c) => c.categoryId === form.mainCategoryId)
+  const sub = main?.children?.find((c) => c.categoryId === val)
+  leafListForTrans.value = sub?.children ?? []
+}
+
+const handleLeafChange = (val) => {
+  form.leafCategoryId = val
+}
+
+// 將所有指定分類集中轉換到一個指定分類中
+const updateCategoryAllInOne = () => {
+  dialogFormVisible.value = false
+  ElMessage({ type: 'success', message: 'todo: call API' })
 }
 
 // === 對外 API（回傳共享單例的狀態與方法）===
@@ -262,23 +357,33 @@ export function useCategories() {
     currentRole,
     isAdmin,
     mainList,
-    // subList,
-    // leafList,
+    subList,
+    leafList,
     selectedMainId,
     selectedSubId,
-    selectedMain,
-    selectedSub,
+    // selectedMain,
+    // selectedSub,
     selectMain,
     selectSub,
     effectiveEnabled,
-    getProductCount,
-    getEffectiveProductCount,
-    totalLeafActive,
+    // getProductCount,
+    // getEffectiveProductCount,
+    // totalLeafActive,
     handleSave,
     handleAddCategory,
     edit,
     onMoveUp,
     onMoveDown,
     onTransfer,
+    dialogFormVisible, // App.vue 需要用到這個 ref 來控制 dialog 顯示
+    updateCategoryAllInOne,
+    currentItem,
+    form,
+    formLabelWidth,
+    subListForTrans,
+    leafListForTrans,
+    handleMainChange,
+    handleSubChange,
+    handleLeafChange,
   }
 }

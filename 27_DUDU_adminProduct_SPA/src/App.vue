@@ -9,6 +9,7 @@ import { ref } from 'vue'
 const view = ref('admin')
 
 // 選取/列內動作已移入 CategoryRow 自行處理，這裡只留版面與統計用到的
+// 結構
 const {
   currentRole,
   isAdmin,
@@ -21,6 +22,16 @@ const {
   totalLeafActive,
   handleSave,
   handleAddCategory,
+  dialogFormVisible,
+  updateCategoryAllInOne,
+  currentItem,
+  form,
+  formLabelWidth,
+  subListForTrans,
+  leafListForTrans,
+  handleMainChange,
+  handleSubChange,
+  handleLeafChange,
 } = useCategories()
 
 const categoryTree = ref([
@@ -126,9 +137,15 @@ const handleSelect = (index) => {
       <div class="category-column">
         <div class="category-column__header">主分類(全 {{ mainList.length }} 項)</div>
         <div class="category-column__body">
-          <CategoryRow v-for="(item, idx) in mainList" :key="item.id" :item="item" :index="idx" />
+          <CategoryRow
+            v-for="(item, idx) in mainList"
+            :key="item.id"
+            :item="item"
+            :index="idx"
+            :level="1"
+          />
         </div>
-        <div class="category-column__footer">
+        <!-- <div class="category-column__footer">
           <span
             >主類別: <b>{{ mainList.length }}</b> 項</span
           >
@@ -136,19 +153,25 @@ const handleSelect = (index) => {
           <span
             >全站上架數: <b>{{ totalLeafActive }}</b> 件</span
           >
-        </div>
-        <div class="category-column__action">
+        </div> -->
+        <!-- <div class="category-column__action">
           <el-button @click="handleAddCategory('主')">+ 新增主分類</el-button>
-        </div>
+        </div> -->
       </div>
 
       <!-- 次分類 -->
-      <!-- <div class="category-column">
+      <div class="category-column">
         <div class="category-column__header">次分類(全 {{ subList.length }} 項)</div>
         <div class="category-column__body">
-          <CategoryRow v-for="(item, idx) in subList" :key="item.id" :item="item" :index="idx" />
+          <CategoryRow
+            v-for="(item, idx) in subList"
+            :key="item.id"
+            :item="item"
+            :index="idx"
+            :level="2"
+          />
         </div>
-        <div class="category-column__footer">
+        <!-- <div class="category-column__footer">
           <span
             >次類別小計: <b>{{ subList.length }}</b> 項</span
           >
@@ -158,19 +181,25 @@ const handleSelect = (index) => {
             <b>{{ selectedMain ? getEffectiveProductCount(selectedMain) : 0 }}</b>
             件
           </span>
-        </div>
-        <div class="category-column__action">
+        </div> -->
+        <!-- <div class="category-column__action">
           <el-button @click="handleAddCategory('次')">+ 新增次分類</el-button>
-        </div>
-      </div> -->
+        </div> -->
+      </div>
 
       <!-- 子分類 -->
-      <!-- <div class="category-column">
+      <div class="category-column">
         <div class="category-column__header">子分類(全 {{ leafList.length }} 項)</div>
         <div class="category-column__body">
-          <CategoryRow v-for="(item, idx) in leafList" :key="item.id" :item="item" :index="idx" />
+          <CategoryRow
+            v-for="(item, idx) in leafList"
+            :key="item.id"
+            :item="item"
+            :index="idx"
+            :level="3"
+          />
         </div>
-        <div class="category-column__footer">
+        <!-- <div class="category-column__footer">
           <span
             >子分類小計: <b>{{ leafList.length }}</b> 項</span
           >
@@ -180,11 +209,11 @@ const handleSelect = (index) => {
             <b>{{ selectedSub ? getEffectiveProductCount(selectedSub) : 0 }}</b>
             件
           </span>
-        </div>
-        <div class="category-column__action">
+        </div> -->
+        <!-- <div class="category-column__action">
           <el-button @click="handleAddCategory('子')">+ 新增子分類</el-button>
-        </div>
-      </div> -->
+        </div> -->
+      </div>
     </div>
   </template>
 
@@ -200,6 +229,96 @@ const handleSelect = (index) => {
       <el-radio-button value="guest">guest</el-radio-button>
     </el-radio-group>
   </div>
+
+  <!-- ===== 轉移modal 開始 ===== -->
+  <!--原本想放在 useCategories.js 內，但因只需render一次，且要用到 App.vue 的 mainList/subList/leafList，所以還是放在 App.vue 內-->
+  <el-dialog v-model="dialogFormVisible" width="500px" custom-class="custom-category-dialog">
+    <template #header>
+      <div class="my-dialog-header">
+        <i class="fa-solid fa-truck-moving me-2" style="color: rgb(217 119 6); font-size: 18px"></i>
+        <span>隱藏分類與商品處理</span>
+      </div>
+    </template>
+
+    <div class="mb-3">
+      隱藏：「 <strong>{{ currentItem?.nickName || currentItem?.name }}</strong> 」
+    </div>
+
+    <el-radio-group v-model="form.actionType" class="dialog-radio-group">
+      <div class="action-card" :class="{ active: form.actionType === 'TRANSFER' }">
+        <el-radio value="TRANSFER">
+          <span class="action-card-title">隱藏分類，並轉移商品至指定分類</span>
+        </el-radio>
+
+        <div class="card-content" v-if="form.actionType === 'TRANSFER'">
+          <div class="form-item">
+            <label>目標主分類 <span class="required">(必填)</span></label>
+            <el-select
+              v-model="form.mainCategoryId"
+              placeholder="— 請選擇主分類 —"
+              @change="handleMainChange"
+            >
+              <el-option
+                v-for="c in mainList"
+                :key="c.categoryId"
+                :label="c.nickName || c.name"
+                :value="c.categoryId"
+              />
+            </el-select>
+          </div>
+
+          <div class="form-item">
+            <label>目標次分類 <span class="hint">(不選則預設「其他」)</span></label>
+            <el-select
+              v-model="form.subCategoryId"
+              :disabled="!form.mainCategoryId"
+              :placeholder="form.mainCategoryId ? '— 請選擇次分類 —' : '— 先選主分類 —'"
+              @change="handleSubChange"
+            >
+              <el-option
+                v-for="c in subListForTrans"
+                :key="c.categoryId"
+                :label="c.nickName || c.name"
+                :value="c.categoryId"
+              />
+            </el-select>
+          </div>
+
+          <div class="form-item">
+            <label>目標子分類 <span class="hint">(不選則預設「其他」)</span></label>
+            <el-select
+              v-model="form.leafCategoryId"
+              :disabled="!form.subCategoryId"
+              :placeholder="form.subCategoryId ? '— 請選擇子分類 —' : '— 先選次分類 —'"
+              @change="handleLeafChange"
+            >
+              <el-option
+                v-for="c in leafListForTrans"
+                :key="c.categoryId"
+                :label="c.nickName || c.name"
+                :value="c.categoryId"
+              />
+            </el-select>
+          </div>
+        </div>
+      </div>
+      <div class="action-card danger-card" :class="{ active: form.actionType === 'DISMISS' }">
+        <el-radio value="DISMISS">
+          <span class="action-card-title danger-text">隱藏分類，並強制下架所屬商品</span>
+        </el-radio>
+        <div class="card-desc">強制下架所有此分類下商品，重新上架時需要商家重新設定分類。</div>
+      </div>
+    </el-radio-group>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取消</el-button>
+        <el-button type="primary" @click="updateCategoryAllInOne"> 確定執行 </el-button>
+      </div>
+    </template>
+  </el-dialog>
+
+  <!-- ===== 轉移modal 結束 ===== -->
 </template>
 <style scoped>
 /* ---------- Navbar ---------- */
