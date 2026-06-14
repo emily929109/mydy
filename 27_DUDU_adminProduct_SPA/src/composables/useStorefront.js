@@ -6,7 +6,7 @@ export function useStorefront(treeRef) {
   const products = ref([])
 
   // 載入商品資料（沿用 public/product.json，取代參考檔的 axios + 舊 C# API）
-  fetch('/product.json')
+  fetch(`${import.meta.env.BASE_URL}fakeProductData.json`)
     .then((res) => res.json())
     .then((data) => {
       products.value = data
@@ -74,15 +74,15 @@ export function useStorefront(treeRef) {
   const title = computed(() =>
     mode.value === 'category' ? selectedCategoryName.value : '全部商品',
   )
-  const showSearchEmpty = computed(
-    () => mode.value === 'search' && filteredList.value.length === 0,
-  )
+  const showSearchEmpty = computed(() => mode.value === 'search' && filteredList.value.length === 0)
 
   // === 分頁（移植自參考檔，移除 API 呼叫）===
   const perpage = ref(8)
   const currentPage = ref(1)
 
-  const totalPage = computed(() => Math.max(1, Math.ceil(filteredList.value.length / perpage.value)))
+  const totalPage = computed(() =>
+    Math.max(1, Math.ceil(filteredList.value.length / perpage.value)),
+  )
   const disabledPrev = computed(() => currentPage.value <= 1)
   const disabledNext = computed(() => currentPage.value >= totalPage.value)
 
