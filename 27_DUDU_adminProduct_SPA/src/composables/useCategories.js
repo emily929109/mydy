@@ -11,7 +11,7 @@ let initialized = false
 function loadCategories() {
   if (initialized) return
   initialized = true
-  fetch(`\${import.meta.env.BASE_URL}fakeCategoryTreeData.json`)
+  fetch('fakeCategoryTreeData.json')
     .then((res) => res.json())
     .then((data) => {
       rawCategories.value = data.categories

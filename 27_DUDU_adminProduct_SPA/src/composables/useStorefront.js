@@ -6,7 +6,7 @@ export function useStorefront(treeRef) {
   const products = ref([])
 
   // 載入商品資料（沿用 public/product.json，取代參考檔的 axios + 舊 C# API）
-  fetch(`${import.meta.env.BASE_URL}fakeProductData.json`)
+  fetch('fakeProductData.json')
     .then((res) => res.json())
     .then((data) => {
       products.value = data
