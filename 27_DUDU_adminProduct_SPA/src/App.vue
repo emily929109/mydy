@@ -423,6 +423,8 @@ const handleSelect = (index) => {
   grid-template-columns: 1fr 1fr 1fr;
   gap: 16px;
   padding: 24px 36px 36px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 .category-column {
   background: #f0f1f7;
@@ -491,6 +493,94 @@ const handleSelect = (index) => {
   color: #8a8fa3;
   margin-bottom: 6px;
   display: block;
+}
+
+/* ---------- 轉移modal ---------- */
+.el-modal-dialog .el-dialog {
+  width: 90%;
+  max-width: 500px;
+}
+
+.dialog-radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.action-card {
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 16px;
+  background-color: #fafafa;
+  transition: all 0.2s;
+}
+
+.action-card.active {
+  background-color: #fffbeb;
+  border-color: #fde047;
+}
+
+/* 第二個卡片選中時的淡灰色背景 */
+.danger-card.active {
+  background-color: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+/* 標題與標籤排版 */
+.action-card-title {
+  font-weight: bold;
+  color: #c2410c;
+}
+
+.danger-text {
+  color: #dc2626;
+}
+
+.card-content {
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-item label {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.form-item .required {
+  color: #dc2626;
+}
+
+.form-item .hint {
+  color: #9ca3af;
+}
+
+/* 下拉選單強制撐滿 */
+.form-item .el-select {
+  width: 100%;
+}
+
+.card-desc {
+  margin-top: 6px;
+  padding-left: 24px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+/* 按鈕顏色調配 */
+.btn-submit {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: white !important;
 }
 </style>
 
