@@ -4,6 +4,7 @@ import { useCategories } from './composables/useCategories'
 import CategoryMenu from './components/CategoryMenu.vue'
 import Storefront from './components/storefront/Storefront.vue'
 import { ref } from 'vue'
+import ProductRow from './components/ProductManagement.vue'
 
 // 前後台切換：'admin'（後台分類管理）/ 'store'（前台商品列表）
 const view = ref('admin')
@@ -324,14 +325,9 @@ const handleSelect = (index) => {
   </el-dialog>
 
   <!-- ===== 店家後台 : 商品管理、分類管理===== -->
-  <template v-if="view === 'dealer'">
-    <div style="padding: 40px; text-align: center; color: #888">
-      <i class="fa-solid fa-store fa-3x mb-3"></i>
-      <h2>店家後台</h2>
-      <p>這裡是店家專用的後台介面，功能與總後台略有不同。</p>
-    </div>
-  </template>
+  <ProductRow v-if="view === 'dealer'" />
 </template>
+
 <style scoped>
 /* ---------- Navbar ---------- */
 .app-navbar {

@@ -6,7 +6,14 @@
     "price": 1280,
     "stock": 50,
     "imageUrl": "https://via.placeholder.com/150",
-    "store": "DUDU官方旗艦店"
+    "store": "DUDU官方旗艦店",
+    "product_id": "P001",
+    "product_name": "經典原色單寧牛仔外套",
+    "product_imagebase64": "https://via.placeholder.com/150",
+    "product_status": true,
+    "product_class": [{ "ClassName": "外套", "ClassChecked": true }],
+    "date_s": "2026-01-01",
+    "date_e": "2026-12-31"
   },
   {
     "productId": "P002",
@@ -15,7 +22,14 @@
     "price": 1080,
     "stock": 35,
     "imageUrl": "https://via.placeholder.com/150",
-    "store": "丹寧職人"
+    "store": "丹寧職人",
+    "product_id": "P002",
+    "product_name": "高磅數直筒修身牛仔褲",
+    "product_imagebase64": "https://via.placeholder.com/150",
+    "product_status": false,
+    "product_class": [{ "ClassName": "牛仔褲", "ClassChecked": true }],
+    "date_s": "2026-02-01",
+    "date_e": "2026-11-30"
   },
   {
     "productId": "P003",
@@ -24,7 +38,14 @@
     "price": 890,
     "stock": 20,
     "imageUrl": "https://via.placeholder.com/150",
-    "store": "都會女裝選物"
+    "store": "都會女裝選物",
+    "product_id": "P003",
+    "product_name": "海軍藍直條紋連身洋裝",
+    "product_imagebase64": "https://via.placeholder.com/150",
+    "product_status": true,
+    "product_class": [{ "ClassName": "洋裝", "ClassChecked": true }],
+    "date_s": "2026-03-15",
+    "date_e": "2026-09-15"
   },
   {
     "productId": "P004",
@@ -33,7 +54,17 @@
     "price": 2480,
     "stock": 80,
     "imageUrl": "https://via.placeholder.com/150",
-    "store": "運動工場"
+    "store": "運動工場",
+    "product_id": "P004",
+    "product_name": "輕量避震透氣慢跑鞋",
+    "product_imagebase64": "https://via.placeholder.com/150",
+    "product_status": true,
+    "product_class": [
+      { "ClassName": "運動鞋", "ClassChecked": true },
+      { "ClassName": "慢跑鞋", "ClassChecked": true }
+    ],
+    "date_s": "2026-01-10",
+    "date_e": "2026-12-10"
   },
   {
     "productId": "P005",
@@ -42,7 +73,14 @@
     "price": 3280,
     "stock": 15,
     "imageUrl": "https://via.placeholder.com/150",
-    "store": "球鞋會社"
+    "store": "球鞋會社",
+    "product_id": "P005",
+    "product_name": "高筒包覆實戰籃球鞋",
+    "product_imagebase64": "https://via.placeholder.com/150",
+    "product_status": false,
+    "product_class": [{ "ClassName": "籃球鞋", "ClassChecked": true }],
+    "date_s": "2026-04-01",
+    "date_e": "2026-10-31"
   },
   {
     "productId": "P006",
@@ -51,6 +89,13 @@
     "price": 2980,
     "stock": 40,
     "imageUrl": "https://via.placeholder.com/150",
-    "store": "紳士製鞋所"
+    "store": "紳士製鞋所",
+    "product_id": "P006",
+    "product_name": "經典商務真皮牛津鞋",
+    "product_imagebase64": "https://via.placeholder.com/150",
+    "product_status": true,
+    "product_class": [{ "ClassName": "皮鞋", "ClassChecked": true }],
+    "date_s": "2026-05-01",
+    "date_e": "2026-12-31"
   }
 ]
