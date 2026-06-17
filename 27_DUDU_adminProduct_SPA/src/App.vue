@@ -101,9 +101,14 @@ const handleSelect = (index) => {
         <i class="fa-solid fa-circle-user"></i>
         系統總後台
       </a>
-      <a href="#" class="app-navbar__link">DUDUPAY介紹</a>
-      <a href="#" class="app-navbar__link">最新消息</a>
-      <a href="#" class="app-navbar__link">旅遊好康</a>
+      <a
+        href="#"
+        class="app-navbar__link"
+        :class="{ 'is-active': view === 'dealer' }"
+        @click.prevent="view = 'dealer'"
+      >
+        店家後台
+      </a>
       <a
         href="#"
         class="app-navbar__cta"
@@ -116,7 +121,7 @@ const handleSelect = (index) => {
     </div>
   </nav>
 
-  <!-- ===== 後台：分類管理 ===== -->
+  <!-- ===== 總後台 : 分類管理 ===== -->
   <template v-if="view === 'admin'">
     <!-- ===== Page Banner ===== -->
     <div class="page-banner">
@@ -218,7 +223,7 @@ const handleSelect = (index) => {
   </template>
 
   <!-- ===== 前台：商品列表 ===== -->
-  <Storefront v-else :tree="categoryTree" />
+  <Storefront v-if="view === 'store'" :tree="categoryTree" />
 
   <!-- ===== Demo 角色切換器 ===== -->
   <div class="role-switcher">
@@ -318,7 +323,14 @@ const handleSelect = (index) => {
     </template>
   </el-dialog>
 
-  <!-- ===== 轉移modal 結束 ===== -->
+  <!-- ===== 店家後台 : 商品管理、分類管理===== -->
+  <template v-if="view === 'dealer'">
+    <div style="padding: 40px; text-align: center; color: #888">
+      <i class="fa-solid fa-store fa-3x mb-3"></i>
+      <h2>店家後台</h2>
+      <p>這裡是店家專用的後台介面，功能與總後台略有不同。</p>
+    </div>
+  </template>
 </template>
 <style scoped>
 /* ---------- Navbar ---------- */
@@ -369,9 +381,10 @@ const handleSelect = (index) => {
 .app-navbar__link:hover {
   color: #6e5cf7;
 }
-.app-navbar__link--admin {
+.app-navbar__link.is-active {
   color: #6e5cf7;
-  font-weight: 600;
+  font-weight: bold;
+  text-decoration: underline;
 }
 .app-navbar__cta {
   background: #ffc23c;
@@ -391,9 +404,6 @@ const handleSelect = (index) => {
 .app-navbar__cta.is-active {
   background: #ffb420;
   box-shadow: 0 0 0 3px rgba(255, 180, 32, 0.35);
-}
-.app-navbar__link--admin.is-active {
-  text-decoration: underline;
 }
 
 /* ---------- Page banner ---------- */

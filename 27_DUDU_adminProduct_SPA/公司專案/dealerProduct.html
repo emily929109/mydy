@@ -1,0 +1,210 @@
+<div class="tab-pane fade" id="tab-productList" role="tabpanel" aria-labelledby="profile-tab">
+  <div class="tab-pane fade show active" id="tab-home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="mb-3" id="ordersTable" data-list='{"pagination":true}'>
+      <div class="d-flex justify-content-between mb-2 pt-3 px-3 flex-wrap">
+        <div
+          class="selector-wrapper d-flex flex-wrap flex-md-nowrap gap-0 gap-md-3 justify-content-between justify-content-md-center"
+        >
+          <select
+            class="form-select mb-3"
+            aria-label="Default select example"
+            v-model="sel_up_down"
+            @@change="sel_up_down_class_list(sel_up_down)"
+          >
+            <option value="">--上下架狀態--</option>
+            <option value="all">全部</option>
+            <option value="up">上架</option>
+            <option value="down">下架</option>
+          </select>
+          <select
+            class="form-select mb-3"
+            aria-label="Default select example"
+            v-model="sel_class_name"
+            @@change="sel_product_class_list(sel_class_name)"
+          >
+            <option value="">--選擇分類--</option>
+            <option value="all">全部</option>
+            <option v-for="v in product_class_listJson" :value="v.class_name">
+              {{v.class_name}}
+            </option>
+          </select>
+          <div class="input-group mb-3">
+            <input
+              class="form-control search"
+              type="search"
+              placeholder="請輸入商品關鍵字"
+              aria-label="search"
+              v-model.trim="query_value"
+              @@keyup.enter="query(query_value)"
+            />
+            <div class="input-group-text bg-100" @@click="query(query_value)">
+              <span class="fa fa-search fa-w-16 fs-0 text-600"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-wrapper d-flex gap-3 flex-wrap flex-md-nowrap w-100 w-md-auto">
+          <!-- 新增商品 -->
+          <button
+            @@click="addProduct()"
+            class="btn add-product-btn align-self-baseline"
+            type="button"
+          >
+            <span class="fas fa-plus me-1" data-fa-transform="shrink-3"></span>新增商品
+          </button>
+          <!-- 批次上傳 -->
+          <a class="d-none d-md-block" href="~/Home/UploadBatch">
+            <button class="btn mb-1 batch-upload-btn w-100" type="button">
+              <span class="fas fa-cloud-upload-alt me-1" data-fa-transform="shrink-3"></span
+              >批次上傳
+            </button>
+          </a>
+          <!-- 批量更新分類 -->
+          <button
+            class="align-self-baseline batch-update-category-btn btn"
+            type="button"
+            @@click="openBatchUpdCateDialog"
+          >
+            <i class="fa-solid fa-layer-group me-1"></i>
+            <span class="d-none d-md-inline-block">批次商城分類</span>
+            <span class="d-inline-block d-md-none">批次分類</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body p-0">
+        <div class="table-responsive scrollbar">
+          <table
+            class="product-list-table table table-sm table-striped overflow-hidden"
+            style="min-width: 900px"
+          >
+            <!-- 7欄表格集中管理 -->
+            <colgroup>
+              <col style="width: 1%" />
+              <col style="width: 100px" />
+              <col style="width: 150px" />
+              <col />
+              <col span="3" style="width: 150px" />
+            </colgroup>
+
+            <thead class="bg-200 text-900">
+              <tr>
+                <th>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    :checked="isAllSelected"
+                    @@change="toggleAll($event.target.checked)"
+                  />
+                </th>
+                <th class="text-center">上/下架</th>
+                <th class="text-center">圖片</th>
+                <th>商品名稱</th>
+                <th>分類</th>
+                <th>連結時效</th>
+                <th>編輯</th>
+              </tr>
+            </thead>
+            <tbody class="list" id="table-orders-body">
+              <tr class="btn-reveal-trigger" v-for="v in productListJson">
+                <td>
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    :checked="selectedIds.includes(v.product_id)"
+                    @@change="toggleItem(v.product_id)"
+                  />
+                </td>
+                <td>
+                  <div class="form-switch text-center">
+                    <input
+                      @@click="setProductStatus(v)"
+                      class="form-check-input"
+                      type="checkbox"
+                      v-model="v.product_status"
+                    />
+                  </div>
+                </td>
+                <td class="text-center">
+                  <img :src="v.product_imagebase64" />
+                </td>
+                <td>{{v.product_name}}</td>
+                <td>
+                  <span v-if="v.product_class != null">
+                    <span v-for="vv in v.product_class"
+                      ><span v-if="vv.ClassChecked">#{{vv.ClassName}}<br /></span
+                    ></span>
+                  </span>
+                </td>
+                <td>{{v.date_s}}~<br />{{v.date_e}}</td>
+                <td>
+                  @* 編輯 *@
+                  <button class="btn-edit" @@click="showEditProduct(v)" title="編輯">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  @* 置頂 *@
+                  <button class="btn-fixed" @@click="toFirstUp(v.product_id)" title="置頂">
+                    <i class="fa-solid fa-thumbtack"></i>
+                  </button>
+
+                  @* 刪除 *@
+                  <button class="btn-remove" @@click="delProduct(v.product_id)" title="移除">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="mb-3" data-list='{"pagination":true}'>
+        <div class="card-footer">
+          <div class="d-flex align-items-center justify-content-center">
+            <!-- 上一頁 -->
+            <button
+              @@click.prevent="setPage(currentPage-1)"
+              class="btn btn-sm btn-falcon-default me-1"
+              type="button"
+              title="Previous"
+              :disabled="disabled_prev"
+            >
+              <span class="fa fa-chevron-left fa-w-10"></span>
+            </button>
+
+            <!-- 頁碼 -->
+            <ul class="pagination mb-0">
+              <li
+                v-for="(n, index) in displayPages"
+                :key="index"
+                :class="{'active': currentPage === n, 'disabled': n === '...'}"
+                @@click.prevent="setPage(n)"
+              >
+                <button class="page btn btn-sm" type="button" :disabled="n === '...'">
+                  {{ n }}
+                </button>
+              </li>
+            </ul>
+
+            <!-- 下一頁 -->
+            <button
+              @@click.prevent="setPage(currentPage+1)"
+              class="btn btn-sm btn-falcon-default ms-1"
+              type="button"
+              title="Next"
+              :disabled="disabled_next"
+            >
+              <span class="fa fa-chevron-right fa-w-10"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- debug 資訊 -->
+      <div class="text-center text-muted mt-2" style="font-size: 0.8rem">
+        第 {{ currentPage }} 頁 / 共 {{ totalPage }} 頁，總計 {{ totalCount }} 筆 &nbsp;|&nbsp;
+        篩選模式:
+        <strong>{{ select_mode }}</strong>
+      </div>
+    </div>
+  </div>
+</div>
