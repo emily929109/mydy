@@ -84,7 +84,6 @@ const handleBatchMainChange = (val) => {
   availableSubCateList.value = []
   availableLeafCateList.value = []
 
-  batchUpdCateForm.mainCategoryId = val
   const main = categoryListJson.value.find((c) => c.categoryId === batchUpdCateForm.mainCategoryId)
   availableSubCateList.value = main && main.children ? main.children : []
 }
@@ -92,7 +91,6 @@ const handleBatchMainChange = (val) => {
 const handleBatchSubChange = (val) => {
   batchUpdCateForm.leafCategoryId = null
 
-  batchUpdCateForm.subCategoryId = val
   const main = categoryListJson.value.find((c) => c.categoryId === batchUpdCateForm.mainCategoryId)
   const sub =
     main && main.children
@@ -101,8 +99,129 @@ const handleBatchSubChange = (val) => {
   availableLeafCateList.value = sub && sub.children ? sub.children : []
 }
 
-const handleBatchLeafChange = (val) => {
-  batchUpdCateForm.leafCategoryId = val
+// ------ 商城分類常用設定（A/B/C 快捷）------
+// 已儲存的常用分類清單（純記憶體 state，驅動上方 A/B/C 快捷按鈕）
+const categoryPresets = ref([])
+const committedDefaultId = ref(null)
+
+// dialog 編輯用的草稿（取消即丟棄、儲存才寫回 committed）
+const hotkeyDialogVisible = ref(false)
+const presetDraft = ref([])
+const draftDefaultId = ref(null)
+let presetSeq = 0
+
+// ---- 分類查找工具 ----
+const findMainCate = (mainId) => categoryListJson.value.find((c) => c.categoryId === mainId)
+const findSubCate = (mainId, subId) => {
+  const main = findMainCate(mainId)
+  return main && main.children ? main.children.find((c) => c.categoryId === subId) : undefined
+}
+const findLeafCate = (mainId, subId, leafId) => {
+  const sub = findSubCate(mainId, subId)
+  return sub && sub.children ? sub.children.find((c) => c.categoryId === leafId) : undefined
+}
+
+// 各列的次/子分類選項（依該列已選主/次分類動態取得）
+const getPresetSubOptions = (p) => {
+  const main = findMainCate(p.mainCategoryId)
+  return main && main.children ? main.children : []
+}
+const getPresetLeafOptions = (p) => {
+  const sub = findSubCate(p.mainCategoryId, p.subCategoryId)
+  return sub && sub.children ? sub.children : []
+}
+
+// ---- 開啟 / 列操作 ----
+const handleHotkeySetupClick = () => {
+  // categoryPresets 是「已儲存的常用分類清單」，presetDraft 是「dialog 編輯用的草稿」
+  presetDraft.value = JSON.parse(JSON.stringify(categoryPresets.value))
+  draftDefaultId.value = committedDefaultId.value
+  if (presetDraft.value.length === 0) addPreset()
+  hotkeyDialogVisible.value = true
+}
+
+const addPreset = () => {
+  presetDraft.value.push({
+    id: ++presetSeq,
+    name: '',
+    mainCategoryId: null,
+    subCategoryId: null,
+    leafCategoryId: null,
+    hotkey: '', // '' | 'A' | 'B' | 'C'
+  })
+}
+
+const removePreset = (id) => {
+  presetDraft.value = presetDraft.value.filter((p) => p.id !== id)
+  if (draftDefaultId.value === id) draftDefaultId.value = null
+}
+
+// 該列主分類變更 → 清掉次/子分類
+const onPresetMainChange = (p) => {
+  p.subCategoryId = null
+  p.leafCategoryId = null
+}
+// 該列次分類變更 → 清掉子分類
+const onPresetSubChange = (p) => {
+  p.leafCategoryId = null
+}
+
+// 快捷碼為單選不重複：選了已被別列使用的字母，先清掉別列
+const onPresetHotkeyChange = (p) => {
+  if (!p.hotkey) return
+  presetDraft.value.forEach((o) => {
+    if (o.id !== p.id && o.hotkey === p.hotkey) o.hotkey = ''
+  })
+}
+
+// ---- 驗證：以 isVisible 判斷是否「店家許可」----
+const getPresetError = (p) => {
+  const main = findMainCate(p.mainCategoryId)
+  if (main && main.isVisible === false)
+    return `主分類「${main.name}」超出可用範圍，請修改後才可儲存`
+  const sub = findSubCate(p.mainCategoryId, p.subCategoryId)
+  if (sub && sub.isVisible === false) return `次分類「${sub.name}」超出可用範圍，請修改後才可儲存`
+  const leaf = findLeafCate(p.mainCategoryId, p.subCategoryId, p.leafCategoryId)
+  if (leaf && leaf.isVisible === false)
+    return `子分類「${leaf.name}」超出可用範圍，請修改後才可儲存`
+  return ''
+}
+
+const hotkeyHasError = computed(() => presetDraft.value.some((p) => getPresetError(p) !== ''))
+
+// ---- 儲存 / 取消 ----
+const saveHotkeySettings = () => {
+  if (hotkeyHasError.value) return
+  categoryPresets.value = JSON.parse(JSON.stringify(presetDraft.value))
+  committedDefaultId.value = draftDefaultId.value
+  hotkeyDialogVisible.value = false
+}
+
+const cancelHotkeySettings = () => {
+  hotkeyDialogVisible.value = false
+}
+
+// ---- 上方 A/B/C 快捷按鈕（連動 committed 設定）----
+const quickButtons = computed(() =>
+  ['A', 'B', 'C']
+    .map((letter) => ({
+      letter,
+      preset: categoryPresets.value.find((p) => p.hotkey === letter) || null,
+    }))
+    .filter((q) => q.preset),
+)
+
+// 點快捷按鈕 → 帶入批次修改表單
+const applyPreset = (preset) => {
+  batchUpdCateForm.mainCategoryId = preset.mainCategoryId
+  const main = findMainCate(preset.mainCategoryId)
+  availableSubCateList.value = main && main.children ? main.children : []
+
+  batchUpdCateForm.subCategoryId = preset.subCategoryId
+  const sub = findSubCate(preset.mainCategoryId, preset.subCategoryId)
+  availableLeafCateList.value = sub && sub.children ? sub.children : []
+
+  batchUpdCateForm.leafCategoryId = preset.leafCategoryId
 }
 </script>
 
@@ -227,11 +346,19 @@ const handleBatchLeafChange = (val) => {
       <div class="tab-button-wrapper d-flex justify-content-between">
         <div><i class="fa-solid fa-layer-group me-2"></i> 新分類設定</div>
         <div class="tab-button-group d-flex">
-          <button class="tab-btn tab-a"><span class="tab-label">A</span>狗飼料常用</button>
-          <button class="tab-btn tab-b"><span class="tab-label">B</span>狗飼料常用</button>
-          <button class="tab-btn tab-c"><span class="tab-label">C</span>狗飼料常用</button>
+          <button
+            v-for="q in quickButtons"
+            :key="q.letter"
+            class="tab-btn"
+            :class="`tab-${q.letter.toLowerCase()}`"
+            type="button"
+            @click="applyPreset(q.preset)"
+          >
+            <span class="tab-label">{{ q.letter }}</span
+            >{{ q.preset.name }}
+          </button>
           <!-- 快捷鍵設定 -->
-          <button class="tab-btn tab-setting" @click="handleHotkeySetupClick">
+          <button class="tab-btn tab-setting" type="button" @click="handleHotkeySetupClick">
             <i class="fa-solid fa-gear"></i>
           </button>
         </div>
@@ -298,6 +425,132 @@ const handleBatchLeafChange = (val) => {
       </div>
     </template>
   </el-dialog>
+
+  <!-- 商城分類常用設定 dialog -->
+  <el-dialog v-model="hotkeyDialogVisible" width="90%" id="hotkey-setup-dialog">
+    <template #header>
+      <div class="my-dialog-header">
+        <i class="fa-solid fa-gear me-2"></i>
+        <span>商城分類常用設定</span>
+      </div>
+    </template>
+
+    <div class="hotkey-info">
+      <i class="fa-solid fa-circle-info me-2"></i>
+      新增多組常用分類後，最多可指定 3 組作為快速按鈕（A／B／C）顯示在新增商品或批次修改時。並可勾選
+      1 組為預設，新增商品時會自動帶入。
+    </div>
+
+    <table class="hotkey-table">
+      <thead>
+        <tr>
+          <th class="col-default">預設</th>
+          <th class="col-name">名稱</th>
+          <th>主分類</th>
+          <th>次分類</th>
+          <th>子分類</th>
+          <th class="col-hotkey">快捷</th>
+          <th class="col-del">刪除</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template v-for="p in presetDraft" :key="p.id">
+          <!-- 超出可用範圍警告列 -->
+          <tr v-if="getPresetError(p)" class="hotkey-warning-row">
+            <td colspan="7">
+              <i class="fa-solid fa-triangle-exclamation me-2"></i>{{ getPresetError(p) }}
+            </td>
+          </tr>
+          <tr :class="{ 'has-error': getPresetError(p) }">
+            <td class="col-default">
+              <el-radio v-model="draftDefaultId" :value="p.id">
+                <span class="visually-hidden">設為預設</span>
+              </el-radio>
+            </td>
+            <td class="col-name">
+              <el-input v-model="p.name" placeholder="名稱" />
+            </td>
+            <td>
+              <el-select
+                v-model="p.mainCategoryId"
+                placeholder="請選擇主分類"
+                :class="{ 'is-invalid-cate': findMainCate(p.mainCategoryId)?.isVisible === false }"
+                @change="onPresetMainChange(p)"
+              >
+                <el-option
+                  v-for="main in categoryListJson"
+                  :key="main.categoryId"
+                  :label="main.name"
+                  :value="main.categoryId"
+                />
+              </el-select>
+            </td>
+            <td>
+              <el-select
+                v-model="p.subCategoryId"
+                placeholder="請選擇次分類"
+                :disabled="!p.mainCategoryId"
+                @change="onPresetSubChange(p)"
+              >
+                <el-option
+                  v-for="sub in getPresetSubOptions(p)"
+                  :key="sub.categoryId"
+                  :label="sub.name"
+                  :value="sub.categoryId"
+                />
+              </el-select>
+            </td>
+            <td>
+              <el-select
+                v-model="p.leafCategoryId"
+                placeholder="請選擇子分類"
+                :disabled="!p.subCategoryId"
+              >
+                <el-option
+                  v-for="leaf in getPresetLeafOptions(p)"
+                  :key="leaf.categoryId"
+                  :label="leaf.name"
+                  :value="leaf.categoryId"
+                />
+              </el-select>
+            </td>
+            <td class="col-hotkey">
+              <el-select
+                v-model="p.hotkey"
+                placeholder="—"
+                clearable
+                @change="onPresetHotkeyChange(p)"
+              >
+                <el-option label="A" value="A" />
+                <el-option label="B" value="B" />
+                <el-option label="C" value="C" />
+              </el-select>
+            </td>
+            <td class="col-del">
+              <button class="hotkey-del-btn" type="button" title="刪除" @click="removePreset(p.id)">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+
+    <div class="hotkey-add-wrapper">
+      <button class="hotkey-add-btn" type="button" @click="addPreset">
+        <i class="fa-solid fa-plus me-1"></i>新增一組常用分類
+      </button>
+    </div>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="cancelHotkeySettings">取消</el-button>
+        <el-button type="success" :disabled="hotkeyHasError" @click="saveHotkeySettings">
+          <i class="fa-solid fa-floppy-disk me-1"></i>儲存設定
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <style scoped>
@@ -356,9 +609,105 @@ div#prdList {
     color: rgb(56 189 248);
   }
 }
+
+/* 商城分類常用設定 dialog */
+.hotkey-info {
+  background: #fdf6e3;
+  border: 1px solid #f5e6a8;
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.875rem;
+  color: #8a6d3b;
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.hotkey-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.hotkey-table thead th {
+  font-weight: 500;
+  color: #606266;
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid #ebeef5;
+  white-space: nowrap;
+}
+
+.hotkey-table tbody td {
+  padding: 8px 6px;
+  vertical-align: middle;
+}
+
+.hotkey-table .col-default,
+.hotkey-table .col-hotkey,
+.hotkey-table .col-del {
+  text-align: center;
+  width: 1%;
+  white-space: nowrap;
+}
+
+.hotkey-table .col-name {
+  width: 160px;
+}
+
+.hotkey-table .col-hotkey {
+  width: 90px;
+}
+
+.hotkey-table tr.has-error td {
+  background: #fef0f0;
+}
+
+.hotkey-warning-row td {
+  color: #e54623;
+  font-size: 0.85rem;
+  padding: 8px 6px 0;
+  background: #fef0f0;
+}
+
+.hotkey-table .is-invalid-cate :deep(.el-select__wrapper) {
+  box-shadow: 0 0 0 1px #e54623 inset;
+}
+
+.hotkey-del-btn {
+  color: #bbb;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.05rem;
+}
+
+.hotkey-del-btn:hover {
+  color: #e54623;
+}
+
+.hotkey-add-wrapper {
+  margin-top: 16px;
+}
+
+.hotkey-add-btn {
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: #606266;
+}
+
+.hotkey-add-btn:hover {
+  border-color: #c0c4cc;
+  color: #409eff;
+}
 </style>
 <style>
 #batch-upd-cate-dialog.el-dialog {
   max-width: 500px;
+}
+
+#hotkey-setup-dialog.el-dialog {
+  max-width: 900px;
 }
 </style>

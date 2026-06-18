@@ -1,210 +1,1519 @@
-<div class="tab-pane fade" id="tab-productList" role="tabpanel" aria-labelledby="profile-tab">
-  <div class="tab-pane fade show active" id="tab-home" role="tabpanel" aria-labelledby="home-tab">
-    <div class="mb-3" id="ordersTable" data-list='{"pagination":true}'>
-      <div class="d-flex justify-content-between mb-2 pt-3 px-3 flex-wrap">
+<script src="~/js/vue-quill/quill.min.js"></script>
+<link href="~/js/vue-quill/quill.snow.css" rel="stylesheet" />
+<link href="~/js/vue-quill/quill.bubble.css" rel="stylesheet" />
+<link href="~/css/elementPlus/elementPlus.css" rel="stylesheet" />
+@* 圖片 model *@
+<script src="~/js/vue-quill/image-resize.min.js"></script>
+<script src="~/js/font-awesome/font-awesome.js"></script>
+
+<style>
+  /*日期 fade*/
+  .v-enter-active,
+  .v-leave-active {
+    transition: opacity 1s;
+  }
+
+  .v-enter-from,
+  .v-leave-to {
+    opacity: 0;
+  }
+
+  .v-enter-to,
+  .v-leave-from {
+    opacity: 1;
+  }
+
+  /* upload 加入你原始的 CSS 這裡可以直接貼進來 */
+  .upload-area {
+    height: 410px;
+    width: 410px;
+    border: 2px dashed #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #f9f9f9;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .upload-area:hover {
+    border-color: #007bff;
+  }
+
+  .upload-area.has-image {
+    border-color: #28a745;
+    background: white;
+  }
+
+  .upload-icon {
+    width: 5rem;
+    opacity: 0.5;
+  }
+
+  .preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .edit-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .crop-modal {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.8);
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .crop-container {
+    background: white;
+    padding: 30px;
+    padding-left: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+  }
+
+  .crop-area {
+    position: relative;
+    width: 410px;
+    height: 410px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    margin: 20px auto;
+    overflow: hidden;
+    background: #f9f9f9;
+  }
+
+  .crop-image {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+    max-width: none;
+    max-height: none;
+    user-select: none;
+  }
+
+  .zoom-btn {
+    background: #f0f0f0;
+    border: 1px solid #ddd;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
+
+  .zoom-slider {
+    width: 150px;
+  }
+
+  .date span {
+    cursor: pointer;
+  }
+
+  .tab-pane img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .other-photoes-wrapper > div {
+    width: 25%;
+    min-height: 130px;
+  }
+
+  .prd-style > div {
+    width: 48%;
+  }
+
+  /* ---------- 頂部篩選與按鈕 ---------- */
+  #top-nav.nav-pills .nav-link {
+    border-radius: 0;
+    border-top-left-radius: 0.25em;
+    border-top-right-radius: 0.25em;
+  }
+
+  .selector-wrapper > div:last-child {
+    min-width: 300px;
+  }
+
+  #product-list-content {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border-radius: 4px;
+  }
+
+  /* 按鈕 */
+  .btn-wrapper .btn {
+    max-width: 165px;
+  }
+
+  .add-product-btn {
+    background-color: #0ea5e9;
+    color: #fff;
+  }
+
+  .batch-upload-btn {
+    background-color: #ffffff;
+    color: #0ea5e9;
+    border: 1px solid #0ea5e9;
+  }
+
+  .batch-update-category-btn {
+    background-color: #f3f4f6;
+    color: #4b5563;
+  }
+
+  @@media (hover: hover) and (pointer: fine) {
+    .add-product-btn:hover,
+    .add-product-btn:focus {
+      background-color: #0284c7;
+      color: #fff;
+    }
+
+    .batch-upload-btn:hover,
+    .batch-upload-btn:focus {
+      background-color: #e0f2fe;
+      color: #4b5563;
+      border: 1px solid #e0f2fe;
+    }
+
+    .batch-update-category-btn {
+      background-color: #e5e7eb;
+    }
+  }
+
+  @@media screen and (max-width:768px) {
+    .selector-wrapper > :first-child,
+    .selector-wrapper > :nth-child(2) {
+      width: 47%;
+    }
+
+    .selector-wrapper > div:last-child {
+      width: 100%;
+    }
+
+    #top-nav .nav-link {
+      padding: 0.5rem;
+    }
+
+    .btn-wrapper > * {
+      width: 47%;
+    }
+  }
+
+  /* 拔掉bs btn focus時的藍色外圈，因 EP 在關掉 dialog 時會強制把focus狀態還給當初觸發的元素 */
+  .batch-update-category-btn:focus,
+  .batch-update-category-btn:active:focus {
+    box-shadow: none !important;
+  }
+
+  /* ---------- 商品列表 ---------- */
+  #tab-productList table thead th,
+  #tab-productList table td {
+    /* 因需套用table.scss樣式 故只能分開寫 */
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+
+  #tab-productList table th,
+  #tab-productList table td {
+    vertical-align: middle;
+  }
+
+  #tab-productList table th {
+    white-space: nowrap;
+  }
+
+  #tab-productList .list .form-check-input {
+    cursor: pointer;
+  }
+
+  #tab-productList .product-list-table img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+  }
+
+  /* 操作列 */
+  #tab-productList .btn-remove,
+  #tab-productList .btn-edit,
+  #tab-productList .btn-fixed {
+    color: #bbb;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+  }
+
+  @@media (hover: hover) and (pointer: fine) {
+    #tab-productList .btn-remove:hover {
+      color: #e54623;
+    }
+
+    #tab-productList .btn-edit:hover {
+      color: rgb(22 163 74);
+    }
+
+    #tab-productList .btn-fixed:hover {
+      color: rgb(56 189 248);
+    }
+  }
+
+  /* ---------- 批次修改分類 ---------- */
+  #batchUpdCateDialog.el-dialog {
+    width: 90%;
+    max-width: 500px;
+  }
+</style>
+
+<div id="app" class="mt-2 mb-5" style="min-height: 600px">
+  <div class="row justify-content-center pt-4">
+    <div class="col-sm-12 col-md-12 col-lg-12 col-xxl-9">
+      <div class="d-flex justify-content-center">
+        <span class="fw-bold p-0" style="color: #00af9a; font-size: 1.7rem">商品管理</span>
+      </div>
+      @*
+      <div class="d-flex mb-0 flex-row-reverse">
+        <div class="fs--2 p-2">權限：{{m.dealer_role}}</div>
+        <div class="fs--2 p-2">使用者：{{m.dealer_acc}}</div>
+      </div>
+      *@
+
+      <ul class="nav nav-pills" id="top-nav" role="tablist">
+        <li class="nav-item">
+          <a
+            class="nav-link active"
+            id="pill-home-tab"
+            data-bs-toggle="tab"
+            href="#pill-tab-home"
+            role="tab"
+            aria-controls="pill-tab-home"
+            aria-selected="true"
+            >店家設定</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            id="productList-tab"
+            data-bs-toggle="tab"
+            href="#tab-productList"
+            role="tab"
+            aria-controls="tab-productList"
+            aria-selected="false"
+            >商品列表</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            id="productClass-tab"
+            data-bs-toggle="tab"
+            href="#tab-productClass"
+            role="tab"
+            aria-controls="tab-productClass"
+            aria-selected="false"
+            >分類管理</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            id="delivery-tab"
+            data-bs-toggle="tab"
+            href="#tab-delivery"
+            role="tab"
+            aria-controls="tab-delivery"
+            aria-selected="false"
+            >運費設定</a
+          >
+        </li>
+      </ul>
+      <div class="tab-content border" id="product-list-content">
+        @* 店家設定 *@
         <div
-          class="selector-wrapper d-flex flex-wrap flex-md-nowrap gap-0 gap-md-3 justify-content-between justify-content-md-center"
+          class="tab-pane fade show active p-3"
+          id="pill-tab-home"
+          role="tabpanel"
+          aria-labelledby="home-tab"
         >
-          <select
-            class="form-select mb-3"
-            aria-label="Default select example"
-            v-model="sel_up_down"
-            @@change="sel_up_down_class_list(sel_up_down)"
+          <div class="d-flex">
+            <div class="p-2 w-75"><span class="fw-bold text-black fs-2">基本設定</span></div>
+            <div class="p-2 flex-shrink-1">
+              <a :href="'OnlineStore?store='+ storeJson.store_no" target="_blank">
+                <button class="btn btn-primary me-1 mb-1" type="button">
+                  <span class="fas fa-home me-1" data-fa-transform="shrink-3"></span>前往瀏覽商店頁
+                </button>
+              </a>
+            </div>
+          </div>
+
+          <hr style="height: 3px; color: black" />
+          <div class="row">
+            <div class="col-12 col-lg-5">
+              LOGO上傳
+              <div style="display: flex; justify-content: center" class="border border-1">
+                <div
+                  class="d-flex flex-wrap mb-3 align-content-center justify-content-center"
+                  style="height: 410px; width: 410px"
+                >
+                  @* 上傳照 *@
+                  <div v-if="showUploadDiv">
+                    <label
+                      for="abc"
+                      style="margin: 0; cursor: pointer; float: left; position: relative"
+                    >
+                      <img
+                        style="width: 5rem; float: left; position: relative"
+                        src="~/assets/img/icons/cloud-upload.svg"
+                    /></label>
+                    <input
+                      id="abc"
+                      style="visibility: hidden; width: 7px; height: 15px"
+                      type="file"
+                      ref="file_1"
+                      @@change="handleFileUpload('logo',$event)"
+                    />
+                  </div>
+                  @* 刪除 *@
+                  <div
+                    v-else
+                    class="d-flex flex-wrap mb-3 justify-content-end"
+                    style="position: absolute"
+                  >
+                    <span @@click="delLogoImg()">
+                      <span
+                        style="float: left; left: 0px; top: 205px; position: relative"
+                        class="far fa-trash-alt fs-2 mt-1 text-danger"
+                      ></span
+                    ></span>
+                  </div>
+                  <img :src="image1_path" style="width: 100%; height: 100%; object-fit: cover" />
+                </div>
+              </div>
+              <span class="fs--2">
+                圖片尺寸：410x410 px， 檔案大小建議在3MB以下， 圖片格式限定為: jpg、jpeg、png
+              </span>
+            </div>
+            <div class="col-lg-7 col-12">
+              <div class="mb-3">
+                <label class="form-label">店家狀態</label>
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    id="flexSwitchCheckDefault"
+                    type="checkbox"
+                    v-model="storeJson.store_checked"
+                  />
+                  @*<label class="form-check-label" for="flexSwitchCheckDefault">OFF</label>*@
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">經銷代號</label>
+                <button class="btn btn-secondary btn-sm ms-2" type="button" disabled>
+                  {{storeJson.dealer_name}}
+                </button>
+              </div>
+              <div class="mb-3">
+                <label class="form-label"><span class="text-danger">*</span>商店名稱</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="自訂商店名稱(10字內)"
+                  v-model.trim="storeJson.store_name"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">自取地址</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="作為自取與展示地址,未填將停用自取選項"
+                  v-model.trim="storeJson.store_address"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">商店描述</label>
+                <textarea
+                  class="form-control"
+                  rows="3"
+                  placeholder="輸入店家名稱下方簡單描述(50字內)"
+                  v-model.trim="storeJson.store_desc"
+                ></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center mb-2 mt-4">
+            <button class="btn btn-danger me-4 mb-1" type="button" @@click="unDo()">
+              放 棄 保 存
+            </button>
+            <button class="btn btn-success mb-1" type="button" @@click="storeSave(storeJson)">
+              保 存 設 定
+            </button>
+          </div>
+        </div>
+        @* 商品列表 *@
+        <div
+          class="tab-pane fade"
+          id="tab-productList"
+          role="tabpanel"
+          aria-labelledby="profile-tab"
+        >
+          <div
+            class="tab-pane fade show active"
+            id="tab-home"
+            role="tabpanel"
+            aria-labelledby="home-tab"
           >
-            <option value="">--上下架狀態--</option>
-            <option value="all">全部</option>
-            <option value="up">上架</option>
-            <option value="down">下架</option>
-          </select>
-          <select
-            class="form-select mb-3"
-            aria-label="Default select example"
-            v-model="sel_class_name"
-            @@change="sel_product_class_list(sel_class_name)"
-          >
-            <option value="">--選擇分類--</option>
-            <option value="all">全部</option>
-            <option v-for="v in product_class_listJson" :value="v.class_name">
-              {{v.class_name}}
-            </option>
-          </select>
-          <div class="input-group mb-3">
-            <input
-              class="form-control search"
-              type="search"
-              placeholder="請輸入商品關鍵字"
-              aria-label="search"
-              v-model.trim="query_value"
-              @@keyup.enter="query(query_value)"
-            />
-            <div class="input-group-text bg-100" @@click="query(query_value)">
-              <span class="fa fa-search fa-w-16 fs-0 text-600"></span>
+            <div class="mb-3" id="ordersTable" data-list='{"pagination":true}'>
+              <div class="d-flex justify-content-between mb-2 pt-3 px-3 flex-wrap">
+                <div
+                  class="selector-wrapper d-flex flex-wrap flex-md-nowrap gap-0 gap-md-3 justify-content-between justify-content-md-center"
+                >
+                  <select
+                    class="form-select mb-3"
+                    aria-label="Default select example"
+                    v-model="sel_up_down"
+                    @@change="sel_up_down_class_list(sel_up_down)"
+                  >
+                    <option value="">--上下架狀態--</option>
+                    <option value="all">全部</option>
+                    <option value="up">上架</option>
+                    <option value="down">下架</option>
+                  </select>
+                  <select
+                    class="form-select mb-3"
+                    aria-label="Default select example"
+                    v-model="sel_class_name"
+                    @@change="sel_product_class_list(sel_class_name)"
+                  >
+                    <option value="">--選擇分類--</option>
+                    <option value="all">全部</option>
+                    <option v-for="v in product_class_listJson" :value="v.class_name">
+                      {{v.class_name}}
+                    </option>
+                  </select>
+                  <div class="input-group mb-3">
+                    <input
+                      class="form-control search"
+                      type="search"
+                      placeholder="請輸入商品關鍵字"
+                      aria-label="search"
+                      v-model.trim="query_value"
+                      @@keyup.enter="query(query_value)"
+                    />
+                    <div class="input-group-text bg-100" @@click="query(query_value)">
+                      <span class="fa fa-search fa-w-16 fs-0 text-600"></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="btn-wrapper d-flex gap-3 flex-wrap flex-md-nowrap w-100 w-md-auto">
+                  <!-- 新增商品 -->
+                  <button
+                    @@click="addProduct()"
+                    class="btn add-product-btn align-self-baseline"
+                    type="button"
+                  >
+                    <span class="fas fa-plus me-1" data-fa-transform="shrink-3"></span>新增商品
+                  </button>
+                  <!-- 批次上傳 -->
+                  <a class="d-none d-md-block" href="~/Home/UploadBatch">
+                    <button class="btn mb-1 batch-upload-btn w-100" type="button">
+                      <span class="fas fa-cloud-upload-alt me-1" data-fa-transform="shrink-3"></span
+                      >批次上傳
+                    </button>
+                  </a>
+                  <!-- 批量更新分類 -->
+                  <button
+                    class="align-self-baseline batch-update-category-btn btn"
+                    type="button"
+                    @@click="openBatchUpdCateDialog"
+                  >
+                    <i class="fa-solid fa-layer-group me-1"></i>
+                    <span class="d-none d-md-inline-block">批次商城分類</span>
+                    <span class="d-inline-block d-md-none">批次分類</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-body p-0">
+                <div class="table-responsive scrollbar">
+                  <table
+                    class="product-list-table table table-sm table-striped overflow-hidden"
+                    style="min-width: 900px"
+                  >
+                    <!-- 7欄表格集中管理 -->
+                    <colgroup>
+                      <col style="width: 1%" />
+                      <col style="width: 100px" />
+                      <col style="width: 150px" />
+                      <col />
+                      <col span="3" style="width: 150px" />
+                    </colgroup>
+
+                    <thead class="bg-200 text-900">
+                      <tr>
+                        <th>
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            :checked="isAllSelected"
+                            @@change="toggleAll($event.target.checked)"
+                          />
+                        </th>
+                        <th class="text-center">上/下架</th>
+                        <th class="text-center">圖片</th>
+                        <th>商品名稱</th>
+                        <th>分類</th>
+                        <th>連結時效</th>
+                        <th>編輯</th>
+                      </tr>
+                    </thead>
+                    <tbody class="list" id="table-orders-body">
+                      <tr class="btn-reveal-trigger" v-for="v in productListJson">
+                        <td>
+                          <input
+                            class="form-check-input"
+                            type="checkbox"
+                            :checked="selectedIds.includes(v.product_id)"
+                            @@change="toggleItem(v.product_id)"
+                          />
+                        </td>
+                        <td>
+                          <div class="form-switch text-center">
+                            <input
+                              @@click="setProductStatus(v)"
+                              class="form-check-input"
+                              type="checkbox"
+                              v-model="v.product_status"
+                            />
+                          </div>
+                        </td>
+                        <td class="text-center">
+                          <img :src="v.product_imagebase64" />
+                        </td>
+                        <td>{{v.product_name}}</td>
+                        <td>
+                          <span v-if="v.product_class != null">
+                            <span v-for="vv in v.product_class"
+                              ><span v-if="vv.ClassChecked">#{{vv.ClassName}}<br /></span
+                            ></span>
+                          </span>
+                        </td>
+                        <td>{{v.date_s}}~<br />{{v.date_e}}</td>
+                        <td>
+                          @* 編輯 *@
+                          <button class="btn-edit" @@click="showEditProduct(v)" title="編輯">
+                            <i class="fa-solid fa-pen"></i>
+                          </button>
+                          @* 置頂 *@
+                          <button class="btn-fixed" @@click="toFirstUp(v.product_id)" title="置頂">
+                            <i class="fa-solid fa-thumbtack"></i>
+                          </button>
+
+                          @* 刪除 *@
+                          <button
+                            class="btn-remove"
+                            @@click="delProduct(v.product_id)"
+                            title="移除"
+                          >
+                            <i class="fa-solid fa-trash-can"></i>
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="mb-3" data-list='{"pagination":true}'>
+                <div class="card-footer">
+                  <div class="d-flex align-items-center justify-content-center">
+                    <!-- 上一頁 -->
+                    <button
+                      @@click.prevent="setPage(currentPage-1)"
+                      class="btn btn-sm btn-falcon-default me-1"
+                      type="button"
+                      title="Previous"
+                      :disabled="disabled_prev"
+                    >
+                      <span class="fa fa-chevron-left fa-w-10"></span>
+                    </button>
+
+                    <!-- 頁碼 -->
+                    <ul class="pagination mb-0">
+                      <li
+                        v-for="(n, index) in displayPages"
+                        :key="index"
+                        :class="{'active': currentPage === n, 'disabled': n === '...'}"
+                        @@click.prevent="setPage(n)"
+                      >
+                        <button class="page btn btn-sm" type="button" :disabled="n === '...'">
+                          {{ n }}
+                        </button>
+                      </li>
+                    </ul>
+
+                    <!-- 下一頁 -->
+                    <button
+                      @@click.prevent="setPage(currentPage+1)"
+                      class="btn btn-sm btn-falcon-default ms-1"
+                      type="button"
+                      title="Next"
+                      :disabled="disabled_next"
+                    >
+                      <span class="fa fa-chevron-right fa-w-10"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- debug 資訊 -->
+              <div class="text-center text-muted mt-2" style="font-size: 0.8rem">
+                第 {{ currentPage }} 頁 / 共 {{ totalPage }} 頁，總計 {{ totalCount }} 筆
+                &nbsp;|&nbsp; 篩選模式:
+                <strong>{{ select_mode }}</strong>
+              </div>
             </div>
           </div>
         </div>
+        @* 分類管理 *@
+        <div
+          class="tab-pane fade p-3"
+          id="tab-productClass"
+          role="tabpanel"
+          aria-labelledby="contact-tab"
+        >
+          <div class="mb-3">
+            <div class="d-flex">
+              <div class="p-2 flex-fill">
+                <input
+                  class="form-control"
+                  id="exampleFormControlInput1"
+                  type="text"
+                  placeholder="新增分類名稱"
+                  v-model.trim="productClass.name"
+                />
+              </div>
+              <div class="p-2 flex-fill">
+                <button @@click="addClass(productClass.name)" class="btn btn-primary">新增</button>
+              </div>
+            </div>
+            <hr />
+          </div>
 
-        <div class="btn-wrapper d-flex gap-3 flex-wrap flex-md-nowrap w-100 w-md-auto">
-          <!-- 新增商品 -->
-          <button
-            @@click="addProduct()"
-            class="btn add-product-btn align-self-baseline"
-            type="button"
-          >
-            <span class="fas fa-plus me-1" data-fa-transform="shrink-3"></span>新增商品
-          </button>
-          <!-- 批次上傳 -->
-          <a class="d-none d-md-block" href="~/Home/UploadBatch">
-            <button class="btn mb-1 batch-upload-btn w-100" type="button">
-              <span class="fas fa-cloud-upload-alt me-1" data-fa-transform="shrink-3"></span
-              >批次上傳
-            </button>
-          </a>
-          <!-- 批量更新分類 -->
-          <button
-            class="align-self-baseline batch-update-category-btn btn"
-            type="button"
-            @@click="openBatchUpdCateDialog"
-          >
-            <i class="fa-solid fa-layer-group me-1"></i>
-            <span class="d-none d-md-inline-block">批次商城分類</span>
-            <span class="d-inline-block d-md-none">批次分類</span>
-          </button>
+          <div class="table-responsive scrollbar">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">名稱</th>
+                  <th class="text-end" scope="col">編輯</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="v in productClassJson">
+                  <td>{{v.class_name}}</td>
+                  <td class="text-end">
+                    <div>
+                      <button
+                        @@click="editClass(v)"
+                        class="btn p-0"
+                        type="button"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Edit"
+                      >
+                        <span class="text-500 fas fa-edit"></span>
+                      </button>
+                      <button
+                        @@click="delClass(v)"
+                        class="btn p-0 ms-2"
+                        type="button"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Delete"
+                      >
+                        <span class="text-500 fas fa-trash-alt"></span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
-
-      <div class="card-body p-0">
-        <div class="table-responsive scrollbar">
-          <table
-            class="product-list-table table table-sm table-striped overflow-hidden"
-            style="min-width: 900px"
-          >
-            <!-- 7欄表格集中管理 -->
-            <colgroup>
-              <col style="width: 1%" />
-              <col style="width: 100px" />
-              <col style="width: 150px" />
-              <col />
-              <col span="3" style="width: 150px" />
-            </colgroup>
-
-            <thead class="bg-200 text-900">
-              <tr>
-                <th>
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    :checked="isAllSelected"
-                    @@change="toggleAll($event.target.checked)"
-                  />
-                </th>
-                <th class="text-center">上/下架</th>
-                <th class="text-center">圖片</th>
-                <th>商品名稱</th>
-                <th>分類</th>
-                <th>連結時效</th>
-                <th>編輯</th>
-              </tr>
-            </thead>
-            <tbody class="list" id="table-orders-body">
-              <tr class="btn-reveal-trigger" v-for="v in productListJson">
-                <td>
-                  <input
-                    class="form-check-input"
-                    type="checkbox"
-                    :checked="selectedIds.includes(v.product_id)"
-                    @@change="toggleItem(v.product_id)"
-                  />
-                </td>
-                <td>
-                  <div class="form-switch text-center">
-                    <input
-                      @@click="setProductStatus(v)"
-                      class="form-check-input"
-                      type="checkbox"
-                      v-model="v.product_status"
-                    />
-                  </div>
-                </td>
-                <td class="text-center">
-                  <img :src="v.product_imagebase64" />
-                </td>
-                <td>{{v.product_name}}</td>
-                <td>
-                  <span v-if="v.product_class != null">
-                    <span v-for="vv in v.product_class"
-                      ><span v-if="vv.ClassChecked">#{{vv.ClassName}}<br /></span
-                    ></span>
-                  </span>
-                </td>
-                <td>{{v.date_s}}~<br />{{v.date_e}}</td>
-                <td>
-                  @* 編輯 *@
-                  <button class="btn-edit" @@click="showEditProduct(v)" title="編輯">
-                    <i class="fa-solid fa-pen"></i>
-                  </button>
-                  @* 置頂 *@
-                  <button class="btn-fixed" @@click="toFirstUp(v.product_id)" title="置頂">
-                    <i class="fa-solid fa-thumbtack"></i>
-                  </button>
-
-                  @* 刪除 *@
-                  <button class="btn-remove" @@click="delProduct(v.product_id)" title="移除">
-                    <i class="fa-solid fa-trash-can"></i>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="mb-3" data-list='{"pagination":true}'>
-        <div class="card-footer">
-          <div class="d-flex align-items-center justify-content-center">
-            <!-- 上一頁 -->
-            <button
-              @@click.prevent="setPage(currentPage-1)"
-              class="btn btn-sm btn-falcon-default me-1"
-              type="button"
-              title="Previous"
-              :disabled="disabled_prev"
-            >
-              <span class="fa fa-chevron-left fa-w-10"></span>
-            </button>
-
-            <!-- 頁碼 -->
-            <ul class="pagination mb-0">
-              <li
-                v-for="(n, index) in displayPages"
-                :key="index"
-                :class="{'active': currentPage === n, 'disabled': n === '...'}"
-                @@click.prevent="setPage(n)"
+        @*運費設定*@
+        <div class="tab-pane fade p-3" id="tab-delivery" role="tabpanel" aria-labelledby="home-tab">
+          <!-- 配送選項 -->
+          <div class="delivery-block d-flex gap-3 align-items-center mb-3">
+            <div class="block-title">配送選項 :</div>
+            <div class="block-content">
+              <el-checkbox
+                v-model="deliveryForm.isHomeDelivery"
+                label="Option 1"
+                size="large"
+                class="my-0"
+                >宅配</el-checkbox
               >
-                <button class="page btn btn-sm" type="button" :disabled="n === '...'">
-                  {{ n }}
-                </button>
-              </li>
-            </ul>
+              <el-checkbox
+                v-model="deliveryForm.isPickUp"
+                label="Option 2"
+                size="large"
+                class="my-0"
+                >自取</el-checkbox
+              >
+            </div>
+          </div>
 
-            <!-- 下一頁 -->
-            <button
-              @@click.prevent="setPage(currentPage+1)"
-              class="btn btn-sm btn-falcon-default ms-1"
-              type="button"
-              title="Next"
-              :disabled="disabled_next"
-            >
-              <span class="fa fa-chevron-right fa-w-10"></span>
-            </button>
+          <!-- 宅配運費 -->
+          <div class="delivery-block d-flex gap-3 align-items-center mb-3">
+            <div class="block-title">宅配運費 :</div>
+            <div class="block-content">
+              <el-input
+                v-model.number="deliveryForm.homeDeliveryFee"
+                style="width: 240px"
+                placeholder="運費金額"
+                :disabled="!deliveryForm.isHomeDelivery"
+              ></el-input>
+            </div>
+          </div>
+
+          <!-- 免運門檻 -->
+          <div class="delivery-block d-flex gap-3 align-items-center mb-3">
+            <div class="block-title">訂單總金額達 :</div>
+            <div class="block-content">
+              <el-input
+                v-model.number="deliveryForm.freeShippingThreshold"
+                style="width: 240px"
+                placeholder="請輸入金額"
+                :disabled="!deliveryForm.isHomeDelivery"
+              ></el-input>
+              <span>元免運</span>
+            </div>
+          </div>
+
+          <!-- 存檔 -->
+          <el-button type="primary" @@click="saveDeliverySettings">存檔</el-button>
+
+          <div class="delivery-explanation lh-lg mt-4">
+            <ol>
+              <li>宅配運費：商品選取宅配時，自動帶入運費設定，並於結帳時加入計算。</li>
+              <li>如生鮮或大型商品需另加運費，建議於商品價格中加入計算。</li>
+              <li>如有外島配送限制，建議於商品說明欄位增加說明。</li>
+              <li>
+                免運門檻：依消費者於同一商家購買金額進行計算，不會與其他商家合併計算。<br />
+                例：A 店免運金額為 1000，運費 100。<br />嘟嘟在 A 店買了 800，B 店買了 1000。A
+                店的結帳金額為 800 + 100 = 900。
+              </li>
+            </ol>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- debug 資訊 -->
-      <div class="text-center text-muted mt-2" style="font-size: 0.8rem">
-        第 {{ currentPage }} 頁 / 共 {{ totalPage }} 頁，總計 {{ totalCount }} 筆 &nbsp;|&nbsp;
-        篩選模式:
-        <strong>{{ select_mode }}</strong>
+    @* 新增/編輯商品 *@
+    <div
+      class="modal fade"
+      id="add-product-modal"
+      tabindex="-1"
+      data-bs-keyboard="false"
+      data-bs-backdrop="static"
+      aria-labelledby="tooltippopoversLabel"
+      aria-hidden="true"
+      style="z-index: 10001"
+    >
+      <div class="modal-dialog modal-xl mt-6" role="document">
+        <div class="modal-content border-0">
+          <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+            <button
+              class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-0">
+            <div class="d-flex justify-content-center alert-danger rounded-top-lg py-3">
+              <p>新增/編輯商品</p>
+            </div>
+            <ul class="nav nav-pills mt-3 px-3" id="pill-myTab" role="tablist">
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  id="pill-home-tab"
+                  data-bs-toggle="tab"
+                  href="#pill-tab-prdduct"
+                  role="tab"
+                  aria-controls="pill-tab-home"
+                  aria-selected="true"
+                  >商品資訊</a
+                >
+              </li>
+              @*
+              <li class="nav-item">
+                <a
+                  class="nav-link"
+                  id="pill-profile-tab"
+                  data-bs-toggle="tab"
+                  href="#pill-tab-advance"
+                  role="tab"
+                  aria-controls="pill-tab-profile"
+                  aria-selected="false"
+                  >進階設定</a
+                >
+              </li>
+              *@
+            </ul>
+            <div class="tab-content border p-3" id="pill-myTabContent">
+              <div
+                class="tab-pane fade show active"
+                id="pill-tab-prdduct"
+                role="tabpanel"
+                aria-labelledby="home-tab"
+              >
+                <div class="row">
+                  <div class="col-12 col-lg-5">
+                    <div class="main-photo mb-3">
+                      <span class="fw-bold text-black">主封面照</span>
+                      <div class="border border-1">
+                        <div class="d-flex flex-wrap align-content-center justify-content-center">
+                          @* 上傳照 *@
+                          <div v-if="showProductUploadDiv_1">
+                            <label
+                              for="abc1"
+                              style="margin: 0; cursor: pointer; float: left; position: relative"
+                            >
+                              <img
+                                style="width: 5rem; float: left; position: relative"
+                                src="~/assets/img/icons/cloud-upload.svg"
+                            /></label>
+                            <input
+                              id="abc1"
+                              style="visibility: hidden; width: 7px; height: 15px"
+                              type="file"
+                              ref="file_product_1"
+                              @@change="handleFileUpload('image_1',$event)"
+                            />
+                          </div>
+                          @* 刪除 *@
+                          <div
+                            v-else
+                            class="d-flex flex-wrap mb-3 justify-content-end"
+                            style="position: absolute"
+                          >
+                            <span @@click="delProductImg('image_1.jpg',productJson.product_id)">
+                              <span
+                                style="float: left; left: 0px; top: 205px; position: relative"
+                                class="far fa-trash-alt fs-2 mt-1 text-danger"
+                              ></span
+                            ></span>
+                          </div>
+                          <img
+                            v-if="image_product_1 !=''"
+                            :src="image_product_1"
+                            style="width: 100%; height: 100%"
+                          />
+                        </div>
+                      </div>
+                      <span class="fs--1">
+                        圖片尺寸：410x410 px， 檔案大小建議在3MB以下， 圖片格式限定為:
+                        jpg、jpeg、png
+                      </span>
+                    </div>
+                    <div class="other-photoes mb-3">
+                      <span class="fw-bold text-black">其他商品照</span>
+                      <div class="border border-1">
+                        <div>
+                          @* 上傳照2 *@
+                          <div class="d-flex other-photoes-wrapper">
+                            <div style="position: relative">
+                              <span
+                                v-if="image_product_2 ==''"
+                                style="left: 2rem; top: 3rem; position: absolute"
+                              >
+                                <label for="abc2" style="margin: 0; cursor: pointer">
+                                  <img
+                                    style="width: 2rem"
+                                    src="~/assets/img/icons/cloud-upload.svg"
+                                /></label>
+                                <input
+                                  id="abc2"
+                                  style="visibility: hidden; width: 7px; height: 15px"
+                                  type="file"
+                                  ref="file_product_2"
+                                  @@change="handleFileUpload('image_2',$event)"
+                                />
+                              </span>
+                              <span
+                                v-else
+                                @@click="delProductImg('image_2.jpg',productJson.product_id)"
+                              >
+                                <span
+                                  style="left: 3rem; top: 3rem; position: absolute"
+                                  class="far fa-trash-alt fs-2 mt-1 text-danger"
+                                ></span
+                              ></span>
+                              <img
+                                v-if="image_product_2 !=''"
+                                :src="image_product_2"
+                                class="w-100"
+                              />
+                              <span
+                                style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 50%;
+                                  padding: 10px;
+                                  text-align: center;
+                                  transform: translateX(-50%);
+                                "
+                                class="fs--2"
+                                >第1張</span
+                              >
+                            </div>
+
+                            <div style="position: relative">
+                              <span
+                                v-if="image_product_3 ==''"
+                                style="left: 2rem; top: 3rem; position: absolute"
+                              >
+                                <label for="abc3" style="margin: 0; cursor: pointer">
+                                  <img
+                                    style="width: 2rem"
+                                    src="~/assets/img/icons/cloud-upload.svg"
+                                /></label>
+                                <input
+                                  id="abc3"
+                                  style="visibility: hidden; width: 7px; height: 15px"
+                                  type="file"
+                                  ref="file_product_3"
+                                  @@change="handleFileUpload('image_3',$event)"
+                                />
+                              </span>
+                              <span
+                                v-else
+                                @@click="delProductImg('image_3.jpg',productJson.product_id)"
+                              >
+                                <span
+                                  style="left: 3rem; top: 3rem; position: absolute"
+                                  class="far fa-trash-alt fs-2 mt-1 text-danger"
+                                ></span
+                              ></span>
+                              <img
+                                v-if="image_product_3 !=''"
+                                :src="image_product_3"
+                                class="w-100"
+                              />
+                              <span
+                                style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 50%;
+                                  padding: 10px;
+                                  text-align: center;
+                                  transform: translateX(-50%);
+                                "
+                                class="fs--2"
+                                >第2張</span
+                              >
+                            </div>
+                            <div style="position: relative">
+                              <span
+                                v-if="image_product_4 ==''"
+                                style="left: 2rem; top: 3rem; position: absolute"
+                              >
+                                <label for="abc4" style="margin: 0; cursor: pointer">
+                                  <img
+                                    style="width: 2rem"
+                                    src="~/assets/img/icons/cloud-upload.svg"
+                                /></label>
+                                <input
+                                  id="abc4"
+                                  style="visibility: hidden; width: 7px; height: 15px"
+                                  type="file"
+                                  ref="file_product_4"
+                                  @@change="handleFileUpload('image_4',$event)"
+                                />
+                              </span>
+                              <span
+                                v-else
+                                @@click="delProductImg('image_4.jpg',productJson.product_id)"
+                              >
+                                <span
+                                  style="left: 3rem; top: 3rem; position: absolute"
+                                  class="far fa-trash-alt fs-2 mt-1 text-danger"
+                                ></span
+                              ></span>
+                              <img
+                                v-if="image_product_4 !=''"
+                                :src="image_product_4"
+                                class="w-100"
+                              />
+                              <span
+                                style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 50%;
+                                  padding: 10px;
+                                  text-align: center;
+                                  transform: translateX(-50%);
+                                "
+                                class="fs--2"
+                                >第3張</span
+                              >
+                            </div>
+                            <div style="position: relative">
+                              <span
+                                v-if="image_product_5 ==''"
+                                style="left: 2rem; top: 3rem; position: absolute"
+                              >
+                                <label for="abc5" style="margin: 0; cursor: pointer">
+                                  <img
+                                    style="width: 2rem"
+                                    src="~/assets/img/icons/cloud-upload.svg"
+                                /></label>
+                                <input
+                                  id="abc5"
+                                  style="visibility: hidden; width: 7px; height: 15px"
+                                  type="file"
+                                  ref="file_product_5"
+                                  @@change="handleFileUpload('image_5',$event)"
+                                />
+                              </span>
+                              <span
+                                v-else
+                                @@click="delProductImg('image_5.jpg',productJson.product_id)"
+                              >
+                                <span
+                                  style="left: 3rem; top: 3rem; position: absolute"
+                                  class="far fa-trash-alt fs-2 mt-1 text-danger"
+                                ></span
+                              ></span>
+                              <img
+                                v-if="image_product_5 !=''"
+                                :src="image_product_5"
+                                class="w-100"
+                              />
+                              <span
+                                style="
+                                  position: absolute;
+                                  bottom: 0;
+                                  left: 50%;
+                                  padding: 10px;
+                                  text-align: center;
+                                  transform: translateX(-50%);
+                                "
+                                class="fs--2"
+                                >第4張</span
+                              >
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <span class="fs--1">最多4張， 圖片格式限定為: jpg、jpeg、png</span><br />
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-7">
+                    <div class="mb-3">
+                      <div class="d-flex justify-content-start">
+                        <label class="form-label me-1 fw-bold text-black">商品名稱(上下架)</label>
+                        <div class="form-check form-switch">
+                          <input
+                            class="form-check-input"
+                            id="flexSwitchCheckDefault"
+                            type="checkbox"
+                            v-model="productJson.product_status"
+                          />
+                          @*<label class="form-check-label" for="flexSwitchCheckDefault">OFF</label
+                          >*@
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-start">
+                        <span class="text-danger">*</span
+                        ><input
+                          class="form-control"
+                          type="text"
+                          placeholder="請輸入商品名稱"
+                          v-model.trim="productJson.product_name"
+                          maxlength="100"
+                        />
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label fw-bold text-black"
+                        ><span class="text-danger">*</span>選擇商品上下架時間</label
+                      >
+                      <div class="d-flex justify-content-start mb-2">
+                        <input
+                          class="form-control datetimepicker"
+                          data-options='{"disableMobile":true}'
+                          style="fill: none; background-color: white"
+                          id="datepicker"
+                          type="text"
+                          v-model="productJson.date_s"
+                        />
+                        ~<input
+                          class="form-control datetimepicker"
+                          data-options='{"disableMobile":true}'
+                          style="fill: none; background-color: white"
+                          id="datepicker"
+                          type="text"
+                          v-model="productJson.date_e"
+                        />
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                      <label class="form-label fw-bold text-black"
+                        >新增規格(商品差異)<span @@click="addProductSpec()"
+                          ><span class="fas fa-plus-circle fs-2 text-success"></span></span
+                      ></label>
+                      <div
+                        v-for="(v,index) in productJson.product_spec"
+                        class="d-flex flex-md-nowrap flex-wrap mb-2 prd-style"
+                      >
+                        <div class="form-group me-1">
+                          <span class="fs--2"><span class="text-danger">*</span>規格名稱</span>
+                          <input
+                            class="form-control"
+                            type="text"
+                            placeholder="EX:(23.58公分,黃色10x10...)"
+                            v-model.trim="v.name"
+                          />
+                        </div>
+                        <div class="form-group me-1">
+                          <span class="fs--2">本平台可販售數量</span>
+                          <input
+                            class="form-control"
+                            type="number"
+                            placeholder="輸入數字"
+                            v-model.trim="v.qty"
+                          />
+                        </div>
+                        <div class="form-group me-1">
+                          <span class="fs--2">銷售金額(需含運費)</span>
+                          <input
+                            class="form-control"
+                            type="number"
+                            placeholder="輸入金額"
+                            v-model.trim="v.cash"
+                          />
+                        </div>
+                        <div class="d-flex">
+                          <div class="form-group me-1">
+                            <span class="fs--2">宅配</span>
+                            <div class="form-check">
+                              <input
+                                class="form-check-input"
+                                style="width: 1.5em; height: 1.5em"
+                                id="inlineCheckbox1"
+                                type="checkbox"
+                                value="option1"
+                                v-model="v.car_checked"
+                              />
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <span class="fs--2">自取</span>
+                            <div class="form-check">
+                              <input
+                                class="form-check-input me-1"
+                                style="width: 1.5em; height: 1.5em"
+                                id="inlineCheckbox2"
+                                type="checkbox"
+                                value="option2"
+                                v-model="v.home_checked"
+                              />
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <span class="fs--2">刪除</span>
+                            <div @@click="delProductSpec(index)">
+                              <span
+                                class="fas fa-trash-alt text-danger fs-2 bg-soft-danger mt-1"
+                              ></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                      <label class="form-label">商品分類(可複選)</label><br />
+                      <button
+                        v-for="v in productJson.product_class"
+                        @@click="selClass(v)"
+                        :class="[v.ClassChecked ? 'bg-info' : '','btn btn-falcon-default rounded-pill me-1 mb-1']"
+                        type="button"
+                      >
+                        {{v.ClassName}}
+                      </button>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                      <label class="form-label fw-bold text-black">商品詳細資訊</label>
+                      <div id="editor" style="height: 520px">
+                        @*<textarea v-model="content"></textarea>*@
+                        <textarea v-model="productJson.product_desc"></textarea>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end mb-2 mt-4">
+                  <button
+                    @@click="productSave(productJson)"
+                    class="btn btn-success mb-1"
+                    type="button"
+                  >
+                    建 立 / 保 存
+                  </button>
+                </div>
+              </div>
+              @*
+              <div
+                class="tab-pane fade"
+                id="pill-tab-advance"
+                role="tabpanel"
+                aria-labelledby="profile-tab"
+              >
+                建構中
+              </div>
+              *@
+            </div>
+
+            @*
+            <div class="d-flex justify-content-center mb-3">
+              <div
+                class="btn btn-primary me-3"
+                @@click="confirmDelete(confirm)"
+                style="background-color: #00af9a; border-color: #00af9a"
+              >
+                確 定
+              </div>
+              <div
+                class="btn btn-primary"
+                data-bs-dismiss="modal"
+                style="background-color: #00af9a; border-color: #00af9a"
+              >
+                取 消
+              </div>
+            </div>
+            *@
+          </div>
+        </div>
       </div>
     </div>
+
+    @* 顯示 確認刪除商品 *@
+    <div
+      class="modal fade"
+      id="del_product_modal"
+      tabindex="-1"
+      data-bs-keyboard="false"
+      data-bs-backdrop="static"
+      aria-labelledby="tooltippopoversLabel"
+      aria-hidden="true"
+      style="z-index: 10001"
+    >
+      <div class="modal-dialog mt-6" role="document">
+        <div class="modal-content border-0">
+          <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+            <button
+              class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-0">
+            <div class="d-flex justify-content-center alert-danger rounded-top-lg py-3 ps-4 pe-6">
+              <span class="fas fa-exclamation-triangle text-danger fs-5"></span>
+            </div>
+            <div class="d-flex justify-content-center text-success"></div>
+
+            <div class="d-flex mb-3">
+              <div class="p-2 flex-grow-1">
+                <p class="fs-0 fw-bold">是否確認刪除商品？</p>
+                該商品刪除後無法復原
+              </div>
+            </div>
+            <div class="d-flex justify-content-center mb-3">
+              <div class="btn btn-secondary me-3" data-bs-dismiss="modal">取消</div>
+              <div class="btn btn-danger" @@click="confirmDelProduct()">確定</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @* 編輯分類 *@
+    <div
+      class="modal fade"
+      id="product_class_modal"
+      tabindex="-1"
+      data-bs-keyboard="false"
+      data-bs-backdrop="static"
+      aria-labelledby="tooltippopoversLabel"
+      aria-hidden="true"
+      style="z-index: 10001"
+    >
+      <div class="modal-dialog mt-6" role="document">
+        <div class="modal-content border-0">
+          <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+            <button
+              class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body p-0">
+            <div
+              class="d-flex justify-content-center alert-secondary rounded-top-lg py-3 ps-4 pe-6"
+            >
+              <p>編輯名稱</p>
+              @*<span class="fas fa-exclamation-triangle text-danger fs-5"></span>*@
+            </div>
+
+            <div class="mb-3 p-4">
+              <label class="form-label" for="exampleFormControlInput1">名稱:</label>
+              <input
+                class="form-control"
+                id="exampleFormControlInput1"
+                type="text"
+                v-model.trim="productClass.class_name"
+              />
+            </div>
+
+            <div class="d-flex justify-content-center mb-3">
+              <div class="btn btn-secondary me-3" data-bs-dismiss="modal">取消</div>
+              <div
+                class="btn btn-danger"
+                @@click="confirmEditProductClass(productClass.class_name)"
+              >
+                送出
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 批次更新分類modal -->
+    <el-dialog v-model="batchUpdateCateDialogVisible" id="batchUpdCateDialog">
+      <template #header>
+        <div class="my-dialog-header">
+          <i class="fa-solid fa-layer-group me-2"></i>
+          <span>批次修改商城分類</span>
+        </div>
+      </template>
+
+      <div class="mb-3">即將更新 <strong>{{selectedIds.length}}</strong> 件商品的商城分類</div>
+
+      <div class="dialog-content-wrapper">
+        <!-- 快捷鍵設定 -->
+        <div class="tab-button-wrapper d-flex justify-content-between">
+          <div><i class="fa-solid fa-layer-group me-2"></i> 新分類設定</div>
+          <div class="tab-button-group d-flex">
+            <button class="tab-btn tab-a"><span class="tab-label">A</span>狗飼料常用</button>
+            <button class="tab-btn tab-b"><span class="tab-label">B</span>狗飼料常用</button>
+            <button class="tab-btn tab-c"><span class="tab-label">C</span>狗飼料常用</button>
+            <button class="tab-btn tab-setting"><i class="fa-solid fa-gear"></i></button>
+          </div>
+        </div>
+        <!-- 下拉選單 -->
+        <!-- todos : 串API => 店家許可的分類 -->
+        <el-form :model="batchUpdCateForm" label-position="top">
+          <!-- 主分類 -->
+          <el-form-item label="主分類" required>
+            <el-select
+              v-model="batchUpdCateForm.mainCategoryId"
+              placeholder="請選擇主分類"
+              @@change="handleBatchMainChange"
+            >
+              <el-option
+                v-for="main in dealerAvailableCategories"
+                :key="main.categoryId"
+                :label="main.name"
+                :value="main.categoryId"
+              />
+            </el-select>
+          </el-form-item>
+
+          <!-- 次分類 -->
+          <el-form-item label="次分類" required>
+            <el-select
+              v-model="batchUpdCateForm.subCategoryId"
+              :disabled="!batchUpdCateForm.mainCategoryId"
+              :placeholder="batchUpdCateForm.mainCategory ? '— 請選擇次分類 —' : '— 請先選擇主分類 —'"
+              @@change="handleBatchSubChange"
+            >
+              <el-option
+                v-for="sub in availableSubCateList"
+                :key="sub.categoryId"
+                :label="sub.name"
+                :value="sub.categoryId"
+              />
+            </el-select>
+          </el-form-item>
+
+          <!-- 子分類 -->
+          <el-form-item label="子分類" required>
+            <el-select
+              v-model="batchUpdCateForm.leafCategoryId"
+              :disabled="!batchUpdCateForm.subCategoryId"
+              :placeholder="batchUpdCateForm.subCategory ? '— 請選擇子分類 —' : '— 請先選擇次分類 —'"
+              @@change="handleBatchLeafChange"
+            >
+              <el-option
+                v-for="leaf in availableLeafCateList"
+                :key="leaf.categoryId"
+                :label="leaf.name"
+                :value="leaf.categoryId"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </div>
+
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @@click="batchUpdateCateDialogVisible=false">取消</el-button>
+          <el-button type="primary"> 確定執行 </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </div>
+
+<script src="~/js/common.js?v=1.0"></script>
+<script src="~/js/elementPlus/elementPlus.js"></script>
+<script src="~/js/dealerProduct.js?v=1.0.5"></script>
+
+@* 日期UI *@
+<link href="~/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+<script src="~/assets/js/flatpickr.js"></script>
+
+@*icon use bootstrap*@
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
+/>
