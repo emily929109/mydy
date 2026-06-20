@@ -26,17 +26,25 @@ jobs:
         with:
           node-version: 20 # 指定 Node.js 版本
           cache: 'npm'     # 開啟快取，讓下次安裝套件變快
+          cache-dependency-path: 27_DUDU_adminProduct_SPA/package-lock.json # 快取對象是子專案的 lock 檔
 
       - name: Install dependencies
         run: npm ci        # 相當於 npm install，但更適合 CI/CD 環境
+        working-directory: 27_DUDU_adminProduct_SPA # 進到子專案資料夾安裝
 
       - name: Build Project
         run: npm run build # 執行 Vite 打包，產生 dist 資料夾
+        working-directory: 27_DUDU_adminProduct_SPA # 進到子專案資料夾打包
+
+      - name: Assemble site # 把產出放進與 base 相符的子路徑，避免資源 404
+        run: |
+          mkdir -p _site/27_DUDU_adminProduct_SPA
+          cp -r 27_DUDU_adminProduct_SPA/dist/. _site/27_DUDU_adminProduct_SPA/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist     # 關鍵：告訴 GitHub 這次要上傳的是 dist 資料夾！
+          path: ./_site    # 上傳組好的 _site，網站根 = /mydy/
 
   # 2. 部署階段
   deploy:
