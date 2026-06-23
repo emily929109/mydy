@@ -405,7 +405,6 @@ const applyPreset = (preset) => {
             v-model="batchUpdCateForm.leafCategoryId"
             :disabled="!batchUpdCateForm.subCategoryId"
             :placeholder="batchUpdCateForm.subCategory ? '— 請選擇子分類 —' : '— 請先選擇次分類 —'"
-            @change="handleBatchLeafChange"
           >
             <el-option
               v-for="leaf in availableLeafCateList"
@@ -610,96 +609,192 @@ div#prdList {
   }
 }
 
-/* 商城分類常用設定 dialog */
-.hotkey-info {
-  background: #fdf6e3;
-  border: 1px solid #f5e6a8;
-  border-radius: 6px;
-  padding: 10px 14px;
-  font-size: 0.875rem;
-  color: #8a6d3b;
-  margin-bottom: 16px;
-  line-height: 1.6;
+:root {
+  --blue-primary: #3b82f6;
+  --el-dialog-border: #bcd9ff;
+  --el-dialog-content-bg: #fafcff;
+  --bright-yellow: rgb(251 191 36);
+  --dark-brown: rgb(113 63 18);
 }
 
-.hotkey-table {
-  width: 100%;
-  border-collapse: collapse;
+/* 批次修改分類dialog */
+#batch-upd-cate-dialog.el-dialog {
+  max-width: 500px;
 }
 
-.hotkey-table thead th {
-  font-weight: 500;
-  color: #606266;
-  text-align: left;
-  padding: 8px 6px;
-  border-bottom: 1px solid #ebeef5;
-  white-space: nowrap;
+#batch-upd-cate-dialog .el-dialog__body > div:first-child strong {
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--blue-primary);
+  margin: 0 4px;
 }
 
-.hotkey-table tbody td {
-  padding: 8px 6px;
-  vertical-align: middle;
+#batch-upd-cate-dialog .tab-button-wrapper > div:first-child {
+  border-radius: 9999px;
+  border: 1px solid var(--el-dialog-border);
+  padding: 0 16px;
+  line-height: 180%;
+  background-color: #dbeafe;
+  color: var(--blue-primary);
 }
 
-.hotkey-table .col-default,
-.hotkey-table .col-hotkey,
-.hotkey-table .col-del {
-  text-align: center;
-  width: 1%;
-  white-space: nowrap;
+#batch-upd-cate-dialog .dialog-content-wrapper {
+  border: 1px solid var(--el-dialog-border);
+  border-radius: 0.5rem;
+  padding: 16px;
+  background-color: var(--el-dialog-content-bg);
 }
 
-.hotkey-table .col-name {
-  width: 160px;
+#batch-upd-cate-dialog .tab-button-wrapper {
+  margin-top: -16px;
+  transform: translateY(-50%);
 }
 
-.hotkey-table .col-hotkey {
-  width: 90px;
+.tab-button-group {
+  flex-wrap: wrap; /* 擠不下就換行 */
+  gap: 0.5rem; /* 按鈕間距 */
+  justify-content: flex-end; /* 桌機靠右，與標籤分置兩端 */
 }
 
-.hotkey-table tr.has-error td {
-  background: #fef0f0;
-}
-
-.hotkey-warning-row td {
-  color: #e54623;
-  font-size: 0.85rem;
-  padding: 8px 6px 0;
-  background: #fef0f0;
-}
-
-.hotkey-table .is-invalid-cate :deep(.el-select__wrapper) {
-  box-shadow: 0 0 0 1px #e54623 inset;
-}
-
-.hotkey-del-btn {
-  color: #bbb;
-  background: none;
+.tab-button-group .tab-btn {
   border: none;
-  cursor: pointer;
-  font-size: 1.05rem;
+  background: none;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.6rem;
+  white-space: nowrap; /* 整顆按鈕一起換行，內文不斷字 */
+  line-height: 1.2;
 }
 
-.hotkey-del-btn:hover {
-  color: #e54623;
+.tab-button-group .tab-btn.tab-setting {
+  background-color: var(--bright-yellow);
+  color: var(--dark-brown);
+  border: 1px solid rgb(234 179 8);
 }
 
-.hotkey-add-wrapper {
-  margin-top: 16px;
+/* 手機：標籤與按鈕群改上下堆疊，按鈕群換行從左排起 */
+@media (max-width: 768px) {
+  #batch-upd-cate-dialog .tab-button-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .tab-button-group {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
-.hotkey-add-btn {
-  background: #fff;
-  border: 1px solid #dcdfe6;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  color: #606266;
+@media (hover: hover) and (pointer: fine) {
+  .tab-button-group .tab-btn.tab-setting:hover {
+    background-color: rgb(245 158 11);
+  }
+
+  /* 商城分類常用設定 dialog */
+  .hotkey-info {
+    background: #fdf6e3;
+    border: 1px solid #f5e6a8;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    color: #8a6d3b;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .hotkey-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .hotkey-table thead th {
+    font-weight: 500;
+    color: #606266;
+    text-align: left;
+    padding: 8px 6px;
+    border-bottom: 1px solid #ebeef5;
+    white-space: nowrap;
+  }
+
+  .hotkey-table tbody td {
+    padding: 8px 6px;
+    vertical-align: middle;
+  }
+
+  .hotkey-table .col-default,
+  .hotkey-table .col-hotkey,
+  .hotkey-table .col-del {
+    text-align: center;
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  .hotkey-table .col-name {
+    width: 160px;
+  }
+
+  .hotkey-table .col-hotkey {
+    width: 90px;
+  }
+
+  .hotkey-table tr.has-error td {
+    background: #fef0f0;
+  }
+
+  .hotkey-warning-row td {
+    color: #e54623;
+    font-size: 0.85rem;
+    padding: 8px 6px 0;
+    background: #fef0f0;
+  }
+
+  .hotkey-table .is-invalid-cate :deep(.el-select__wrapper) {
+    box-shadow: 0 0 0 1px #e54623 inset;
+  }
+
+  .hotkey-del-btn {
+    color: #bbb;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.05rem;
+  }
+
+  .hotkey-del-btn:hover {
+    color: #e54623;
+  }
+
+  .hotkey-add-wrapper {
+    margin-top: 16px;
+  }
+
+  .hotkey-add-btn {
+    background: #fff;
+    border: 1px solid #dcdfe6;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: #606266;
+  }
+
+  .hotkey-add-btn:hover {
+    border-color: #c0c4cc;
+    color: #409eff;
+  }
 }
 
-.hotkey-add-btn:hover {
-  border-color: #c0c4cc;
-  color: #409eff;
+/* 快捷鍵 */
+#batch-upd-cate-dialog .tab-btn {
+  background-color: var(--bright-yellow);
+  color: rgb(17 24 39);
+}
+
+#batch-upd-cate-dialog .tab-btn .tab-label {
+  background-color: rgb(0 0 0 / 0.3);
+  border-radius: 2px;
+  padding: 0 4px;
+  color: #fff;
+  margin-right: 4px;
 }
 </style>
 <style>
@@ -709,5 +804,43 @@ div#prdList {
 
 #hotkey-setup-dialog.el-dialog {
   max-width: 900px;
+}
+
+:root {
+  --blue-primary: #3b82f6;
+  --el-dialog-border: #bcd9ff;
+  --el-dialog-content-bg: #fafcff;
+  --bright-yellow: rgb(251 191 36);
+  --dark-brown: rgb(113 63 18);
+}
+
+/* dialog共用 */
+#batch-upd-cate-dialog.el-dialog,
+#hotkey-setup-dialog.el-dialog {
+  --el-dialog-padding-primary: 0;
+}
+
+#batch-upd-cate-dialog.el-dialog .el-dialog__header,
+#hotkey-setup-dialog.el-dialog .el-dialog__header {
+  padding: 16px;
+  font-weight: bold;
+  border-top-left-radius: var(--el-dialog-border-radius);
+  border-top-right-radius: var(--el-dialog-border-radius);
+}
+
+#batch-upd-cate-dialog.el-dialog .el-dialog__body,
+#hotkey-setup-dialog.el-dialog .el-dialog__body {
+  padding: 16px;
+}
+
+#batch-upd-cate-dialog.el-dialog .el-dialog__footer,
+#hotkey-setup-dialog.el-dialog .el-dialog__footer {
+  padding: 16px;
+  padding-top: 0;
+}
+
+#batch-upd-cate-dialog .el-dialog__header {
+  background-color: var(--blue-primary);
+  color: #fff;
 }
 </style>
