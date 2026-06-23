@@ -814,7 +814,7 @@ div#prdList {
   --dark-brown: rgb(113 63 18);
 }
 
-/* dialog共用 */
+/* dialog共用 因ep-dialog 沒有data-v 屬性，故要放在style標籤內 */
 #batch-upd-cate-dialog.el-dialog,
 #hotkey-setup-dialog.el-dialog {
   --el-dialog-padding-primary: 0;
