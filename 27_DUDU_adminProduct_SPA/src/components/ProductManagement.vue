@@ -65,6 +65,7 @@ const batchUpdCateForm = reactive({
 const openBatchUpdCateDialog = () => {
   batchUpdateCateDialogVisible.value = true
   resetBatchUpdCateForm()
+  if (committedDefaultPreset.value) applyPreset(committedDefaultPreset.value)
 }
 
 const resetBatchUpdCateForm = () => {
@@ -100,15 +101,37 @@ const handleBatchSubChange = (val) => {
 }
 
 // ------ 商城分類常用設定（A/B/C 快捷）------
+// 模擬後端回傳的設定（實務上應由後端 fetch 取得）
+// presets：常用分類清單；defaultPresetId：被指定為預設的那組 id（無預設則為 null）
+const presetSettingFromApi = {
+  presets: [
+    {
+      id: 0,
+      name: '寵物常用',
+      mainCategoryId: 1,
+      subCategoryId: 2,
+      leafCategoryId: 4,
+      hotkey: 'A',
+    },
+  ],
+  defaultPresetId: 0,
+}
+
 // 已儲存的常用分類清單（純記憶體 state，驅動上方 A/B/C 快捷按鈕）
-const categoryPresets = ref([])
-const committedDefaultId = ref(null)
+const categoryPresets = ref(presetSettingFromApi.presets)
+// 預設組 id 由後端的 defaultPresetId 提供
+const committedDefaultId = ref(presetSettingFromApi.defaultPresetId ?? null)
+
+// 目前被勾為預設的那組 preset（找不到回 null）
+const committedDefaultPreset = computed(
+  () => categoryPresets.value.find((p) => p.id === committedDefaultId.value) || null,
+)
 
 // dialog 編輯用的草稿（取消即丟棄、儲存才寫回 committed）
 const hotkeyDialogVisible = ref(false)
 const presetDraft = ref([])
 const draftDefaultId = ref(null)
-let presetSeq = 0
+let presetSeq = 1
 
 // ---- 分類查找工具 ----
 const findMainCate = (mainId) => categoryListJson.value.find((c) => c.categoryId === mainId)
