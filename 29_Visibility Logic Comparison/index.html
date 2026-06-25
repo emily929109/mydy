@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visibility Logic Comparison</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-plus/dist/index.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body {
+        background-color: #f5f7fa;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+      .demo-card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 24px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      }
+      .badge-disabled {
+        background-color: #f4f4f5;
+        color: #909399;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+      .badge-active {
+        background-color: #f0f9eb;
+        color: #67c23a;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container mx-auto p-6 max-w-7xl">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="demo-card">
+          <div class="flex justify-between items-center mb-4 pb-2 border-b">
+            <h2 class="text-lg font-bold flex items-center gap-2">
+              <span>方案 1</span>
+            </h2>
+          </div>
+
+          <el-table :data="tableDataA" style="width: 100%">
+            <el-table-column
+              prop="name"
+              label="分類名稱"
+              width="120"
+            ></el-table-column>
+
+            <el-table-column label="DUDU商城" align="center">
+              <template #default="scope">
+                <el-switch
+                  v-model="scope.row.duduVisible"
+                  active-text="開"
+                  inactive-text="關"
+                  inline-prompt
+                />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="分期系統" align="center">
+              <template #default="scope">
+                <el-switch
+                  v-model="scope.row.installmentVisible"
+                  active-text="開"
+                  inactive-text="關"
+                  inline-prompt
+                  active-color="#409eff"
+                />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="最終狀態" width="160" align="center">
+              <template #default="scope">
+                <div class="flex flex-col gap-1 text-left">
+                  <div>
+                    DUDU:
+                    <span
+                      :class="scope.row.duduVisible ? 'badge-active' : 'badge-disabled'"
+                      >{{ scope.row.duduVisible ? '顯示' : '隱藏' }}</span
+                    >
+                  </div>
+                  <div>
+                    分期:
+                    <span
+                      :class="scope.row.installmentVisible ? 'badge-active' : 'badge-disabled'"
+                      >{{ scope.row.installmentVisible ? '顯示' : '隱藏'
+                      }}</span
+                    >
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+
+        <div class="demo-card">
+          <div class="flex justify-between items-center mb-4 pb-2 border-b">
+            <h2 class="text-lg font-bold">方案 2</h2>
+          </div>
+
+          <el-table :data="tableDataB" style="width: 100%">
+            <el-table-column
+              prop="name"
+              label="分類名稱"
+              width="100"
+            ></el-table-column>
+
+            <el-table-column label="全系統啟用" align="center" width="100">
+              <template #default="scope">
+                <el-checkbox v-model="scope.row.globalEnable" />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="排除選單" align="center" width="90">
+              <template #default="scope">
+                <el-checkbox
+                  v-model="scope.row.excludeMenu"
+                  :disabled="!scope.row.globalEnable"
+                />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="排除商城" align="center" width="90">
+              <template #default="scope">
+                <el-checkbox
+                  v-model="scope.row.excludeMall"
+                  :disabled="!scope.row.globalEnable"
+                />
+              </template>
+            </el-table-column>
+
+            <el-table-column label="最終狀態" align="center">
+              <template #default="scope">
+                <div class="flex flex-col gap-1 text-left text-xs">
+                  <div>
+                    DUDU:
+                    <span
+                      :class="(scope.row.globalEnable && !scope.row.excludeMall) ? 'badge-active' : 'badge-disabled'"
+                    >
+                      {{ (scope.row.globalEnable && !scope.row.excludeMall) ?
+                      '顯示' : '隱藏' }}
+                    </span>
+                  </div>
+                  <div>
+                    分期:
+                    <span
+                      :class="(scope.row.globalEnable && !scope.row.excludeMenu) ? 'badge-active' : 'badge-disabled'"
+                    >
+                      {{ (scope.row.globalEnable && !scope.row.excludeMenu) ?
+                      '顯示' : '隱藏' }}
+                    </span>
+                  </div>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+
+    <script>
+      const { createApp, ref } = Vue;
+
+      createApp({
+        setup() {
+          // 🟢 方案 A 響應式資料 (直覺對稱)
+          const tableDataA = ref([
+            {
+              name: "分類 A (貓)",
+              duduVisible: true,
+              installmentVisible: false,
+            },
+            {
+              name: "分類 B (狗)",
+              duduVisible: false,
+              installmentVisible: true,
+            },
+            {
+              name: "分類 C (鳥)",
+              duduVisible: true,
+              installmentVisible: true,
+            },
+          ]);
+
+          // ❌ 方案 B 響應式資料 (複合巢狀邏輯)
+          const tableDataB = ref([
+            {
+              name: "分類 A (貓)",
+              globalEnable: true,
+              excludeMenu: true,
+              excludeMall: false,
+            },
+            {
+              name: "分類 B (狗)",
+              globalEnable: true,
+              excludeMenu: false,
+              excludeMall: true,
+            },
+            {
+              name: "分類 C (鳥)",
+              globalEnable: false,
+              excludeMenu: false,
+              excludeMall: false,
+            },
+          ]);
+
+          return {
+            tableDataA,
+            tableDataB,
+          };
+        },
+      })
+        .use(ElementPlus)
+        .mount("#app");
+    </script>
+  </body>
+</html>
