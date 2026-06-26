@@ -2,107 +2,9 @@ const watch = Vue.watch
 
 const App = Vue.createApp({
   setup() {
-    //---- 分頁變數 -----------------------------------------------------------
-    const perpage = ref(8) //一頁的資料數
-    const currentPage = ref(1)
-    const totalCount = ref(0) //存商品總數
-    const totalPage = computed(() => {
-      var total_page = Math.ceil(totalCount.value / perpage.value)
-      return total_page
+    const productJson = ref({
+      cate: { mainCategoryId: null, subCategoryId: null, leafCategoryId: null },
     })
-    // 改成 computed，自動跟著 currentPage 和 totalPage 變
-    const disabled_prev = computed(() => currentPage.value <= 1)
-    const disabled_next = computed(() => currentPage.value >= totalPage.value)
-
-    const pageStart = computed(() => {
-      return (currentPage.value - 1) * perpage.value
-      //取得該頁第一個值的index
-      //這一頁的資料，要從大陣列（showJson）的第幾個 Index（索引值）開始抓
-    })
-    const pageEnd = computed(() => {
-      return currentPage.value * perpage.value
-      //取得該頁最後一個值的index
-    })
-
-    // 換頁控制
-    const setPage = (page) => {
-      if (page === '...' || page < 1 || page > totalPage.value) return
-
-      currentPage.value = page
-
-      //單擊之後所加的
-      switch (select_mode.value) {
-        case 'init':
-          _getListForPage() // 顯示全部商品，換頁打後端
-          break
-
-        case 'class':
-          _getClassForPage() // 依分類篩選，換頁打後端
-          break
-
-        case 'updown':
-          _getUpDownForPage() // 依上下架篩選，換頁打後端
-          break
-
-        case 'query':
-          _getQueryResultForPage(query_value.value) // 依搜尋值篩選，換頁打後端
-          break
-        default:
-      }
-    }
-    // 計算顯示頁碼（含 "..."）
-    const displayPages = computed(() => {
-      const total = totalPage.value
-      const current = currentPage.value
-      const delta = 2 // 前後顯示幾個
-      const range = []
-      const rangeWithDots = []
-      let last = 0
-
-      for (let i = 1; i <= total; i++) {
-        if (i === 1 || i === total || (i >= current - delta && i <= current + delta)) {
-          range.push(i)
-        }
-      }
-
-      for (let i of range) {
-        if (last) {
-          if (i - last === 2) rangeWithDots.push(last + 1)
-          else if (i - last !== 1) rangeWithDots.push('...')
-        }
-        rangeWithDots.push(i)
-        last = i
-      }
-      return rangeWithDots
-    })
-
-    //---- 資料變數 -----------------------------------------------------------
-    const member = ref(JSON.parse(localStorage.getItem('member')))
-    const jsonShow = ref([])
-    const image1_path = ref(false)
-    const image_product_1 = ref(false)
-    const image_product_2 = ref(false)
-    const image_product_3 = ref(false)
-    const image_product_4 = ref(false)
-    const image_product_5 = ref(false)
-    const file_1 = ref(null)
-    const file_product_1 = ref(null)
-    const file_product_2 = ref(null)
-    const file_product_3 = ref(null)
-    const file_product_4 = ref(null)
-    const file_product_5 = ref(null)
-
-    const tmpFile = ref('')
-    //const max = ref(10);
-    const storeJson = ref({
-      store_no: '',
-      store_checked: false,
-      dealer_name: '',
-      store_name: '',
-      store_address: '',
-      store_desc: '',
-    })
-    const productJson = ref({})
     const productClassJson = ref([])
     const product_class_listJson = ref([])
     const productClass = ref({})
@@ -126,175 +28,6 @@ const App = Vue.createApp({
     const keep_query_value = ref('') // 記錄上下架篩選值
     const dealerAvailableCategories = ref([]) // 經銷商可用的分類
 
-    // 換頁打後端
-    _getListForPage = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      //const start = (currentPage.value - 1) * perpage.value;
-      //const end = currentPage.value * perpage.value;
-
-      // 舊api : GetListForPageForDealer
-      // 新api : GetProductListForDealer (page給頁面當前要的第幾頁 pageSize是一頁幾筆)
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/GetProductListForDealer',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { member_id: member.id, page: currentPage.value, pageSize: perpage.value },
-      })
-        .then((response) => {
-          $.unblockUI()
-          //console.log(response.data);
-          if (response.data.success) {
-            productListJson.value = response.data.productList
-            totalCount.value = response.data.totalCount
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    //---file upload
-    handleFileUpload = (_item, e) => {
-      //console.log(file_1.value.files[0]);
-
-      //tmpFile.value = file_1.value.files[0];//ref get file
-
-      var files = e.target.files || e.dataTransfer.files
-      console.log(files[0])
-      if (!files.length) return
-
-      createImage(_item, files[0])
-      //console.log(tmpFile.value);
-    }
-
-    createImage = (_item, file) => {
-      //var image = new Image();
-      var reader = new FileReader()
-      reader.readAsDataURL(file)
-
-      reader.onload = (e) => {
-        let img = new Image()
-        img.onload = () => {
-          switch (_item) {
-            case 'logo':
-              image1_path.value = e.target.result //base 64
-              break
-            case 'image_1':
-              image_product_1.value = e.target.result //base 64
-              break
-            case 'image_2':
-              image_product_2.value = e.target.result //base 64
-              break
-            case 'image_3':
-              image_product_3.value = e.target.result //base 64
-              break
-            case 'image_4':
-              image_product_4.value = e.target.result //base 64
-              break
-            case 'image_5':
-              image_product_5.value = e.target.result //base 64
-              break
-            default:
-          }
-
-          var per = 1
-          var width = img.width
-          if (img.width > 410) {
-            width = 410
-            per = 410 / img.width
-          }
-
-          submitFile(_item, width, Math.ceil(per * img.height), file)
-        }
-        img.src = e.target.result
-      }
-      //reader.readAsDataURL(file);
-      //submitFile(item);
-    }
-
-    submitFile = (_item, _width, _height, file) => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      //check ID0H-1...轉成ID0H
-      //var _item = item.indexOf('ID0H') > 0 ? 'ID0H' : item;
-      var productIdOrRandom
-      if (_item != 'logo') {
-        //商品圖
-        if (_randomString.value == '') {
-          //商品編輯 帶商品編號
-          productIdOrRandom = productJson.value.product_id
-        } else {
-          productIdOrRandom = _randomString.value //新增商品
-        }
-      }
-
-      let formData = new FormData()
-      //formData.append('file', tmpFile.value);
-      formData.append('file', file)
-      formData.append(
-        'data',
-        JSON.stringify({
-          item: _item,
-          mobile: member.mobile,
-          img: member.dealer_acc,
-          width: _width,
-          height: _height,
-          productIdOrRandom: productIdOrRandom,
-        }),
-      )
-
-      axios
-        .post('/api/CmsUpload/PostFormData_cms', formData, {
-          headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'multipart/form-data' },
-        })
-        .then((response) => {
-          if (response.data.success) {
-            switch (_item) {
-              case 'logo':
-                showUploadDiv.value = false
-                break
-              case 'image_1':
-                showProductUploadDiv_1.value = false
-                break
-              case 'image_2':
-              //showProductUploadDiv_2.value = false;
-              case 'image_3':
-              //showProductUploadDiv_3.value = false;
-              case 'image_4':
-              case 'image_5':
-                //if (image_product_2.value != '' && image_product_3.value != '' &&
-                //    image_product_4.value != '' && image_product_5.value != '') {
-                ////showProductUploadDiv_2.value = false;
-                //}
-
-                break
-              default:
-            }
-
-            console.log(response.data)
-            console.log('SUCCESS!!')
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          console.log(error)
-          console.log('FAILURE!!')
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
     //---------------------------------------------------------------------------
 
     //新增商品
@@ -302,9 +35,13 @@ const App = Vue.createApp({
       //init
       _randomString.value = generateRandomString(16)
       //addProductSpec();
+      const today = formatDate(new Date())
       productJson.value = {
+        date_s: today,
+        date_e: '',
         product_spec: [{ name: '', qty: 0, cash: 0, car_checked: false, home_checked: true }],
         product_class: storeJson.value.product_class,
+        cate: { mainCategoryId: null, subCategoryId: null, leafCategoryId: null },
       }
       console.log(productJson.value.product_class)
 
@@ -320,325 +57,17 @@ const App = Vue.createApp({
       $('#add-product-modal').modal('show')
       quill.setContents('') //init
     }
-    //放棄保存
-    unDo = () => {
-      storeJson.value = {}
-    }
-    //店家保存設定
-    storeSave = (v) => {
-      console.log(v)
 
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      if (typeof v.store_name == 'undefined' || v.store_name == '') {
-        alert('商店名稱不可空白')
-        return
-      }
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/SaveDealer',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {
-          store_no: member.dealer_acc,
-          dealer_status: v.store_checked ? '*' : '',
-          dealer_name: v.store_name,
-          dealer_address: v.store_address,
-          dealer_desc: v.store_desc,
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          if (response.data.success) {
-            //image1_path.value = '';
-            //showUploadDiv.value = true;
-            alert('保存設定成功')
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-    //刪除店家 LOGO
-    delLogoImg = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/DelLogoImg',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { store_no: member.dealer_acc },
-      })
-        .then((response) => {
-          $.unblockUI()
-          if (response.data.success) {
-            image1_path.value = ''
-            showUploadDiv.value = true
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    //刪除商品照
-    delProductImg = (_image, _product_id) => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      console.log(_randomString.value)
-      console.log(_product_id)
-
-      if (typeof _product_id == 'undefined') _product_id = 0
-      var productIdOrRandom = _product_id == 0 ? _randomString.value : _product_id
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/DelProductImg',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {
-          store_no: member.dealer_acc,
-          product_id: _product_id,
-          image: _image,
-          productIdOrRandom: productIdOrRandom,
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          if (response.data.success) {
-            switch (_image) {
-              case 'image_1.jpg':
-                image_product_1.value = ''
-                showProductUploadDiv_1.value = true
-                break
-              case 'image_2.jpg':
-                image_product_2.value = ''
-                break
-              case 'image_3.jpg':
-                image_product_3.value = ''
-                break
-              case 'image_4.jpg':
-                image_product_4.value = ''
-                break
-              case 'image_5.jpg':
-                image_product_5.value = ''
-                break
-
-              default:
-            }
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-    //刪除商品
-    var __product_id
-    delProduct = (_product_id) => {
-      __product_id = _product_id
-      $('#del_product_modal').modal('show')
-    }
-    //確認刪除商品
-    confirmDelProduct = () => {
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/DelProduct',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { product_id: __product_id },
-      })
-        .then((response) => {
-          $.unblockUI()
-          if (response.data.success) {
-            _getProductList()
-            alert('已刪除')
-            $('#del_product_modal').modal('hide')
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    //商品存檔
-    productSave = (v) => {
-      console.log(v)
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      if (typeof v.product_name == 'undefined' || v.product_name == '') {
-        alert('商品名稱不可空白')
-        return
-      }
-
-      if (getDisplayLength(v.product_name) > 100) {
-        alert('商品名稱太長(100字元,中文/全形/Emoji算2)')
-        return
-      }
-
-      if (v.product_spec[0].name == '') {
-        alert('請填寫規格名稱')
-        return
-      }
-
-      if (
-        typeof v.date_s == 'undefined' ||
-        v.date_s == '' ||
-        v.date_e == 'undefined' ||
-        v.date_e == ''
-      ) {
-        alert('請填寫上下架時間')
-        return
-      }
-
-      var notRun_1 = false
-      var notRun_2 = false
-      v.product_spec.forEach((x) => {
-        if (hasNextMothPay.value) {
-          //有下月付 就可以150000以上
-          if (x.cash > 150000) notRun_1 = true
-        } else {
-          if (x.cash < 800 || x.cash > 150000) notRun_2 = true
-        }
-      })
-      if (notRun_1) {
-        alert('銷售金額限制不可大於150,000元(店家未設定下月付)')
-        return
-      }
-      if (notRun_2) {
-        alert('銷售金額限制800~150,000元')
-        return
-      }
-
-      //var _product_id;
-      var _product_id = typeof v.product_id == 'undefined' ? 0 : v.product_id
-
-      var productIdOrRandom = _product_id == 0 ? _randomString.value : v.product_id.toString()
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/SaveProduct',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        data: {
-          product_id: _product_id,
-          product_status: v.product_status ? '*' : '',
-          product_name: v.product_name,
-          date_s: v.date_s,
-          date_e: v.date_e,
-          store_no: member.dealer_acc,
-          productIdOrRandom: productIdOrRandom,
-          product_specList: v.product_spec,
-          product_desc: JSON.stringify(quill.getContents()),
-          product_class: JSON.stringify(v.product_class),
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          if (response.data.success) {
-            $('#add-product-modal').modal('hide')
-            alert('建立/保存成功')
-            //console.log(currentPage.value);
-            setPage(currentPage.value)
-            //_getProductList();
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    _getDealer = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) {
-        //window.location.href = '../Home/Index';
-        return
-      }
-      //console.log(member);
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/GetDealer',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {},
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-            //console.log(response.data.value);
-            hasNextMothPay.value = response.data.value.hasNextMothPay
-            //image has value
-            if (typeof response.data.value != 'undefined') {
-              storeJson.value = response.data.value
-              if (storeJson.value.store_imagebase64 != '') {
-                image1_path.value = storeJson.value.store_imagebase64
-                showUploadDiv.value = false
-              }
-            }
-            initQuill()
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    // 原API : /api/DealerProduct/GetProductListForDealer
     _getProductList = async () => {
-      console.log('hi')
-      const member = JSON.parse(localStorage.getItem('member'))
       if (member == null) return
-
       blockUI()
+
       try {
         // 同時打兩支api 分別取的商品和分類資料
         const [resA, resB, resC] = await Promise.all([
-          axios.post('/api/DealerProduct/GetProductListForDealer', null, {
+          axios.post(_getProductListUrl, null, {
             headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-            params: { member_id: member.id, page: currentPage.value, pageSize: perpage.value },
+            params: { store_no: member.store_no, page: currentPage.value, pageSize: perpage.value },
           }),
           axios.post('/api/DealerProduct/GetProductClassListByMemberId', null, {
             headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
@@ -653,9 +82,9 @@ const App = Vue.createApp({
         console.log(resC)
 
         //取得商品資料
-        if (resA.data.success) {
-          productListJson.value = resA.data.productList
-          totalCount.value = resA.data.totalCount //計算totalPage
+        if (resA.data) {
+          productListJson.value = resA.data.ProductList || [] // 預防後端回傳null導致crash
+          totalCount.value = resA.data.TotalCount || 0
         }
         //取得分類資料
         if (resB.data.success) {
@@ -672,304 +101,34 @@ const App = Vue.createApp({
       }
     }
 
-    // 分類篩選時
-    sel_product_class_list = (_sel_class_name) => {
-      //console.log(_sel_class_name);
-      if (_sel_class_name == '') return
-
-      currentPage.value = 1
-      sel_up_down.value = '' // 清掉上下架 dropdown
-      keep_up_down_value.value = '' // 清掉上下架篩選狀態
-      query_value.value = '' //清掉搜尋
-
-      if (_sel_class_name == 'all') {
-        select_mode.value = 'init'
-        keep_class_name.value = ''
-        //pageStart.value = 0; pageEnd.value = 0;
-        _getProductList()
-        return
-      }
-
-      keep_class_name.value = _sel_class_name
-      select_mode.value = 'class'
-      _getClassForPage()
-
-      // 原api : QueryProductClassForDealer
+    // -------- 時間格式工具:
+    // 把單一日期(字串或Date)格式化；遇到空值/後端 0001、9999 sentinel 回空字串
+    const _formatDate = (d) => {
+      if (!d) return ''
+      const date = new Date(d)
+      if (isNaN(date.getTime())) return '' // getTime()正常為毫秒
+      const year = date.getFullYear()
+      if (year <= 1 || year >= 9999) return '' // 過濾 DateTime.MinValue / MaxValue (資料庫好像欄位為空時會自動填入 0001、9999)
+      return formatDate(date)
     }
 
-    _getClassForPage = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/GetProductListForDealer',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {
-          member_id: member.id,
-          class_name: keep_class_name.value,
-          page: currentPage.value,
-          pageSize: perpage.value,
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-            // 將資料過濾掉未開啟的分類
-            //productListJson.value = response.data.productList.filter(item => {
-            //    const matched = item.product_class.find(c => c.ClassName === keep_class_name.value); // 回傳第一個符合條件的值
-            //    return matched && matched.ClassChecked === true; // matched有東西且分類有開啟
-            //});
-            //console.log(productListJson.value)
-            //totalCount.value = productListJson.value.length;
-            productListJson.value = response.data.productList
-            totalCount.value = response.data.totalCount
-            //console.log(productListJson.value)
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
+    const formatDate = (date) => {
+      const year = date.getFullYear()
+      const month = String(date.getMonth() + 1).padStart(2, '0') // 若只有一位數補0
+      const day = String(date.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
     }
 
-    sel_up_down_class_list = (_sel_up_down) => {
-      //console.log(_sel_up_down);
-      if (_sel_up_down == '') return
-
-      currentPage.value = 1
-      sel_class_name.value = '' // 清掉模板分類篩選
-      keep_class_name.value = '' // 清掉分類篩選狀態
-      query_value.value = '' // 清掉搜尋關鍵字
-
-      if (_sel_up_down == 'all') {
-        select_mode.value = 'init'
-        _getListForPage()
-        return
-      }
-
-      keep_up_down_value.value = _sel_up_down
-      select_mode.value = 'updown'
-      _getUpDownForPage()
-    }
-
-    // 上下架篩選
-    _getUpDownForPage = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/GetProductListForDealer',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {
-          member_id: member.id,
-          page: currentPage.value,
-          pageSize: perpage.value,
-          product_status: keep_up_down_value.value === 'up',
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          //console.log(response.data);
-          if (response.data.success) {
-            productListJson.value = response.data.productList
-            totalCount.value = response.data.totalCount
-            //console.log(productListJson.value)
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    // 負責初始化狀態後再呼叫api
-    query = (_query_value) => {
-      // 拆開原因 : 模板按搜尋時，currentpage需init；切換頁面時則不需init
-      currentPage.value = 1
-      keep_class_name.value = '' // 清空分類篩選
-      sel_class_name.value = ''
-      sel_up_down.value = '' // 清空上下架篩選
-      keep_up_down_value.value = ''
-      keep_query_value.value = _query_value // 記錄確認的搜尋值
-
-      //若搜尋為空值，則顯示全部
-      if (_query_value == '') {
-        select_mode.value = 'init'
-        _getProductList()
-        return
-      }
-
-      select_mode.value = 'query' // 無論發送api成功或失敗，已正確紀錄當前狀態
-      _getQueryResultForPage()
-    }
-
-    // 發api取資料
-    _getQueryResultForPage = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-      //console.log(member.id);
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/GetProductListForDealer',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {
-          member_id: member.id,
-          query_value: keep_query_value.value,
-          page: currentPage.value,
-          pageSize: perpage.value,
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          //console.log(response.data);
-          if (response.data.success) {
-            productListJson.value = response.data.productList
-            totalCount.value = response.data.totalCount
-            //tmp_productListJson.value = response.data.productList;
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    initQuill = () => {
-      const normalizeVideoSize = (input, allowPercent) => {
-        if (!input) return ''
-        const value = input.toString().trim()
-        if (value === '') return ''
-        if (/^\d+$/.test(value)) return value
-        if (/^\d+px$/.test(value)) return value.replace('px', '')
-        if (allowPercent && /^\d+%$/.test(value)) return value
-        return ''
-      }
-
-      const applyVideoSize = (videoIndex, widthInput, heightInput) => {
-        const width = normalizeVideoSize(widthInput, true)
-        const height = normalizeVideoSize(heightInput, false)
-
-        if (width !== '') quill.formatText(videoIndex, 1, 'width', width, 'user')
-        if (height !== '') quill.formatText(videoIndex, 1, 'height', height, 'user')
-      }
-
-      const toEmbedVideoUrl = (rawUrl) => {
-        const value = (rawUrl || '').toString().trim()
-        if (value === '') return ''
-        try {
-          const url = new URL(value)
-          const host = url.hostname.replace(/^www\./i, '').toLowerCase()
-          let videoId = ''
-
-          if (host === 'youtube.com' || host === 'm.youtube.com') {
-            if (url.pathname === '/watch') {
-              videoId = url.searchParams.get('v') || ''
-            } else if (url.pathname.indexOf('/shorts/') === 0) {
-              videoId = url.pathname.split('/shorts/')[1].split('/')[0]
-            } else if (url.pathname.indexOf('/embed/') === 0) {
-              videoId = url.pathname.split('/embed/')[1].split('/')[0]
-            }
-          } else if (host === 'youtu.be') {
-            videoId = url.pathname.replace(/^\/+/, '').split('/')[0]
-          }
-
-          if (videoId) return 'https://www.youtube.com/embed/' + videoId
-        } catch (e) {}
-        return value
-      }
-
-      var toolbarOptions = [
-        ['bold', 'italic', 'underline', 'strike'], // toggled buttons
-        ['link', 'video'],
-        ['blockquote', 'code-block'],
-
-        [{ header: 1 }, { header: 2 }], // custom button values
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        [{ script: 'sub' }, { script: 'super' }], // superscript/subscript
-        [{ indent: '-1' }, { indent: '+1' }], // outdent/indent
-        [{ direction: 'rtl' }], // text direction
-
-        [{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
-        [{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-        [{ color: [] }, { background: [] }], // dropdown with defaults from theme
-        [{ font: [] }],
-        [{ align: [] }],
-        ['link', 'image'],
-        ['clean'], // remove formatting button
-      ]
-
-      quill = new Quill('#editor', {
-        //debug: 'info',
-        modules: {
-          imageResize: {
-            //Add
-            displayStyles: {
-              //Add
-              backgroundColor: 'black',
-              border: 'none',
-              color: 'white',
-            },
-            modules: ['Resize', 'DisplaySize', 'Toolbar'], //Add
-          },
-          toolbar: toolbarOptions,
-        },
-        theme: 'snow',
-        placeholder: '5000字內容...',
-        //readOnly: true,
-        handlers: {
-          image: function () {
-            //alert(12);
-            document.getElementById('getFile').click()
-          },
-          imageResize: {},
-        },
-      })
-
-      const toolbar = quill.getModule('toolbar')
-      if (toolbar) {
-        toolbar.addHandler('video', function () {
-          const range = quill.getSelection(true) || { index: quill.getLength(), length: 0 }
-          const inputUrl = prompt('請輸入 YouTube 影片網址')
-          if (!inputUrl) return
-          const embedUrl = toEmbedVideoUrl(inputUrl)
-          if (!embedUrl) return
-
-          const widthInput = prompt('請輸入影片寬度（例如：560 或 100%）', '560')
-          const heightInput = prompt('請輸入影片高度（例如：315）', '315')
-
-          quill.insertEmbed(range.index, 'video', embedUrl, 'user')
-          quill.setSelection(range.index + 1, 0, 'silent')
-
-          applyVideoSize(range.index, widthInput, heightInput)
-        })
-      }
+    // 把起訖兩個日期轉成範圍字串
+    const formatDateRange = (start, end) => {
+      const s = _formatDate(start)
+      const e = _formatDate(end)
+      if (!s && !e) return '—' // 起訖都沒有
+      return `${s || '不限'} ~ ${e || '不限'}`
     }
 
     //編輯商品
-    showEditProduct = (v) => {
+    const showEditProduct = (v) => {
       _randomString.value = '' //init
       console.log(v)
       blockUI()
@@ -977,7 +136,7 @@ const App = Vue.createApp({
         method: 'post',
         url: '/api/DealerProduct/GetProduct',
         headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { product_id: v.product_id },
+        params: { product_id: v.Id },
       })
         .then((response) => {
           $.unblockUI()
@@ -985,6 +144,13 @@ const App = Vue.createApp({
           if (response.data.success) {
             $('#add-product-modal').modal('show')
             productJson.value = response.data.product
+            // 確保商城分類欄位存在(後端尚未回傳時補預設,避免元件讀取 undefined)
+            if (!productJson.value.cate)
+              productJson.value.cate = {
+                mainCategoryId: null,
+                subCategoryId: null,
+                leafCategoryId: null,
+              }
             //quill
             if (productJson.value.product_desc !== null)
               quill.setContents(JSON.parse(productJson.value.product_desc))
@@ -1022,51 +188,10 @@ const App = Vue.createApp({
         })
     }
 
-    //置頂
-    toFirstUp = (_product_id) => {
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/ToFirstUp',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { product_id: _product_id },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-            alert('置頂成功')
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    addProductSpec = () => {
-      productJson.value.product_spec.push({
-        name: '',
-        qty: 0,
-        cash: 0,
-        car_checked: false,
-        home_checked: true,
-      })
-      console.log(productJson.value.product_spec)
-    }
-    delProductSpec = (_index) => {
-      productJson.value.product_spec.splice(_index, 1)
-    }
-
     onMounted(() => {
-      const authorityMall = member.value.authoritys.find((a) => a.authority === '商品管理')
+      const authorityMall = member.authoritys.find((a) => a.authority === '商品管理')
 
-      if (member.value == null) {
+      if (member == null) {
         alert('請先登入')
         window.location.href = '../Home/Index'
         return
@@ -1113,500 +238,7 @@ const App = Vue.createApp({
       })
 
       return
-
-      //------------------------------
-      //自訂日期 menu hide
-      //$("#selectDate-modal").on("hide.bs.modal", function (e) {
-      //    selected.value = "";//init
-      //});
-      //_getOrder('0', '1911/01/01', '2028/12/31');//init today 白吃user改100年
     })
-
-    //選擇日期
-    //change_date = (_selected) => {
-    //    switch (_selected) {
-    //        case '1':
-    //        case '2':
-    //        case '3':
-    //        case '4':
-    //        case '5':
-    //            _getOrder(_selected, '', '');
-    //            break;
-    //        case '6':
-    //            show_selectDate.value = true;
-    //            _changeDate();
-    //            selected_date.value = "";//init
-    //            break;
-    //        default:
-    //    }
-    //};
-
-    //顯示日期menu
-    //_changeDate = () => {
-    //    //var a = date_s.getFullYear() + '/' + ('0' + (date_s.getMonth() + 1)).slice(-2) + '/' + ('0' + date_s.getDate()).slice(-2);
-    //    //console.log(a);
-
-    //    //init date_s
-    //    var date_s = new Date();
-    //    date_s.setDate(date_s.getDate() - 3600);
-    //    //init date_e
-    //    var date_e = new Date();
-    //    //date_e.setDate(date_e.getDate());
-
-    //    var optional_config_s = {
-    //        enableTime: false,
-    //        dateFormat: "Y/m/d",
-    //        disableMobile: true,
-    //        maxDate: "today",
-    //        minDate: "2000/01/05",
-    //        mode: 'range',
-    //        //defaultDate: '2024/01/01 to 2024/01/25' //date_s.getFullYear() + '/' + ('0' + (date_s.getMonth() + 1)).slice(-2) + '/' + ('0' + date_s.getDate()).slice(-2)
-    //        defaultDate: date_s.getFullYear() + '/' + ('0' + (date_s.getMonth() + 1)).slice(-2) + '/' + ('0' + date_s.getDate()).slice(-2) + ' to ' +
-    //            date_e.getFullYear() + '/' + ('0' + (date_e.getMonth() + 1)).slice(-2) + '/' + ('0' + date_e.getDate()).slice(-2)
-    //    };
-
-    //    //init
-    //    date_value.value = optional_config_s.defaultDate;
-    //    $("#datetimepicker").flatpickr(optional_config_s);
-    //};
-
-    //自訂日期查詢
-    //selfDateQuery = (_date_value) => {
-    //    //console.log(_date_value);
-
-    //    if (_date_value == '') return;
-
-    //    //同一天
-    //    if (_date_value.indexOf(' to ') < 0) {
-    //        _getOrder('6', _date_value, _date_value);
-    //        show_selectDate.value = false;
-    //    }
-    //    else {//區間
-    //        var arr = _date_value.split(' to ');
-    //        _getOrder('6', arr[0], arr[1]);
-    //        show_selectDate.value = false;
-    //    }
-    //};
-
-    //選擇狀態
-    //var json_tmp = [];
-    //change_status = (_selected) => {
-    //    if (_selected == '') return;
-
-    //    //clear json
-    //    json_tmp.length = 0;
-    //    jsonShow.value = [];
-    //    //move to tmp json
-    //    if (_selected == 9) {//all
-    //        jsonShow.value = jsonData.value;
-    //    }
-    //    else {// not all
-    //        jsonData.value.forEach(function (item) {
-    //            if (item.trade_status == _selected) json_tmp.push(item);
-    //        });
-    //        jsonShow.value = json_tmp;//binding
-    //    }
-
-    //    //reset init
-    //    totalPage;
-    //    pageStart;
-    //    pageEnd;
-    //    setPage(1);//回到預設第一頁
-
-    //};
-
-    //排序
-    //changeSort = (type, num_type) => {
-    //    //console.log(type);
-    //    var _isReverse;
-    //    //set icon
-    //    switch (type) {
-    //        case 'kc_order_no':
-    //            isReverse.kc_order_no = isReverse.kc_order_no ? false : true;
-    //            _isReverse = isReverse.kc_order_no;
-    //            break;
-    //        case 'cust_name':
-    //            isReverse.cust_name = isReverse.cust_name ? false : true;
-    //            _isReverse = isReverse.cust_name;
-    //            break;
-    //        case 'kc_item_desc':
-    //            isReverse.kc_item_desc = isReverse.kc_item_desc ? false : true;
-    //            _isReverse = isReverse.kc_item_desc;
-    //            break;
-    //        case 'kc_loan_amt':
-    //            isReverse.kc_loan_amt = isReverse.kc_loan_amt ? false : true;
-    //            _isReverse = isReverse.kc_loan_amt;
-    //            break;
-    //        case 'date':
-    //            isReverse.date = isReverse.date ? false : true;
-    //            _isReverse = isReverse.date;
-    //            break;
-    //        default:
-    //    }
-
-    //    console.log(pageStart.value);
-    //    console.log(pageEnd.value);
-    //    //get ui items
-    //    var sort_json = jsonShow.value.slice(pageStart.value, pageEnd.value);
-
-    //    //文字或數字排序
-    //    var sorts = sort_json.sort(function (a, b) {
-    //        if (num_type == 'str') {
-    //            if (_isReverse) return a[type].localeCompare(b[type]);
-    //            else return b[type].localeCompare(a[type]);
-    //        }
-    //        else {
-    //            if (_isReverse) return a[type] - b[type];
-    //            else return b[type] - a[type];
-    //        }
-    //    });
-    //    //splice 插回
-    //    var start_index = pageStart.value;
-    //    for (var i = 0; i < sorts.length; i++) {
-
-    //        jsonShow.value.splice(start_index, 1, sorts[i]);
-    //        start_index++;
-    //    }
-
-    //};
-
-    //顯示確認刪除
-    //clearOrder = (_v) => {
-    //    confirm.value = _v;
-    //    //confirm.order_no = _v.kc_order_no;
-    //    $('#clear_modal').modal('show');
-
-    //};
-
-    //確認刪除
-    //confirmDelete = (_confirm) => {
-
-    //    var member = JSON.parse(localStorage.getItem('member'));
-    //    blockUI_txt();
-    //    axios({
-    //        method: 'post',
-    //        url: '/api/Cms/DeleteQueryOrder_Transaction',
-    //        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'multipart/form-data' },
-    //        params: { member_id: member.id, order_no: _confirm.kc_order_no, price: _confirm.kc_loan_amt }
-    //    }).then((response) => {
-    //        $.unblockUI();
-    //        console.log(response.data);
-    //        if (response.data.success) {
-    //            $('#clear_modal').modal('hide');
-    //            _confirm.trade_status = "1";//取消訂單
-    //        }
-    //        else {
-    //            alert(response.data.msg);
-    //        }
-
-    //    }).catch((function (error) {
-    //        $.unblockUI();
-    //        console.log(error);
-    //    })).finally(() => {
-    //        console.log('完成');
-    //    });
-    //};
-
-    //關鍵字查詢
-    //seoQuery = (_seoInput) => {
-    //    if (_seoInput == '') return;
-
-    //    var member = JSON.parse(localStorage.getItem('member'));
-    //    blockUI();
-    //    axios({
-    //        method: 'post',
-    //        url: '/api/Cms/SeoQuery',
-    //        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'multipart/form-data' },
-    //        params: { member_id: member.id, seo_string: _seoInput, type: 1 }
-    //    }).then((response) => {
-    //        $.unblockUI();
-    //        console.log(response.data);
-    //        if (response.data.success) {
-    //            jsonShow.value = response.data.value;
-    //        }
-    //        else {
-    //            alert(response.data.msg);
-    //        }
-
-    //    }).catch((function (error) {
-    //        $.unblockUI();
-    //        console.log(error);
-    //    })).finally(() => {
-    //        console.log('完成');
-    //    });
-    //};
-
-    setProductStatus = (_v) => {
-      console.log(_v)
-      console.log(_v.product_status)
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/SetProductStatus',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { product_id: _v.product_id, product_status: _v.product_status ? '' : '*' },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    _getProductClass = () => {
-      var member = JSON.parse(localStorage.getItem('member'))
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/GetProductClassList',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { store_no: member.store_no },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-            productClassJson.value = response.data.value
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    addClass = (className) => {
-      console.log(className)
-      if (className == '' || typeof className == 'undefined') return
-
-      var member = JSON.parse(localStorage.getItem('member'))
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/AddProductClass',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {
-          store_no: member.store_no,
-          class_name: className,
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-            productClassJson.value = response.data.value
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-    editClass = (_v) => {
-      console.log(_v)
-      productClass.value = _v
-      $('#product_class_modal').modal('show')
-    }
-    confirmEditProductClass = (productClassName) => {
-      console.log(productClassName)
-      console.log(productClass.value)
-      if (productClassName == '' || typeof productClassName == 'undefined') return
-
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/EditProductClass',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: {
-          product_class_id: productClass.value.product_class_id,
-          class_name: productClassName,
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-            $('#product_class_modal').modal('hide')
-            productClassJson.value = response.data.value
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-    delClass = (_v) => {
-      console.log(_v)
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/DelProductClass',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { product_class_id: _v.product_class_id },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.success) {
-            productClassJson.value = response.data.value
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    selClass = (_v) => {
-      console.log(_v)
-      _v.ClassChecked = _v.ClassChecked ? false : true
-    }
-
-    // ----運費設定------------------------------
-    const deliveryForm = reactive({
-      isHomeDelivery: null, // 宅配
-      isPickUp: null, // 自取
-      homeDeliveryFee: '',
-      freeShippingThreshold: '',
-    })
-
-    watch(
-      () => deliveryForm.isHomeDelivery,
-      (newVal) => {
-        if (!newVal) {
-          deliveryForm.homeDeliveryFee = 0
-          deliveryForm.freeShippingThreshold = 0
-        }
-      },
-    )
-
-    saveDeliverySettings = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-
-      // 通用的驗證函式
-      const validateField = (val, label) => {
-        // 檢查是否為空
-        if (val === '' || val === null || val === undefined) {
-          alert(`${label}不可為空`)
-          return false
-        }
-
-        // 檢查是否為 >0 的正整數
-        if (!/^[1-9]\d*$/.test(String(val))) {
-          alert(`${label}請輸入正整數`)
-          return false
-        }
-        return true
-      }
-
-      // 依序驗證，只要其中一個失敗就中斷執行
-      if (deliveryForm.isHomeDelivery) {
-        if (!validateField(deliveryForm.homeDeliveryFee, '宅配運費')) return
-        if (!validateField(deliveryForm.freeShippingThreshold, '免運門檻')) return
-      }
-
-      // 打API
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/UpdateShippingFeeRule',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        data: {
-          fee: deliveryForm.homeDeliveryFee,
-          store_No: member.dealer_acc,
-          freeShippingMinAmount: deliveryForm.freeShippingThreshold,
-          isOuterIsland: false,
-          IshomeDelivery: deliveryForm.isHomeDelivery,
-          IsPickUp: deliveryForm.isPickUp,
-        },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data.isSuccess) {
-            //alert("存檔成功")
-            ElementPlus.ElMessage({
-              message: '已成功存檔',
-              type: 'success',
-            })
-          } else {
-            alert(response.data)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    _getShippingFeeRule = () => {
-      const member = JSON.parse(localStorage.getItem('member'))
-      if (member == null) return
-      //console.log(member.dealer_acc)
-      // 打API
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/DealerProduct/GetShippingFeeRule',
-        headers: { Authorization: `Bearer ${''}`, 'Content-Type': 'application/json' },
-        params: { store_no: member.dealer_acc },
-      })
-        .then((response) => {
-          $.unblockUI()
-          console.log(response.data)
-          if (response.data) {
-            Object.assign(deliveryForm, {
-              isHomeDelivery: response.data.IshomeDelivery,
-              isPickUp: response.data.IsPickUp,
-              homeDeliveryFee: response.data.Fee,
-              freeShippingThreshold: response.data.FreeShippingMinAmount,
-            })
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
 
     // ------ 選取功能 ------
     const selectedIds = ref([])
@@ -1628,12 +260,11 @@ const App = Vue.createApp({
     })
 
     const toggleAll = (checked) => {
-      selectedIds.value = checked ? productListJson.value.map((item) => item.product_id) : []
+      selectedIds.value = checked ? productListJson.value.map((item) => item.Id) : []
     }
 
     // ------ 批量更新分類 ------
-    const availableSubCateList = ref([])
-    const availableLeafCateList = ref([])
+    // 次/子分類選項已改由 <category-cascader> 元件依分類樹自行 computed,不再需要這兩個 ref
     const batchUpdateCateDialogVisible = ref(false)
     const batchUpdCateForm = reactive({
       mainCategoryId: null,
@@ -1644,49 +275,154 @@ const App = Vue.createApp({
     const openBatchUpdCateDialog = () => {
       batchUpdateCateDialogVisible.value = true
       resetBatchUpdCateForm()
+      if (committedDefaultPreset.value) applyPreset(committedDefaultPreset.value, batchUpdCateForm)
     }
 
     const resetBatchUpdCateForm = () => {
       batchUpdCateForm.mainCategoryId = null
       batchUpdCateForm.subCategoryId = null
       batchUpdCateForm.leafCategoryId = null
-
-      availableSubCateList.value = []
-      availableLeafCateList.value = []
     }
 
-    // EP 預設會傳新值，value 是綁定 categoryId
-    const handleBatchMainChange = (val) => {
-      // 清空
-      batchUpdCateForm.subCategoryId = null
-      batchUpdCateForm.leafCategoryId = null
-      availableSubCateList.value = []
-      availableLeafCateList.value = []
+    // 主/次/子分類的級聯邏輯(清空下層、依樹算選項)已移入 <category-cascader> 元件
 
-      batchUpdCateForm.mainCategoryId = val
-      const main = dealerAvailableCategories.value.find(
-        (c) => c.categoryId === batchUpdCateForm.mainCategoryId,
-      )
-      availableSubCateList.value = main && main.children ? main.children : []
+    // ------ 快捷鍵設定 ------
+    // 已儲存的資料
+    // todo : 串API，回傳資料存 categoryPresets
+    const presetSettingFromApi = {
+      presets: [
+        {
+          id: 0,
+          name: '寵物常用',
+          mainCategoryId: 1,
+          subCategoryId: 2,
+          leafCategoryId: 4,
+          hotkey: 'A',
+        },
+      ],
+      defaultPresetId: 0,
+    }
+    const categoryPresets = ref(presetSettingFromApi.presets)
+    const committedDefaultId = ref(
+      presetSettingFromApi.defaultPresetId != null ? presetSettingFromApi.defaultPresetId : null,
+    )
+
+    // 計算預設勾選的那組 preset(整包物件)
+    const committedDefaultPreset = computed(
+      () => categoryPresets.value.find((p) => p.id === committedDefaultId.value) || null,
+    )
+
+    // 正在編輯的草稿
+    const hotkeyDialogVisible = ref(false)
+    const presetDraft = ref([])
+    const draftDefaultId = ref(null)
+    let presetSeq = 0
+
+    // ---- 分類查找工具 ----
+    const findMainCate = (mainId) =>
+      dealerAvailableCategories.value.find((c) => c.categoryId === mainId)
+    const findSubCate = (mainId, subId) => {
+      const main = findMainCate(mainId)
+      return main && main.children ? main.children.find((c) => c.categoryId === subId) : undefined
+    }
+    const findLeafCate = (mainId, subId, leafId) => {
+      const sub = findSubCate(mainId, subId)
+      return sub && sub.children ? sub.children.find((c) => c.categoryId === leafId) : undefined
     }
 
-    const handleBatchSubChange = (val) => {
-      batchUpdCateForm.leafCategoryId = null
-
-      batchUpdCateForm.subCategoryId = val
-      const main = dealerAvailableCategories.value.find(
-        (c) => c.categoryId === batchUpdCateForm.mainCategoryId,
-      )
-      const sub =
-        main && main.children
-          ? main.children.find((c) => c.categoryId === batchUpdCateForm.subCategoryId)
-          : []
-      availableLeafCateList.value = sub && sub.children ? sub.children : []
+    // 各列的次/子分類選項（依該列已選主/次分類動態取得）
+    const getPresetSubOptions = (p) => {
+      const main = findMainCate(p.mainCategoryId)
+      return main && main.children ? main.children : []
+    }
+    const getPresetLeafOptions = (p) => {
+      const sub = findSubCate(p.mainCategoryId, p.subCategoryId)
+      return sub && sub.children ? sub.children : []
     }
 
-    const handleBatchLeafChange = (val) => {
-      batchUpdCateForm.leafCategoryId = val
+    // ---- 開啟 / 列操作 ----
+    const handleHotkeySetupClick = () => {
+      // categoryPresets 是「已儲存的常用分類清單」，presetDraft 是「dialog 編輯用的草稿」
+      presetDraft.value = JSON.parse(JSON.stringify(categoryPresets.value))
+      draftDefaultId.value = committedDefaultId.value
+      if (presetDraft.value.length === 0) addPreset()
+      hotkeyDialogVisible.value = true
     }
+
+    const addPreset = () => {
+      presetDraft.value.push({
+        id: ++presetSeq,
+        name: '',
+        mainCategoryId: null,
+        subCategoryId: null,
+        leafCategoryId: null,
+        hotkey: '', // '' | 'A' | 'B' | 'C'
+      })
+    }
+
+    const removePreset = (id) => {
+      presetDraft.value = presetDraft.value.filter((p) => p.id !== id)
+      if (draftDefaultId.value === id) draftDefaultId.value = null
+    }
+
+    // 該列主分類變更 → 清掉次/子分類
+    const onPresetMainChange = (p) => {
+      p.subCategoryId = null
+      p.leafCategoryId = null
+    }
+    // 該列次分類變更 → 清掉子分類
+    const onPresetSubChange = (p) => {
+      p.leafCategoryId = null
+    }
+
+    // 快捷碼為單選不重複：選了已被別列使用的字母，先清掉別列
+    const onPresetHotkeyChange = (p) => {
+      if (!p.hotkey) return
+      presetDraft.value.forEach((o) => {
+        if (o.id !== p.id && o.hotkey === p.hotkey) o.hotkey = ''
+      })
+    }
+
+    // ---- 儲存 / 取消 ----
+    const saveHotkeySettings = () => {
+      categoryPresets.value = JSON.parse(JSON.stringify(presetDraft.value))
+      committedDefaultId.value = draftDefaultId.value
+      hotkeyDialogVisible.value = false
+    }
+
+    const cancelHotkeySettings = () => {
+      hotkeyDialogVisible.value = false
+    }
+
+    const quickButtons = computed(() =>
+      ['A', 'B', 'C']
+        .map((letter) => ({
+          letter,
+          preset: categoryPresets.value.find((p) => p.hotkey === letter) || null,
+        }))
+        .filter((q) => q.preset),
+    )
+
+    // 點快捷按鈕 → 帶入指定表單(批次:batchUpdCateForm;新增商品:productJson.cate)
+    // 次/子選項由 <category-cascader> 依新的 id 自動 computed,這裡只需設定三層 id
+    const applyPreset = (preset, target) => {
+      if (!preset || !target) return
+      target.mainCategoryId = preset.mainCategoryId
+      target.subCategoryId = preset.subCategoryId
+      target.leafCategoryId = preset.leafCategoryId
+    }
+
+    //----------- 分類停用 分類隱藏 ---------------
+    const categoryClass = (v) => {
+      const hasCategory = v.CategoryColumn.length > 0
+      return {
+        'dudu-category': hasCategory,
+        'dudu-category-disabled': hasCategory && v.ProductStatus === -2, // 分類停用
+        'dudu-category-hidden': hasCategory && v.ProductStatus === 2, // 分類隱藏
+      }
+    }
+
+    //----------- 編輯 新增商品 ---------------
 
     return {
       perpage,
@@ -1749,8 +485,10 @@ const App = Vue.createApp({
       select_mode,
       totalCount,
 
+      // 運費設定:
       saveDeliverySettings,
       deliveryForm,
+
       // 多選功能:
       toggleItem,
       selectedIds,
@@ -1764,16 +502,119 @@ const App = Vue.createApp({
       batchUpdateCateDialogVisible,
       openBatchUpdCateDialog,
       batchUpdCateForm,
-      handleBatchMainChange,
-      availableSubCateList,
-      availableLeafCateList,
-      handleBatchSubChange,
-      handleBatchLeafChange,
+
+      // 快捷鍵設定:
+      hotkeyDialogVisible,
+      presetDraft,
+      draftDefaultId,
+      getPresetSubOptions,
+      getPresetLeafOptions,
+      handleHotkeySetupClick,
+      addPreset,
+      removePreset,
+      onPresetMainChange,
+      onPresetSubChange,
+      onPresetHotkeyChange,
+      saveHotkeySettings,
+      cancelHotkeySettings,
+      quickButtons,
+      applyPreset,
+
+      // 時間工具:
+      formatDateRange,
+
+      // 分類隱藏、分類停用:
+      categoryClass,
     }
   },
 })
 
 //Vue.createApp(App).mount('#app');
+
+// ====== 商城分類三層樹狀選單 ======
+// 給「新增/編輯商品 modal」與「批次更新分類 dialog」共用
+const CategoryCascader = {
+  name: 'CategoryCascader',
+  props: {
+    categories: { type: Array, default: () => [] },
+    // { mainCategoryId, subCategoryId, leafCategoryId }
+    form: {
+      type: Object,
+      default: () => ({ mainCategoryId: null, subCategoryId: null, leafCategoryId: null }),
+    },
+    // 在 Bootstrap modal 內須設 false,避免下拉 teleport 到 body 被 modal focus-trap/z-index 擋住
+    teleported: { type: Boolean, default: true },
+    labelPosition: { type: String, default: 'top' },
+  },
+  setup(props) {
+    const computed = Vue.computed
+    const mainNode = computed(
+      () => props.categories.find((c) => c.categoryId === props.form.mainCategoryId) || null,
+    )
+    const subList = computed(() =>
+      mainNode.value && mainNode.value.children ? mainNode.value.children : [],
+    )
+    const subNode = computed(
+      () => subList.value.find((c) => c.categoryId === props.form.subCategoryId) || null,
+    )
+    const leafList = computed(() =>
+      subNode.value && subNode.value.children ? subNode.value.children : [],
+    )
+
+    // v-model 已寫入該層的值,change 只負責清空下層
+    const onMainChange = () => {
+      props.form.subCategoryId = null
+      props.form.leafCategoryId = null
+    }
+    const onSubChange = () => {
+      props.form.leafCategoryId = null
+    }
+
+    return { subList, leafList, onMainChange, onSubChange }
+  },
+  template: `
+        <el-form :model="form" :label-position="labelPosition" class="category-cascader">
+            <el-form-item label="主分類" required>
+                <el-select v-model="form.mainCategoryId"
+                           placeholder="請選擇主分類"
+                           :teleported="teleported"
+                           @change="onMainChange">
+                    <el-option v-for="main in categories"
+                               :key="main.categoryId"
+                               :label="main.name"
+                               :value="main.categoryId" />
+                </el-select>
+            </el-form-item>
+
+            <el-form-item label="次分類" required>
+                <el-select v-model="form.subCategoryId"
+                           placeholder="請選擇次分類"
+                           :disabled="!form.mainCategoryId"
+                           :teleported="teleported"
+                           @change="onSubChange">
+                    <el-option v-for="sub in subList"
+                               :key="sub.categoryId"
+                               :label="sub.name"
+                               :value="sub.categoryId" />
+                </el-select>
+            </el-form-item>
+
+            <el-form-item label="子分類" required>
+                <el-select v-model="form.leafCategoryId"
+                           placeholder="請選擇子分類"
+                           :disabled="!form.subCategoryId"
+                           :teleported="teleported">
+                    <el-option v-for="leaf in leafList"
+                               :key="leaf.categoryId"
+                               :label="leaf.name"
+                               :value="leaf.categoryId" />
+                </el-select>
+            </el-form-item>
+        </el-form>
+    `,
+}
+
+App.component('category-cascader', CategoryCascader)
 
 App.use(ElementPlus)
 App.mount('#app')

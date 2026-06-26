@@ -47,7 +47,6 @@ const toggleAll = (checked) => {
 
 // ------ 以下功能本次留空 ------
 const setProductStatus = (v) => {} // 原本打 API，本機無 API → 留空
-const showEditProduct = (v) => {} // 列內「編輯」鈕
 const toFirstUp = (id) => {} // 列內「置頂」鈕
 const delProduct = (id) => {} // 列內「刪除」鈕
 
@@ -100,6 +99,63 @@ const handleBatchSubChange = (val) => {
   availableLeafCateList.value = sub && sub.children ? sub.children : []
 }
 
+// ------ 編輯單一商品分類 ------
+const editProductCateDialogVisible = ref(false)
+const editingProduct = ref(null) // 記住正在編輯哪一筆商品
+const editAvailableSubCateList = ref([])
+const editAvailableLeafCateList = ref([])
+const editProductCateForm = reactive({
+  mainCategoryId: null,
+  subCategoryId: null,
+  leafCategoryId: null,
+})
+
+// 共用「設三層值 + 補選項」邏輯，供開啟預填與 A/B/C 快捷共用
+const applyCatePathToEditForm = ({ mainId, subId, leafId }) => {
+  editProductCateForm.mainCategoryId = mainId
+  const main = findMainCate(mainId)
+  editAvailableSubCateList.value = main && main.children ? main.children : []
+
+  editProductCateForm.subCategoryId = subId
+  const sub = findSubCate(mainId, subId)
+  editAvailableLeafCateList.value = sub && sub.children ? sub.children : []
+
+  editProductCateForm.leafCategoryId = leafId
+}
+
+// 列內「編輯」鈕：帶入該商品目前的分類（反查 leaf → sub → main）
+const showEditProduct = (v) => {
+  editingProduct.value = v
+  applyCatePathToEditForm(findCatePathByLeafId(v.categoryId))
+  editProductCateDialogVisible.value = true
+}
+
+const handleEditMainChange = () => {
+  editProductCateForm.subCategoryId = null
+  editProductCateForm.leafCategoryId = null
+  editAvailableSubCateList.value = []
+  editAvailableLeafCateList.value = []
+
+  const main = findMainCate(editProductCateForm.mainCategoryId)
+  editAvailableSubCateList.value = main && main.children ? main.children : []
+}
+
+const handleEditSubChange = () => {
+  editProductCateForm.leafCategoryId = null
+
+  const sub = findSubCate(editProductCateForm.mainCategoryId, editProductCateForm.subCategoryId)
+  editAvailableLeafCateList.value = sub && sub.children ? sub.children : []
+}
+
+// A/B/C 快捷 → 帶入編輯表單
+const applyPresetToEditForm = (preset) => {
+  applyCatePathToEditForm({
+    mainId: preset.mainCategoryId,
+    subId: preset.subCategoryId,
+    leafId: preset.leafCategoryId,
+  })
+}
+
 // ------ 商城分類常用設定（A/B/C 快捷）------
 // 模擬後端回傳的設定（實務上應由後端 fetch 取得）
 // presets：常用分類清單；defaultPresetId：被指定為預設的那組 id（無預設則為 null）
@@ -142,6 +198,19 @@ const findSubCate = (mainId, subId) => {
 const findLeafCate = (mainId, subId, leafId) => {
   const sub = findSubCate(mainId, subId)
   return sub && sub.children ? sub.children.find((c) => c.categoryId === leafId) : undefined
+}
+
+// 反查：給葉節點 categoryId，回傳所屬的 { mainId, subId, leafId } 三層
+const findCatePathByLeafId = (leafId) => {
+  for (const main of categoryListJson.value) {
+    for (const sub of main.children || []) {
+      for (const leaf of sub.children || []) {
+        if (leaf.categoryId === leafId)
+          return { mainId: main.categoryId, subId: sub.categoryId, leafId: leaf.categoryId }
+      }
+    }
+  }
+  return { mainId: null, subId: null, leafId: null }
 }
 
 // 各列的次/子分類選項（依該列已選主/次分類動態取得）
@@ -448,6 +517,102 @@ const applyPreset = (preset) => {
     </template>
   </el-dialog>
 
+  <!-- 編輯單一商品分類 modal -->
+  <el-dialog v-model="editProductCateDialogVisible" width="90%" id="edit-product-cate-dialog">
+    <template #header>
+      <div class="my-dialog-header">
+        <i class="fa-solid fa-pen me-2"></i>
+        <span>編輯商品分類</span>
+      </div>
+    </template>
+
+    <div class="mb-3">
+      商品：<strong>{{ editingProduct?.product_name }}</strong>
+    </div>
+
+    <div class="dialog-content-wrapper">
+      <!-- 快捷鍵設定 -->
+      <div class="tab-button-wrapper d-flex justify-content-between">
+        <div><i class="fa-solid fa-layer-group me-2"></i> 新分類設定</div>
+        <div class="tab-button-group d-flex">
+          <button
+            v-for="q in quickButtons"
+            :key="q.letter"
+            class="tab-btn"
+            :class="`tab-${q.letter.toLowerCase()}`"
+            type="button"
+            @click="applyPresetToEditForm(q.preset)"
+          >
+            <span class="tab-label">{{ q.letter }}</span
+            >{{ q.preset.name }}
+          </button>
+          <!-- 快捷鍵設定 -->
+          <button class="tab-btn tab-setting" type="button" @click="handleHotkeySetupClick">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+      </div>
+      <!-- 下拉選單 -->
+      <el-form :model="editProductCateForm" label-position="top">
+        <!-- 主分類 -->
+        <el-form-item label="主分類" required>
+          <el-select
+            v-model="editProductCateForm.mainCategoryId"
+            placeholder="請選擇主分類"
+            @change="handleEditMainChange"
+          >
+            <el-option
+              v-for="main in categoryListJson"
+              :key="main.categoryId"
+              :label="main.name"
+              :value="main.categoryId"
+            />
+          </el-select>
+        </el-form-item>
+
+        <!-- 次分類 -->
+        <el-form-item label="次分類" required>
+          <el-select
+            v-model="editProductCateForm.subCategoryId"
+            :disabled="!editProductCateForm.mainCategoryId"
+            placeholder="— 請先選擇主分類 —"
+            @change="handleEditSubChange"
+          >
+            <el-option
+              v-for="sub in editAvailableSubCateList"
+              :key="sub.categoryId"
+              :label="sub.name"
+              :value="sub.categoryId"
+            />
+          </el-select>
+        </el-form-item>
+
+        <!-- 子分類 -->
+        <el-form-item label="子分類" required>
+          <el-select
+            v-model="editProductCateForm.leafCategoryId"
+            :disabled="!editProductCateForm.subCategoryId"
+            placeholder="— 請先選擇次分類 —"
+          >
+            <el-option
+              v-for="leaf in editAvailableLeafCateList"
+              :key="leaf.categoryId"
+              :label="leaf.name"
+              :value="leaf.categoryId"
+            />
+          </el-select>
+        </el-form-item>
+      </el-form>
+    </div>
+
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="editProductCateDialogVisible = false">取消</el-button>
+        <el-button type="primary"> 確定 </el-button>
+      </div>
+    </template>
+  </el-dialog>
+
   <!-- 商城分類常用設定 dialog -->
   <el-dialog v-model="hotkeyDialogVisible" width="90%" id="hotkey-setup-dialog">
     <template #header>
@@ -641,18 +806,21 @@ div#prdList {
 }
 
 /* 批次修改分類dialog */
-#batch-upd-cate-dialog.el-dialog {
+#batch-upd-cate-dialog.el-dialog,
+#edit-product-cate-dialog.el-dialog {
   max-width: 500px;
 }
 
-#batch-upd-cate-dialog .el-dialog__body > div:first-child strong {
+#batch-upd-cate-dialog .el-dialog__body > div:first-child strong,
+#edit-product-cate-dialog .el-dialog__body > div:first-child strong {
   font-size: 24px;
   font-weight: bold;
   color: var(--blue-primary);
   margin: 0 4px;
 }
 
-#batch-upd-cate-dialog .tab-button-wrapper > div:first-child {
+#batch-upd-cate-dialog .tab-button-wrapper > div:first-child,
+#edit-product-cate-dialog .tab-button-wrapper > div:first-child {
   border-radius: 9999px;
   border: 1px solid var(--el-dialog-border);
   padding: 0 16px;
@@ -661,14 +829,16 @@ div#prdList {
   color: var(--blue-primary);
 }
 
-#batch-upd-cate-dialog .dialog-content-wrapper {
+#batch-upd-cate-dialog .dialog-content-wrapper,
+#edit-product-cate-dialog .dialog-content-wrapper {
   border: 1px solid var(--el-dialog-border);
   border-radius: 0.5rem;
   padding: 16px;
   background-color: var(--el-dialog-content-bg);
 }
 
-#batch-upd-cate-dialog .tab-button-wrapper {
+#batch-upd-cate-dialog .tab-button-wrapper,
+#edit-product-cate-dialog .tab-button-wrapper {
   margin-top: -16px;
   transform: translateY(-50%);
 }
@@ -696,7 +866,8 @@ div#prdList {
 
 /* 手機：標籤與按鈕群改上下堆疊，按鈕群換行從左排起 */
 @media (max-width: 768px) {
-  #batch-upd-cate-dialog .tab-button-wrapper {
+  #batch-upd-cate-dialog .tab-button-wrapper,
+  #edit-product-cate-dialog .tab-button-wrapper {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
@@ -807,12 +978,14 @@ div#prdList {
 }
 
 /* 快捷鍵 */
-#batch-upd-cate-dialog .tab-btn {
+#batch-upd-cate-dialog .tab-btn,
+#edit-product-cate-dialog .tab-btn {
   background-color: var(--bright-yellow);
   color: rgb(17 24 39);
 }
 
-#batch-upd-cate-dialog .tab-btn .tab-label {
+#batch-upd-cate-dialog .tab-btn .tab-label,
+#edit-product-cate-dialog .tab-btn .tab-label {
   background-color: rgb(0 0 0 / 0.3);
   border-radius: 2px;
   padding: 0 4px;
@@ -821,7 +994,8 @@ div#prdList {
 }
 </style>
 <style>
-#batch-upd-cate-dialog.el-dialog {
+#batch-upd-cate-dialog.el-dialog,
+#edit-product-cate-dialog.el-dialog {
   max-width: 500px;
 }
 
@@ -839,11 +1013,13 @@ div#prdList {
 
 /* dialog共用 因ep-dialog 沒有data-v 屬性，故要放在style標籤內 */
 #batch-upd-cate-dialog.el-dialog,
+#edit-product-cate-dialog.el-dialog,
 #hotkey-setup-dialog.el-dialog {
   --el-dialog-padding-primary: 0;
 }
 
 #batch-upd-cate-dialog.el-dialog .el-dialog__header,
+#edit-product-cate-dialog.el-dialog .el-dialog__header,
 #hotkey-setup-dialog.el-dialog .el-dialog__header {
   padding: 16px;
   font-weight: bold;
@@ -852,17 +1028,20 @@ div#prdList {
 }
 
 #batch-upd-cate-dialog.el-dialog .el-dialog__body,
+#edit-product-cate-dialog.el-dialog .el-dialog__body,
 #hotkey-setup-dialog.el-dialog .el-dialog__body {
   padding: 16px;
 }
 
 #batch-upd-cate-dialog.el-dialog .el-dialog__footer,
+#edit-product-cate-dialog.el-dialog .el-dialog__footer,
 #hotkey-setup-dialog.el-dialog .el-dialog__footer {
   padding: 16px;
   padding-top: 0;
 }
 
-#batch-upd-cate-dialog .el-dialog__header {
+#batch-upd-cate-dialog .el-dialog__header,
+#edit-product-cate-dialog .el-dialog__header {
   background-color: var(--blue-primary);
   color: #fff;
 }
