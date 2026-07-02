@@ -92,27 +92,24 @@ const App = Vue.createApp({
     const selectedDistrict = ref('')
     const search_value = ref('')
     const sel_value = ref('')
-    const u = reactive({ class_name: '', show: false })
     const keep_class_id = ref('')
     const search_result = ref('')
 
     // -------- 三層分類管理 開始 -----------
     const rawCategories = ref([])
     const categories = ref([])
-    const openedMenus = ref([]) // 預設某個sub-menu打開
     const drawerVisible = ref(false)
     const productList = ref([])
+    const breadcrumbPaths = ref([])
+    const defaultOpeneds = ref('') // 預設 el-menu會打開哪一層
 
     onMounted(() => {
       var _class_id = getUrlParameter('class_id')
-      var _class_name = getUrlParameter('class_name')
       var _searchValue = getUrlParameter('searchValue')
 
       // 1. 按商城主頁分類後
-      if (_class_id != 'null' && _class_name != 'null') {
-        u.class_name = _class_name
-        u.show = true
-        _getClassList(_class_id, _class_name)
+      if (_class_id != 'null') {
+        _getClassList(_class_id)
       } else if (_searchValue != 'null') {
         // 2. 在商城主頁搜尋關鍵字後
         search(_searchValue)
@@ -121,7 +118,6 @@ const App = Vue.createApp({
         search_value.value = _searchValue //搜尋框顯示搜尋條件
       } else {
         // 3. 在商城主頁按查看全部商品後不帶任何query string
-        u.show = false
         _initLoad()
       }
 
@@ -138,7 +134,6 @@ const App = Vue.createApp({
           search_result.value = ''
           keep_class_id.value = ''
           search_value.value = ''
-          u.show = false
           _initLoad()
         }
       })
@@ -180,58 +175,46 @@ const App = Vue.createApp({
     }
 
     _initLoad = () => {
-      //blockUI();
-      //axios({
-      //    method: 'get',
-      //    url: '/api/Dealer/GetProductList',
-      //    headers: { 'Content-Type': 'application/json' },
-      //    // params: { class_id: _class_id }
-      //}).then((response) => {
-      //    $.unblockUI();
-      //    //console.log(response.data);
-      //    if (response.data.success) {
-      //        json1.value = response.data.list;
-      //        showJson.value = response.data.showJson;
-      //        tmpJson.value = response.data.showJson;
-      //        taiwanCities.value = response.data.regiontown;
+      // 舊api : GetProductList
+      blockUI()
+      axios({
+        method: 'get',
+        url: '/api/Dealer/GetAllProductCategory',
+      })
+        .then((response) => {
+          console.log(response.data)
+          if (Array.isArray(response.data) && response.data.length > 0) {
+            rawCategories.value = response.data
+            categories.value = rawCategories.value // 留categories render用，目前不需要做任何處理
+            defaultOpeneds.value = categories.value[0].CategoryId
+            console.log('defaultOpeneds.value', defaultOpeneds.value)
+            console.log(categories.value)
+            //showJson.value = response.data.showJson; //商品
+            //tmpJson.value = response.data.showJson;
+            //taiwanCities.value = response.data.regiontown;
 
-      //        keep_class_id.value = '';//keep
-      //    }
-      //    else {
-      //        alert(response.data.msg);
-      //    }
-
-      //}).catch((function (error) {
-      //    $.unblockUI();
-      //    console.log(error);
-      //})).finally(() => {
-      //    console.log('完成');
-      //});
-
-      // 取得類別
-      fetch('/js/adminProduct/fakeProductTree.json')
-        .then((res) => res.json())
-        .then((data) => {
-          rawCategories.value = data
-          categories.value = sortCategoryTree(rawCategories.value)
-          console.log(categories.value)
-
-          //決定哪個submenu要打開
-          const subId = _getFirstSubId()
-          if (subId !== null && subId !== undefined) openedMenus.value.push(String(subId))
-          console.log(openedMenus.value)
+            //keep_class_id.value = '';//keep
+          } else {
+            // 成功連上但沒有任何分類
+            rawCategories.value = []
+            categories.value = []
+            alert('目前沒有商品分類資料')
+          }
         })
-        .catch((err) => {
-          console.error('Failed to load category data:', err)
+        .catch(function (error) {
+          console.log(error)
+          alert('讀取商品分類失敗,請稍後再試')
+        })
+        .finally(() => {
+          $.unblockUI()
         })
 
-      // 取得商品
+      // 取得商品 模擬api回傳資料
       fetch('/js/adminProduct/fakeProduct.json')
         .then((res) => res.json())
         .then((data) => {
           productList.value = data
           triggerProductsFadeUp()
-          console.log(productList.value)
         })
         .catch((err) => {
           console.error('Failed to load product data:', err)
@@ -267,13 +250,20 @@ const App = Vue.createApp({
       // 只對手機版有用
       drawerVisible.value = false
 
+      // 麵包屑
+      const pathResult = _findCategoryPathNames(categories.value, id)
+      if (pathResult) {
+        breadcrumbPaths.value = pathResult
+      } else {
+        breadcrumbPaths.value = []
+      }
+
       // todo : call api
       fetch('/js/adminProduct/fakeProduct.json')
         .then((res) => res.json())
         .then((data) => {
-          // 因json商品全部都掛在leaf category
-          // 取得「此分類 + 其所有子孫分類」的 categoryId 集合
-          // 找不到（categories 尚未載入）時退回只比對自己
+          // [2,4,5] includes(4) 回傳true
+          // 因現在prd只掛在leaf下面，因此點大分類必須找到其leaf
           const ids = _findCategoryIds(categories.value, id) || [id]
 
           productList.value = data.filter((p) => ids.includes(p.categoryId))
@@ -281,14 +271,28 @@ const App = Vue.createApp({
           nextTick(() => {
             triggerProductsFadeUp()
           })
-          console.log(productList.value)
         })
         .catch((err) => {
           console.error('Failed to load product data:', err)
         })
     }
 
-    // 收集某節點底下所有子孫的 categoryId（含自己）
+    //  檢查所有子層是否等於targetId (遞迴呼叫)
+    const _findCategoryIds = (nodes, targetId) => {
+      if (!nodes) return null
+
+      for (const node of nodes) {
+        if (node.categoryId === targetId) {
+          return _collectDescendantIds(node)
+        }
+        // 子層ID不等於targetId，則繼續尋找其子層
+        const found = _findCategoryIds(node.children, targetId)
+        if (found) return found
+      }
+      return null
+    }
+
+    // 收集所有子孫的 categoryId
     const _collectDescendantIds = (node) => {
       let ids = [node.categoryId]
 
@@ -298,20 +302,6 @@ const App = Vue.createApp({
         })
       }
       return ids
-    }
-
-    // 在分類樹中找到 targetId 的節點，回傳其所有子孫 id 陣列；找不到回傳 null
-    const _findCategoryIds = (nodes, targetId) => {
-      if (!nodes) return null
-
-      for (const node of nodes) {
-        if (node.categoryId === targetId) {
-          return _collectDescendantIds(node)
-        }
-        const found = _findCategoryIds(node.children, targetId)
-        if (found) return found
-      }
-      return null
     }
 
     const triggerProductsFadeUp = () => {
@@ -339,8 +329,29 @@ const App = Vue.createApp({
       })
     }
 
+    const _findCategoryPathNames = (nodes, targetId, currentPath = []) => {
+      if (!nodes) return null
+
+      for (const node of nodes) {
+        // 沿路把目前這一層的名字暫存進去，看有沒有找到
+        const newPath = [...currentPath, node.Name]
+
+        // 命中
+        if (node._index === targetId) {
+          return newPath
+        }
+
+        // 沒命中
+        if (node.Children && node.Children.length > 0) {
+          const foundPath = _findCategoryPathNames(node.Children, targetId, newPath)
+          if (foundPath) return foundPath // 如果在子孫裡找到了，就一路回傳上來
+        }
+      }
+      return null // 都沒找到，則回傳null
+    }
+
     // -------- 三層分類管理 結束 -----------
-    _getClassList = (_class_id, _class_name) => {
+    _getClassList = (_class_id) => {
       blockUI()
       axios({
         method: 'post',
@@ -356,10 +367,6 @@ const App = Vue.createApp({
             currentPage.value = 1
             pageStart.value = 0
             pageEnd.value = 0
-            //init
-            u.class_name = _class_name
-            u.show = true
-
             json1.value = response.data.list
             showJson.value = response.data.showJson
             tmpJson.value = response.data.showJson
@@ -517,9 +524,6 @@ const App = Vue.createApp({
     }
 
     return {
-      json1,
-      showJson,
-      tmpJson,
       selectedId,
       taiwanCities,
       selectedCity,
@@ -530,7 +534,6 @@ const App = Vue.createApp({
       selType,
       sel_value,
       selCity,
-      u,
 
       perpage,
       currentPage,
@@ -547,9 +550,10 @@ const App = Vue.createApp({
 
       handleMenuClick,
       categories,
-      openedMenus,
       drawerVisible,
       productList,
+      breadcrumbPaths,
+      defaultOpeneds,
     }
   },
 })
