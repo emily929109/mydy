@@ -608,7 +608,7 @@
             </div>
             <div>
                 <div class="product-list-wrapper fadeUp mb-5">
-                    <div v-if="productList.length === 0 && keep_class_id === 'search'">找不到與「 {{search_result}} 」有關的搜尋結果</div>
+                    <div v-if="productList.length === 0 && listMode === 'query'">找不到與「 {{search_result}} 」有關的搜尋結果</div>
                     <div v-for="(prd,index) in productList" :key="prd.productId" class="prd-item">
                         <a class="text-800" style="text-decoration:none">
                             <div class="overflow-hidden" style=" border-radius: 8px; ">
