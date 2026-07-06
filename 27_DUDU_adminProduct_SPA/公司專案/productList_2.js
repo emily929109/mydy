@@ -8,7 +8,7 @@ const App = Vue.createApp({
     const disabled_prev = ref(true)
     const disabled_next = ref(false)
     const totalPage = computed(() => {
-      var total_page = Math.ceil(showJson.value.length / perpage.value)
+      var total_page = Math.ceil(productTotalCount.value / perpage.value)
       if (total_page == 1) {
         disabled_prev.value = true
         disabled_next.value = true
@@ -42,14 +42,11 @@ const App = Vue.createApp({
 
       //單擊之後所加的
       switch (keep_class_id.value) {
-        case 'city': //city search
-          _getListForCityPage()
+        case 'search': //查詢（GetProductListByCategoryId + query_value）
+          fetchProductsByCategory(keep_category_id.value, keep_query_value.value)
           break
-        case 'search': //search
-          _getListForSearchPage()
-          break
-        case '': //all
-          _getListForPage()
+        case 'category': //dudu分類（GetProductListByCategoryId）
+          fetchProductsByCategory(keep_category_id.value)
           break
         default: //類別
           _getClassForPage(keep_class_id.value)
@@ -81,11 +78,7 @@ const App = Vue.createApp({
       }
       return rangeWithDots
     })
-    //---
 
-    const json1 = ref([])
-    const showJson = ref([])
-    const tmpJson = ref([])
     const selectedId = ref('')
     const taiwanCities = ref([])
     const selectedCity = ref('')
@@ -94,6 +87,9 @@ const App = Vue.createApp({
     const sel_value = ref('')
     const keep_class_id = ref('')
     const search_result = ref('')
+    const keep_category_id = ref(null) // 目前選到的分類 CategoryId，供換頁重用
+    const keep_query_value = ref('') // 目前的搜尋關鍵字，供換頁重用
+    const productTotalCount = ref(0) // 分類查詢的總筆數（server 端分頁用）
 
     // -------- 三層分類管理 開始 -----------
     const rawCategories = ref([])
@@ -101,207 +97,128 @@ const App = Vue.createApp({
     const drawerVisible = ref(false)
     const productList = ref([])
     const breadcrumbPaths = ref([])
-    const defaultOpeneds = ref('') // 預設 el-menu會打開哪一層
+    const defaultOpeneds = ref([]) // 預設 el-menu會打開哪一層
+    const searchInputRef = ref(null)
 
-    onMounted(() => {
-      var _class_id = getUrlParameter('class_id')
-      var _searchValue = getUrlParameter('searchValue')
+    onMounted(async () => {
+      const classId = getUrlParameter('class_id')
+      const searchValue = getUrlParameter('searchValue')
+      const hasClassId = classId && classId !== 'null'
+      const hasSearchValue = searchValue && searchValue !== 'null'
 
-      // 1. 按商城主頁分類後
-      if (_class_id != 'null') {
-        _getClassList(_class_id)
-      } else if (_searchValue != 'null') {
-        // 2. 在商城主頁搜尋關鍵字後
-        search(_searchValue)
-        //console.log(_searchValue);
-        search_result.value = _searchValue //找不到商品提示、網址列顯示搜尋條件
-        search_value.value = _searchValue //搜尋框顯示搜尋條件
-      } else {
-        // 3. 在商城主頁按查看全部商品後不帶任何query string
-        _initLoad()
+      // 進到此頁會有三種情況:
+      // 1. 商城主頁按 DUDU 分類導覽列
+      // 2. 商城主頁按查看更多
+      // 3. 在商城主頁搜尋關鍵字
+
+      // 先取所有 DUDU 分類
+      try {
+        blockUI()
+        const resA = await axios.get('/api/Dealer/GetAllProductCategory')
+
+        if (!resA.data || resA.data.length === 0) {
+          rawCategories.value = []
+          categories.value = []
+          alert('目前沒有商品分類資料')
+          return
+        }
+        rawCategories.value = resA.data
+        categories.value = rawCategories.value // render
+        defaultOpeneds.value = [String(categories.value[0].CategoryId)] // 預設 el-menu會打開哪一層
+      } catch (error) {
+        console.log(error)
+      } finally {
+        $.unblockUI()
       }
 
-      //監聽popstate事件 (搜尋後按上一頁)
-      window.addEventListener('popstate', (event) => {
-        const searchValue = event.state?.searchValue
-        if (searchValue) {
-          // 前進到有搜尋的歷史
-          search_result.value = searchValue
-          search_value.value = searchValue
-          search(searchValue, false)
-        } else {
-          // 當history state為null時 → 重載完整列表
-          search_result.value = ''
-          keep_class_id.value = ''
-          search_value.value = ''
-          _initLoad()
-        }
-      })
+      if (hasClassId) {
+        // 1. 商城主頁按 DUDU 分類導覽列
+        currentPage.value = 1
+        await fetchProductsByCategory(classId)
+      } else if (hasSearchValue) {
+        // 3. 在商城主頁搜尋關鍵字
+        await search(searchValue, false)
+      } else {
+        // 2. 商城主頁按查看更多：預設「第一筆分類」取商品
+        currentPage.value = 1
+        await fetchProductsByCategory(categories.value[0].CategoryId)
+      }
+
+      // 監聽popstate事件 (搜尋後按上一頁)???????
+      //window.addEventListener('popstate', (event) => {
+      //    const searchValue = event.state ?.searchValue;
+      //    if (searchValue) {
+      //        // 前進到有搜尋的歷史
+      //        search_result.value = searchValue;
+      //        search_value.value = searchValue;
+      //        search(searchValue, false);
+      //    } else {
+      //        // 當history state為null時 → 重載完整列表
+      //        search_result.value = '';
+      //        keep_class_id.value = '';
+      //        search_value.value = '';
+      //        _initLoad();
+      //    }
+      //});
     })
 
-    //所有 單頁
-    _getListForPage = () => {
-      const start = (currentPage.value - 1) * perpage.value
-      const end = currentPage.value * perpage.value
-      //console.log(start);
-      //console.log(end);
+    // 依分類 CategoryId 取商品／關鍵字查詢商品（共用同一支 API）
+    // handleMenuSelect(點 leaf)、handleMenuOpen(展開 sub-menu)、search(關鍵字查詢)、setPage(換頁) 共用
+    const fetchProductsByCategory = async (categoryId, queryValue) => {
+      if (!categoryId && !queryValue) return
 
       blockUI()
-      axios({
-        method: 'post',
-        url: '/api/Dealer/GetStoreListForPage',
-        headers: { 'Content-Type': 'application/json' },
-        params: { start: start, end: end },
-      })
-        .then((response) => {
-          $.unblockUI()
-          //console.log(response.data);
-          if (response.data.success) {
-            //json1.value = response.data.list;
-            showJson.value = response.data.showJson
-            tmpJson.value = response.data.showJson
-            //taiwanCities.value = response.data.regiontown;
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
-
-    _initLoad = () => {
-      // 舊api : GetProductList
-      blockUI()
-      axios({
-        method: 'get',
-        url: '/api/Dealer/GetAllProductCategory',
-      })
-        .then((response) => {
-          console.log(response.data)
-          if (Array.isArray(response.data) && response.data.length > 0) {
-            rawCategories.value = response.data
-            categories.value = rawCategories.value // 留categories render用，目前不需要做任何處理
-            defaultOpeneds.value = categories.value[0].CategoryId
-            console.log('defaultOpeneds.value', defaultOpeneds.value)
-            console.log(categories.value)
-            //showJson.value = response.data.showJson; //商品
-            //tmpJson.value = response.data.showJson;
-            //taiwanCities.value = response.data.regiontown;
-
-            //keep_class_id.value = '';//keep
-          } else {
-            // 成功連上但沒有任何分類
-            rawCategories.value = []
-            categories.value = []
-            alert('目前沒有商品分類資料')
-          }
-        })
-        .catch(function (error) {
-          console.log(error)
-          alert('讀取商品分類失敗,請稍後再試')
-        })
-        .finally(() => {
-          $.unblockUI()
+      try {
+        const res = await axios.post('/api/DealerProduct/GetProductListByCategoryId', null, {
+          params: {
+            page: currentPage.value,
+            pageSize: perpage.value,
+            categoryId: categoryId || null,
+            query_value: queryValue || null,
+          },
         })
 
-      // 取得商品 模擬api回傳資料
-      fetch('/js/adminProduct/fakeProduct.json')
-        .then((res) => res.json())
-        .then((data) => {
-          productList.value = data
+        const data = res.data || {}
+        productList.value = data.ProductList || [] // 正確 shape：取 ProductList
+        productTotalCount.value = data.TotalCount || 0
+
+        // 記住目前模式，供 setPage 換頁重打
+        keep_class_id.value = queryValue ? 'search' : 'category'
+        keep_category_id.value = categoryId || null
+        keep_query_value.value = queryValue || ''
+
+        nextTick(() => {
           triggerProductsFadeUp()
         })
-        .catch((err) => {
-          console.error('Failed to load product data:', err)
-        })
+      } catch (error) {
+        console.log(error)
+      } finally {
+        $.unblockUI()
+      }
     }
 
-    const sortCategoryTree = (treeData) => {
-      if (!treeData || treeData.length === 0) return []
-
-      // 遞增
-      treeData.sort((a, b) => a.sort - b.sort)
-
-      // 檢查底下有沒有 children，有則遞迴呼叫
-      treeData.forEach((item) => {
-        if (item.children && item.children.length > 0) {
-          sortCategoryTree(item.children)
-        }
-      })
-
-      return treeData
+    // 點 leaf 分類
+    const handleMenuSelect = (index, indexPath) => {
+      drawerVisible.value = false // 手機版關抽屜
+      _createBreadcumbPath(indexPath)
+      currentPage.value = 1 // 換分類回到第 1 頁
+      fetchProductsByCategory(index) // index 即被點選分類的 CategoryId
     }
 
-    const _getFirstSubId = () => {
-      const list = categories.value
-
-      if (!list || list.length === 0) return null
-      if (list[0] || list[0].children.length > 0) return list[0].categoryId
-
-      return null
+    // 展開 sub-menu
+    const handleMenuOpen = (index, indexPath) => {
+      _createBreadcumbPath(indexPath)
+      currentPage.value = 1
+      fetchProductsByCategory(index) // index 即被展開分類的 CategoryId
     }
 
-    const handleMenuClick = (id) => {
-      // 只對手機版有用
-      drawerVisible.value = false
-
-      // 麵包屑
-      const pathResult = _findCategoryPathNames(categories.value, id)
+    const _createBreadcumbPath = (indexPath) => {
+      const pathResult = _pathNamesFromIndexPath(indexPath)
       if (pathResult) {
         breadcrumbPaths.value = pathResult
       } else {
         breadcrumbPaths.value = []
       }
-
-      // todo : call api
-      fetch('/js/adminProduct/fakeProduct.json')
-        .then((res) => res.json())
-        .then((data) => {
-          // [2,4,5] includes(4) 回傳true
-          // 因現在prd只掛在leaf下面，因此點大分類必須找到其leaf
-          const ids = _findCategoryIds(categories.value, id) || [id]
-
-          productList.value = data.filter((p) => ids.includes(p.categoryId))
-          //productList.value = data.filter(p => p.categoryId===id);
-          nextTick(() => {
-            triggerProductsFadeUp()
-          })
-        })
-        .catch((err) => {
-          console.error('Failed to load product data:', err)
-        })
-    }
-
-    //  檢查所有子層是否等於targetId (遞迴呼叫)
-    const _findCategoryIds = (nodes, targetId) => {
-      if (!nodes) return null
-
-      for (const node of nodes) {
-        if (node.categoryId === targetId) {
-          return _collectDescendantIds(node)
-        }
-        // 子層ID不等於targetId，則繼續尋找其子層
-        const found = _findCategoryIds(node.children, targetId)
-        if (found) return found
-      }
-      return null
-    }
-
-    // 收集所有子孫的 categoryId
-    const _collectDescendantIds = (node) => {
-      let ids = [node.categoryId]
-
-      if (node.children && node.children.length > 0) {
-        node.children.forEach((child) => {
-          ids = ids.concat(_collectDescendantIds(child))
-        })
-      }
-      return ids
     }
 
     const triggerProductsFadeUp = () => {
@@ -329,25 +246,21 @@ const App = Vue.createApp({
       })
     }
 
-    const _findCategoryPathNames = (nodes, targetId, currentPath = []) => {
-      if (!nodes) return null
+    const _pathNamesFromIndexPath = (indexPath) => {
+      // indexPath 為EP預設回傳的路徑，例 : ['0109', '010902']
+      const names = []
+      let level = categories.value
 
-      for (const node of nodes) {
-        // 沿路把目前這一層的名字暫存進去，看有沒有找到
-        const newPath = [...currentPath, node.Name]
+      for (const id of indexPath) {
+        const node = (level || []).find((n) => n.CategoryId === id)
 
-        // 命中
-        if (node._index === targetId) {
-          return newPath
-        }
-
-        // 沒命中
-        if (node.Children && node.Children.length > 0) {
-          const foundPath = _findCategoryPathNames(node.Children, targetId, newPath)
-          if (foundPath) return foundPath // 如果在子孫裡找到了，就一路回傳上來
+        if (node) {
+          names.push(node.Name)
+          level = node.Children || []
         }
       }
-      return null // 都沒找到，則回傳null
+
+      return names
     }
 
     // -------- 三層分類管理 結束 -----------
@@ -368,7 +281,7 @@ const App = Vue.createApp({
             pageStart.value = 0
             pageEnd.value = 0
             json1.value = response.data.list
-            showJson.value = response.data.showJson
+            productList.value = response.data.showJson
             tmpJson.value = response.data.showJson
             taiwanCities.value = response.data.regiontown
 
@@ -386,44 +299,45 @@ const App = Vue.createApp({
         })
     }
 
-    _getClassForPage = (_class_id) => {
-      const start = (currentPage.value - 1) * perpage.value
-      const end = currentPage.value * perpage.value
+    //_getClassForPage = (_class_id) => {
+    //    const start = (currentPage.value - 1) * perpage.value;
+    //    const end = currentPage.value * perpage.value;
 
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/Dealer/GetProductClassForPage',
-        headers: { 'Content-Type': 'application/json' },
-        params: { class_id: _class_id, start: start, end: end },
-      })
-        .then((response) => {
-          $.unblockUI()
-          //console.log(response.data);
-          if (response.data.success) {
-            //init
-            //u.class_name = _class_name;
-            //u.show = true;
+    //    blockUI();
+    //    axios({
+    //        method: 'post',
+    //        url: '/api/Dealer/GetProductClassForPage',
+    //        headers: { 'Content-Type': 'application/json' },
+    //        params: { class_id: _class_id, start: start, end: end }
 
-            //json1.value = response.data.list;
-            showJson.value = response.data.showJson
-            tmpJson.value = response.data.showJson
-            //taiwanCities.value = response.data.regiontown;
+    //    }).then((response) => {
+    //        $.unblockUI();
+    //        //console.log(response.data);
+    //        if (response.data.success) {
+    //            //init
+    //            //u.class_name = _class_name;
+    //            //u.show = true;
 
-            keep_class_id.value = _class_id //keep
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
-    }
+    //            //json1.value = response.data.list;
+    //            productList.value = response.data.showJson;
+    //            tmpJson.value = response.data.showJson;
+    //            //taiwanCities.value = response.data.regiontown;
 
+    //            keep_class_id.value = _class_id;//keep
+    //        }
+    //        else {
+    //            alert(response.data.msg);
+    //        }
+
+    //    }).catch((function (error) {
+    //        $.unblockUI();
+    //        console.log(error);
+    //    })).finally(() => {
+    //        console.log('完成');
+    //    });
+    //}
+
+    // TODO : 按價格排序
     selPrice = (_sel_value) => {
       //console.log(_sel_value);
       if (_sel_value == 1) {
@@ -466,6 +380,8 @@ const App = Vue.createApp({
         //showJson.value = [...tmpJson.value].sort((a, b) => b.minCash - a.minCash);
       }
     }
+
+    // TODO : 選擇城市
     selCity = (_selectedCity) => {
       //console.log(_selectedCity);
       //console.log(tmpJson.value);
@@ -473,45 +389,22 @@ const App = Vue.createApp({
       //console.log(showJson.value);
     }
 
-    search = (_search_value, pushHistory = true) => {
+    search = async (_search_value, pushHistory = true) => {
       if (!_search_value) return
 
-      blockUI()
-      axios({
-        method: 'post',
-        url: '/api/Dealer/GetProductList',
-        headers: { 'Content-Type': 'application/json' },
-        params: { SearchValue: _search_value },
-      })
-        .then((response) => {
-          $.unblockUI()
-          //console.log(response.data);
-          if (response.data.success) {
-            json1.value = response.data.list
-            showJson.value = response.data.showJson
-            tmpJson.value = response.data.showJson
-            taiwanCities.value = response.data.regiontown
-            keep_class_id.value = 'search'
-            //找不到商品提示、網址列顯示搜尋條件
-            search_result.value = _search_value
-            if (pushHistory) {
-              window.history.pushState(
-                { searchValue: _search_value },
-                '',
-                `?searchValue=${encodeURIComponent(search_result.value)}`,
-              )
-            }
-          } else {
-            alert(response.data.msg)
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI()
-          console.log(error)
-        })
-        .finally(() => {
-          console.log('完成')
-        })
+      currentPage.value = 1 // 新搜尋回到第 1 頁
+      search_result.value = _search_value //找不到商品提示、網址列顯示搜尋條件
+      search_value.value = _search_value //搜尋框顯示搜尋條件
+
+      await fetchProductsByCategory(null, _search_value)
+
+      if (pushHistory) {
+        window.history.pushState(
+          { searchValue: _search_value },
+          '',
+          `?searchValue=${encodeURIComponent(_search_value)}`,
+        )
+      }
     }
 
     selType = (_class_id, _class_name) => {
@@ -548,12 +441,14 @@ const App = Vue.createApp({
       clearSearch,
       keep_class_id,
 
-      handleMenuClick,
+      handleMenuSelect,
       categories,
       drawerVisible,
       productList,
       breadcrumbPaths,
       defaultOpeneds,
+      handleMenuOpen,
+      searchInputRef,
     }
   },
 })

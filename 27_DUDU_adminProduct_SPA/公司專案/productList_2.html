@@ -479,7 +479,7 @@
                 <div class="d-flex justify-content-end">
                     <div class="p-md-2 pt-2 w-100">
                         <div class="input-group">
-                            <input class="form-control fs-0 py-2" v-model.trim="search_value" type="search" placeholder="請輸入欲搜尋的商品" aria-label="search" style="border: 1px solid #8e9294; border-radius: 8px;" @@keyup.enter="search(search_value)">
+                            <input ref="searchInputRef" class="form-control fs-0 py-2" v-model.trim="search_value" type="search" placeholder="請輸入欲搜尋的商品" aria-label="search" style="border: 1px solid #8e9294; border-radius: 8px;" @@keyup.enter="search(search_value)">
                             <!-- 清除按鈕 -->
                             <div class="clear-btn" v-show="search_value.trim().length > 0" @@click="clearSearch">
                                 @*<i class="fa-solid fa-xmark"></i>*@
@@ -528,25 +528,30 @@
                 <div class="category-inner-wrapper">
                     <!-- 桌機：左側垂直收合選單 -->
                     <div class="pc-category-wrapper d-none d-md-block">
-                        <el-menu :default-openeds="defaultOpeneds">
+                        <!-- v-if 為確保defaultOpeneds有東西才render -->
+                        <!-- select 是針對點擊 menu-item 觸發；open是針對展開sub-menu時觸發 -->
+                        <el-menu v-if="categories.length"
+                                 :default-openeds="defaultOpeneds"
+                                 @@select="handleMenuSelect"
+                                 @@open="handleMenuOpen">
                             <el-sub-menu v-for="main in categories"
                                          :key="main.CategoryId"
                                          :index="String(main.CategoryId)">
                                 <template #title>
-                                    <span @@click="handleMenuClick(main.CategoryId)">{{ main.Name }}</span>
+                                    <span>{{ main.Name }}</span>
                                 </template>
 
                                 <el-sub-menu v-for="sub in main.Children"
                                              :key="sub.CategoryId"
                                              :index="String(sub.CategoryId)">
                                     <template #title>
-                                        <span @@click="handleMenuClick(sub.CategoryId)">{{ sub.Name }}</span>
+                                        <span>{{ sub.Name }}</span>
                                     </template>
 
                                     <el-menu-item v-for="leaf in sub.Children"
                                                   :key="leaf.CategoryId"
-                                                  :index="String(leaf.CategoryId)"
-                                                  @@click="handleMenuClick(leaf.CategoryId)">
+                                                  :index="String(leaf.CategoryId)">
+
 
                                         <span>{{ leaf.Name }}</span>
 
@@ -569,7 +574,7 @@
                                direction="btt"
                                size="100%"
                                class="cm-mobile-drawer">
-                        <el-menu :default-openeds="[defaultOpeneds]"
+                        <el-menu :default-openeds="defaultOpeneds"
                                  class="el-menu-vertical-demo">
                             <el-sub-menu v-for="main in categories"
                                          :key="main.CategoryId"
