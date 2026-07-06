@@ -38,7 +38,7 @@ const {
 const categoryTree = ref([
   {
     categoryId: 1,
-    name: '服飾',
+    name: '服飾...',
     children: [
       {
         categoryId: 2,

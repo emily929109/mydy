@@ -22,6 +22,7 @@ const handleMenuClick = (categoryId) => {
     background-color="#ffffff"
     text-color="#333333"
     active-text-color="#00a896"
+    default-openeds="[1,2]"
   >
     <el-sub-menu v-for="main in props.tree" :key="main.categoryId" :index="String(main.categoryId)">
       <template #title>
