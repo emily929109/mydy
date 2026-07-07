@@ -1,5 +1,20 @@
 [
   {
+    "href": "/Home/News?id=petHairLoss",
+    "img": "/img/news/petHairLoss/banner_1024x1024.jpg",
+    "text": "狗狗掉毛不停是警訊嗎？常見原因、照護方式與就醫時機一次解析",
+    "category": "萌寵生活",
+    "date": "2026/07/07"
+  },
+  {
+    "href": "/Home/News?id=pet_show202607",
+    "img": "/img/news/pet_show202607/banner_1040x1040.jpg",
+    "text": "萬里福田 × DUDUPAY 寵物展開跑！天天送好禮、加碼送DU幣！",
+    "category": "活動訊息",
+    "date": "2026/06/29",
+    "status": "ended"
+  },
+  {
     "href": "/Home/News?id=milan",
     "img": "/img/news/milan/banner_1024x1024.jpg",
     "text": "不只有時尚與精品！從文藝復興到浪漫運河，帶你走進米蘭的迷人日常",
