@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DUDUPAY - Email 驗證</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        background-color: #f5f5f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+
+      /* Modal 容器樣式 */
+      .modal-container {
+        background: white;
+        width: 450px;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* 綠色頁首 */
+      .modal-header {
+        background-color: #00a896;
+        color: white;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      /* 內容區域 */
+      .modal-body {
+        padding: 30px;
+      }
+
+      .subtitle {
+        color: #4a90e2;
+        font-size: 14px;
+        margin: 0 0 10px 0;
+      }
+
+      .brand-title {
+        font-size: 32px;
+        color: #333333;
+        margin: 0 0 20px 0;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
+
+      /* 表單樣式 */
+      .input-group {
+        margin-bottom: 25px;
+      }
+
+      .input-group label {
+        display: block;
+        font-size: 14px;
+        color: #333333;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+
+      .input-group .notice {
+        color: #ff3b30;
+        font-weight: normal;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        background-color: #f0f5ff;
+        font-size: 16px;
+        box-sizing: border-box;
+        color: #333333;
+      }
+
+      /* 按鈕樣式與狀態 */
+      .submit-btn {
+        width: 100%;
+        background-color: #00a896;
+        color: white;
+        border: none;
+        padding: 14px;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .submit-btn:hover {
+        background-color: #009384;
+      }
+
+      /* 停用狀態 (倒數中或發送中) */
+      .submit-btn:disabled {
+        background-color: #a0e6dd;
+        cursor: not-allowed;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div class="modal-container">
+        <div class="modal-header">
+          <span>E-mail 驗證</span>
+          <button class="close-btn">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <p class="subtitle">您最信任的分期支付平台</p>
+          <h1 class="brand-title">DUDUPAY</h1>
+
+          <div class="input-group">
+            <label>
+              E-mail<span class="notice"
+                >（請輸入有效的E-mail以接收發票及登入帳號使用）</span
+              >
+            </label>
+            <input
+              type="email"
+              v-model="email"
+              placeholder="example@gmail.com"
+            />
+          </div>
+
+          <button
+            class="submit-btn"
+            :disabled="countdown > 0 || isSubmitting"
+            @click="handleSendEmail"
+          >
+            {{ buttonText }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 從全域變數 Vue 中解構出 Composition API 需要的方法
+      const { createApp, ref, computed, onUnmounted } = Vue;
+
+      createApp({
+        setup() {
+          // 狀態定義
+          const email = ref("emily929109@gmail.com");
+          const countdown = ref(0);
+          const isSubmitting = ref(false);
+          let timer = null;
+
+          // 計算屬性：動態決定按鈕文字
+          const buttonText = computed(() => {
+            if (isSubmitting.value) {
+              return "發送中...";
+            }
+            if (countdown.value > 0) {
+              return `重新發送 (${countdown.value}s)`;
+            }
+            return "發送驗證信";
+          });
+
+          // 啟動倒數計時器
+          const startCountdown = () => {
+            countdown.value = 60; // 設定倒數 60 秒
+            timer = setInterval(() => {
+              if (countdown.value > 0) {
+                countdown.value--;
+              } else {
+                clearInterval(timer);
+              }
+            }, 1000);
+          };
+
+          // 處理發送邏輯
+          const handleSendEmail = async () => {
+            if (countdown.value > 0 || isSubmitting.value) return;
+
+            isSubmitting.value = true;
+            try {
+              // 模擬 API 請求延遲 1 秒
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+
+              // 請求成功，開始倒數
+              startCountdown();
+            } catch (error) {
+              console.error("發送失敗：", error);
+            } finally {
+              isSubmitting.value = false;
+            }
+          };
+
+          // 組件銷毀時清除計時器，防止記憶體洩漏
+          onUnmounted(() => {
+            if (timer) clearInterval(timer);
+          });
+
+          // 回傳給 Template 使用
+          return {
+            email,
+            countdown,
+            isSubmitting,
+            buttonText,
+            handleSendEmail,
+          };
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
