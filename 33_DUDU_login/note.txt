@@ -1,0 +1,40 @@
+我找到根本原因了——這是設計上的正常現象，關鍵在於：判斷「登入按鈕」要不要顯示的邏輯，不是看 localStorage 有沒有 member key，而是看 Vue 的 reactive 狀態 setMenu.loginHide。
+
+登入按鈕的顯示邏輯
+
+_Layout.cshtml:1424-1430 的登入按鈕：
+<li v-if="setMenu.loginHide" class="nav-item dropdown">
+    <a ...>登入</a>
+</li>
+
+setMenu.loginHide 是每個頁面 Vue app 掛載時各自初始化的狀態，預設值是 true（見 header.js:41）：
+const setMenu = reactive({ member_1: false, dealer_1: false, showProfile: false, loginHide: true });
+
+只有在 onMounted 裡符合條件才會被翻成 false（header.js:123-125）：
+if (member.value != null && member.value.login_ok_msg == '*') {
+    setMenuForRole(member.value.role);   // 內部才會做 setMenu.loginHide = false
+}
+
+而 setMenu.loginHide = false 這行實際上在 menuRole.js:32。
+
+為什麼會「有 member 又有登入按鈕」
+
+關鍵就在 member.value != null 跟 member.value.login_ok_msg == '*' 是兩個獨立條件，member key 存在不代表已登入。
+
+login_ok_msg 這個欄位在多步驟流程中會被刻意清空，但 member 物件本身不會被移除，例如 menu_top.js:255-257（審核逾時要補件）：
+var member = JSON.parse(localStorage.getItem('member'));
+member.login_ok_msg = '';//init
+localStorage.setItem("member", JSON.stringify(member));
+register_url.value = '/Home/UploadFile';
+menu_top.js:273-274、menu_top.js:283-284 也是一樣的模式（退件、審核取消等情境）。
+
+所以只要使用者卡在「註冊中 / 補件中 / 審核中 / 改手機 / TWCA 驗證中」這類中間流程，localStorage.member 就會一直存在（因為程式需要留著 id_no、mobile 等資料給後續流程用），但 login_ok_msg 不是 '*'，於是：
+- member == null 判斷 → 不成立（member 有資料）
+- member.login_ok_msg == '*' 判斷 → 不成立
+- 結果：setMenuForRole() 沒被呼叫 → loginHide 保持預設 true → 登入按鈕照樣顯示
+
+結論
+
+login_ok_msg === '*' 才是系統真正用來判斷「使用者已完整登入」的旗標，member key 存不存在只代表「瀏覽器上曾經/正在存這個人的部分資料」。兩者不同步時，UI 上就會出現「明明有 member 資料，登入按鈕卻還在」的現象——這通常代表使用者卡在某個未完成的申辦/驗證流程中，屬於預期行為；若你看到的情況是「使用者確實已完整走完登入」但按鈕仍出現，就要去查該筆 member 資料的 login_ok_msg 欄位是不是漏了在對的地方被設回 '*'。
+
+✻ Churned for 1m 18s
