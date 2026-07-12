@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gemini 商品自動分類測試器</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-plus/dist/index.css"
+    />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <style>
+      body {
+        background-color: #f5f7fa;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 40px 20px;
+      }
+      .container {
+        max-width: 700px;
+        margin: 0 auto;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+        font-size: 18px;
+      }
+      .result-box {
+        margin-top: 25px;
+        padding: 20px;
+        background-color: #ffffff;
+        border-left: 5px solid #409eff;
+        border-radius: 4px;
+        box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+      }
+      .meta-info {
+        margin-top: 15px;
+        font-size: 12px;
+        color: #909399;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app" class="container">
+      <el-card shadow="always">
+        <template #header>
+          <div class="card-header">
+            <span>📦 Gemini 商品自動分類測試專案</span>
+            <el-tag type="info" effect="plain">Vue 3 CDN + Element Plus</el-tag>
+          </div>
+        </template>
+
+        <el-form label-position="top">
+          <el-form-item label="請輸入商品名稱：">
+            <el-input
+              v-model="productName"
+              placeholder="例如：雙電壓負離子折疊吹風機 (附收納袋)"
+              clearable
+              @keyup.enter="handleClassify"
+              :disabled="loading"
+            >
+              <template #append>
+                <el-button
+                  type="primary"
+                  :loading="loading"
+                  @click="handleClassify"
+                >
+                  開始分類
+                </el-button>
+              </template>
+            </el-input>
+          </el-form-item>
+        </el-form>
+
+        <el-skeleton
+          :rows="3"
+          animated
+          :loading="loading"
+          style="margin-top: 25px"
+        >
+          <template #default>
+            <div v-if="result" class="result-box">
+              <h3 style="margin-top: 0; color: #303133">🤖 AI 分類結果</h3>
+
+              <el-descriptions :column="1" border>
+                <el-descriptions-item label="建議類別">
+                  <el-tag size="large" type="success" effect="dark">
+                    {{ result.category }}
+                  </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="分類原因說明">
+                  {{ result.reason }}
+                </el-descriptions-item>
+              </el-descriptions>
+
+              <div v-if="usage" class="meta-info">
+                本次耗費 Tokens: {{ usage.totalTokenCount }} (請求: {{
+                usage.promptTokenCount }} / 回應: {{ usage.candidatesTokenCount
+                }} / 思考: {{ usage.thoughtsTokenCount }})
+              </div>
+            </div>
+          </template>
+        </el-skeleton>
+      </el-card>
+    </div>
+
+    <script>
+      const { createApp, ref } = Vue;
+      const { ElMessage } = ElementPlus;
+
+      createApp({
+        setup() {
+          // 狀態定義
+          const productName = ref("");
+          const loading = ref(false);
+          const result = ref(null);
+          const usage = ref(null);
+          const apiKey = "";
+
+          // 呼叫 Gemini API 邏輯
+          const handleClassify = async () => {
+            // 欄位防呆驗證
+            if (!productName.value.trim()) {
+              ElMessage({
+                message: "請先輸入商品名稱",
+                type: "warning",
+              });
+              return;
+            }
+
+            loading.value = true;
+            result.value = null;
+            usage.value = null;
+
+            // 構建與您要求完全一致的 REST API 請求網址
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+
+            // 構建您要求的 Payload 結構
+            const payload = {
+              systemInstruction: {
+                parts: [
+                  {
+                    text: "你是一個電商網站的商品自動分類器。你必須嚴格根據以下定義，將商品歸入最符合的唯一類別：\n- 3C電子：包含手機、電腦、相機、耳機、以及各類插電或充電式的「生活電子電器用品」（如吹風機、電風扇、刮鬍刀等）。\n- 流行服飾：衣服、鞋子、包包、飾品。\n- 美妝保養：化妝品、保養品、面膜、香水。\n- 生鮮食品：零食、飲料、生鮮食材。\n- 居家生活：家具、收納盒、五金、衛生紙等非電子的日常用品。\n\n規範：如果商品名稱真的完全無法判斷，才歸類為 '居家生活'。不可盲目歸類。",
+                  },
+                ],
+              },
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: `商品名稱：${productName.value}`, // 動態帶入使用者輸入的值
+                    },
+                  ],
+                },
+              ],
+              generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                  type: "OBJECT",
+                  properties: {
+                    category: {
+                      type: "STRING",
+                      enum: [
+                        "3C電子",
+                        "流行服飾",
+                        "居家生活",
+                        "生鮮食品",
+                        "美妝保養",
+                      ],
+                    },
+                    reason: {
+                      type: "STRING",
+                      description:
+                        "說明為什麼將此商品歸類到該類別的簡短邏輯原因。",
+                    },
+                  },
+                  required: ["category", "reason"],
+                },
+              },
+            };
+
+            try {
+              const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              });
+
+              if (!response.ok) {
+                // 超過免費層上限時通常會回傳 429
+                if (response.status === 429) {
+                  throw new Error(
+                    "已達免費層今日呼叫上限(20次)或每分鐘次數限制。",
+                  );
+                }
+                throw new Error(`API 連線失敗，錯誤碼: ${response.status}`);
+              }
+
+              const data = await response.json();
+
+              // 1. 提取出核心的 JSON 字串
+              const rawText = data.candidates[0].content.parts[0].text;
+
+              // 2. 將字串解析回 JavaScript 物件並指派給畫面變數
+              result.value = JSON.parse(rawText);
+
+              // 3. 記錄 Token 使用統計量
+              if (data.usageMetadata) {
+                usage.value = data.usageMetadata;
+              }
+
+              ElMessage({
+                message: "分類成功",
+                type: "success",
+              });
+            } catch (error) {
+              console.error(error);
+              ElMessage({
+                message: error.message || "系統發生未知錯誤",
+                type: "error",
+                duration: 5000,
+              });
+            } finally {
+              loading.value = false;
+            }
+          };
+
+          return {
+            productName,
+            loading,
+            result,
+            usage,
+            handleClassify,
+          };
+        },
+      })
+        .use(ElementPlus)
+        .mount("#app");
+    </script>
+  </body>
+</html>
