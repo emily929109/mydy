@@ -1,0 +1,212 @@
+========================================
+對話標題：localStorage 有 member 但登入按鈕仍顯示問題
+儲存日期：2026-07-12
+========================================
+
+【對話記錄】
+
+[使用者]
+此專案為公司asp.net mvc的專案copy回來，我正在看註冊流程
+請幫我修正以下邏輯問題：
+Local storage member 存在，但 login_ok_msg != "*"，明明登入過了但登入按鈕還在
+
+----------------------------------------
+
+[Claude]
+（進入 Plan Mode，派出 Explore agent 追查 menutop.js / header.js / layout.html 的登入狀態邏輯）
+
+找到根本原因：登入按鈕是否顯示，完全由 `header.js` 的 Vue 響應式狀態 `setMenu.loginHide` 決定（`layout.html:1424`），不是直接看 localStorage 有沒有 member。
+
+`setMenu.loginHide` 預設為 `true`（header.js:49），只有在 `onMounted` 中同時滿足以下兩個條件才會被 `setMenuForRole()` 翻成 `false`（header.js:132）：
+
+----------------------------------------
+if (member.value != null && member.value.login_ok_msg == "*") { ... }
+----------------------------------------
+
+問題在於「member 是否存在」與「login_ok_msg === '*'」是兩個被刻意拆開的獨立狀態：
+
+- 使用者卡在「基本資料/簡易註冊」精靈中未完成時，member.register_step（0/1/2/12/13）決定下一步要去哪個頁面（menutop.js:154-196），此時 login_ok_msg 一開始就不是 "*"。
+- 使用者已完成基本註冊、但信用審核狀態需要重新補件時（applyCheckMsg.type 為 2、6、10、14、17-20），程式碼會刻意把已經是 "*" 的 login_ok_msg 改回空字串、但保留 member（menutop.js:276-278、295-297、305-307），目的是讓後續的 UploadFile.js 補件頁還能讀到 member.mobile/id_no 等資料。
+- 其餘會直接判退/停權的狀態（type 1、3、5、7、9、11、13、15）會呼叫 header_app.Link_Logout() 把 member 整個清掉，不在本次修正範圍內（本來就會恢復成「未登入」，行為正確）。
+
+也就是說，「已登入但按鈕還在」是目前設計下的已知現象：使用者卡在補件/續辦流程時，member 會留著但 login_ok_msg 不是 "*"。這個判斷邏輯在 header.js:132、header.js:615、menutop.js:25 三處各自重複了一份，且只有登入當下（menutop.js 的 login() 成功回呼）知道要導去哪個續辦頁面，重新整理頁面後 header.js/menutop.js 完全沒有重建這個「續辦導引」的邏輯，只會一直彈出/顯示原本的「登入」表單，讓使用者誤以為自己沒登入過。
+
+----------------------------------------
+
+[Claude - 詢問使用者]
+當 localStorage 有 member 但 login_ok_msg != "*"（使用者卡在補件/審核中等中間流程）時，畫面應該顯示什麼？
+
+選項：
+1. 視為已登入，隱藏登入按鈕、顯示完整會員選單
+2. 隱藏登入按鈕，但顯示『繼續註冊/待審核』提示而非完整會員選單
+3. 只關閉自動彈出的登入 modal，登入按鈕邏輯不動
+
+----------------------------------------
+
+[使用者]
+（選擇）隱藏登入按鈕，但顯示『繼續註冊/待審核』提示而非完整會員選單
+
+----------------------------------------
+
+[Claude]
+（進一步派 agent 確認：重新整理頁面後，僅憑 localStorage.member 是否有足夠資料重建「繼續註冊」的目的地網址）
+
+確認結果：
+- member.register_step（0/1/2/12/13）與 member.applyCheckMsg.type（2/6/10/14/17-20）這兩個欄位在頁面重新整理後仍留在 localStorage.member 裡，足以重建續辦網址。
+- #regist-notfinsh-modal（layout.html:1755-1785）目前綁定的 register_url 是 menutop.js 裡 menuApp 的 Vue ref，只在「即時登入」當下被賦值，重新整理頁面後不會自動還原，不能直接沿用；新方案改用 header_app 自己的 setMenu 狀態，避免跨 Vue app 綁定問題。
+- 特約商（dealer）登入路徑沒有 register_step/applyCheckMsg 這套機制，不需特殊處理。
+
+最終寫入計畫檔（/Users/yiyinglin/.claude/plans/asp-net-mvc-copy-local-streamed-kite.md）：
+
+----------------------------------------
+# 修正：localStorage 有 member 但登入按鈕仍顯示
+
+## Context
+（同上根本原因分析）
+
+## 使用者決定的修正方向
+當 member 存在但 login_ok_msg != "*" 時：
+- 隱藏登入按鈕（不再讓使用者誤以為沒登入過）
+- 顯示一個新的「繼續註冊/待審核」提示項目，取代原本完整的會員選單
+
+## 實作方式
+
+### 1. header.js — 新增可重用的「續辦狀態」判斷函式
+getPendingRegisterInfo = (member) => {
+  if (member == null || member.login_ok_msg == "*") return null;
+
+  if (member.applyCheckMsg && member.applyCheckMsg.type != null) {
+    switch (member.applyCheckMsg.type) {
+      case 2: case 6: case 10: case 14:
+      case 17: case 18: case 19: case 20:
+        return { url: "/Home/UploadFile" };
+    }
+    return null;
+  }
+
+  if (member.register_step != null) {
+    switch (member.register_step) {
+      case 0: return { url: "/Home/UploadFile" };
+      case 1: return { url: "/Home/MemberInfo" };
+      case 2: return { url: "/Home/MemberSign2" };
+      case 12: return { url: "/Home/MemberInfo_easy" };
+      case 13: return { url: "/Home/TwcaVerify_1_easy" };
+      default: return { url: "/Home/MemberInfo" };
+    }
+  }
+
+  return null;
+}
+
+不修改 menutop.js 裡既有、已經正常運作的即時登入邏輯，只新增一份可在「重新整理頁面」時僅憑 localStorage.member 重建同樣結論的版本。
+
+### 2. header.js — setMenu 新增狀態欄位
+const setMenu = reactive({
+  member_1: false,
+  dealer_1: false,
+  showProfile: false,
+  loginHide: true,
+  pendingRegister: false,      // 新增
+  continueRegisterUrl: "",     // 新增
+});
+
+### 3. header.js — onMounted 補上第二分支（header.js:132-152 附近）
+if (member.value != null && member.value.login_ok_msg == "*") {
+  setMenuForRole(member.value.role);
+  // ...原本內容不動...
+} else {
+  const pending = getPendingRegisterInfo(member.value);
+  if (pending != null) {
+    setMenu.loginHide = false;
+    setMenu.pendingRegister = true;
+    setMenu.continueRegisterUrl = pending.url;
+  }
+}
+
+### 4. header.js — 自動彈出登入視窗的判斷（header.js:614-618）
+var member = JSON.parse(localStorage.getItem("member"));
+if (member == null || (member.login_ok_msg != "*" && getPendingRegisterInfo(member) == null)) {
+  $("#authentication-modal").modal("show");
+}
+
+### 5. menutop.js — showLogin（menutop.js:24-27）比照修改
+showLogin = (member) => {
+  if (member == null || (member.login_ok_msg != "*" && getPendingRegisterInfo(member) == null))
+    $("#authentication-modal").modal("show");
+};
+
+### 6. layout.html — 新增「繼續註冊」導覽項目
+<li v-if="setMenu.pendingRegister" class="nav-item dropdown">
+    <a class="nav-link pe-0" :href="setMenu.continueRegisterUrl">
+        <div class="login text-center">
+            繼續註冊
+        </div>
+    </a>
+</li>
+
+（加在 layout.html:1424-1430 既有登入按鈕之後，同一個 #headerapp 掛載範圍內）
+
+## 重要提醒
+layout.html 裡另外還有 menuLeftApp、buttom_menuApp 兩個獨立的 Vue app（各自維護一份同樣長相的 setMenu 狀態），但它們的原始碼檔案不在這份本地副本裡，本次修正無法觸及。之後在完整專案需要比照套用同一套 getPendingRegisterInfo 判斷，才能維持全站一致。
+
+## 驗證方式
+本地副本沒有可執行的 ASP.NET 專案，建議：
+1. 瀏覽器打開 layout.html 檢查 Vue 樣板語法無誤、Console 無錯誤。
+2. 用 Console 手動模擬各種 localStorage.member 狀態（register_step=0、applyCheckMsg.type=6、login_ok_msg="*"、member=null）並重新整理頁面，確認 setMenu 狀態符合預期。
+3. 最後把修正套用回完整 ASP.NET MVC 專案，跑一次真實登入 → 中斷在補件流程 → 重新整理頁面的端到端流程驗證。
+----------------------------------------
+
+（呼叫 ExitPlanMode 請求核准，使用者拒絕，計畫暫停待後續處理）
+
+----------------------------------------
+
+[使用者]
+/chatsave
+
+----------------------------------------
+
+[Claude]
+請輸入這次對話的檔案名稱（不需要附檔名）：
+
+----------------------------------------
+
+[使用者]
+localStorage 有 member 但登入按鈕仍顯示問題
+
+----------------------------------------
+
+[使用者]
+（/plan 指令查看目前計畫內容後）要如何跳出plan mode
+
+----------------------------------------
+
+[Claude]
+兩種方式：
+1. 由我再呼叫一次 ExitPlanMode 送出計畫請你核准，同意即可離開 plan mode 並開始實作。
+2. 手動按 Shift+Tab 循環切換模式即可自行跳出 plan mode，不需要等我送出計畫。
+
+----------------------------------------
+
+[使用者]
+/chatsave （重新觸發，同時系統顯示已跳出 Plan Mode）
+
+----------------------------------------
+
+[Claude]
+（詢問儲存路徑，因原本 Windows 路徑 C:\Users\emily\Desktop\emily\01_project\99_memories\ 在此 Mac 上不存在）
+
+剛才提到 Windows 路徑在這台 Mac 上不存在，要存到哪裡？
+
+----------------------------------------
+
+[使用者]
+（選擇自訂路徑）/Users/yiyinglin/Desktop/Personal/02_project/07_mydy/99_memories
+
+----------------------------------------
+
+[Claude]
+確認目錄已存在（先前已有其他 chatsave 記錄於此），建立本檔案並儲存。
+
+========================================
+結束
+========================================

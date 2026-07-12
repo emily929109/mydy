@@ -10,29 +10,8 @@ const {
   onBeforeMount,
   onBeforeUpdate,
 } = Vue;
-// 最前方將 defineStore、createPinia 方法取出
-//const { defineStore, createPinia, mapState, mapActions } = Pinia;
-// 將 Pinia 套用至 Vue 環境中，請確保加入在 `const app = createApp...` 之後，並在 `app.mount` 之前。
-//const pinia = createPinia();
-// 啟用持久化插件
-//pinia.use(window.PiniaPluginPersistedstate.default);
-
-// 定義一個 Pinia Store
-//const useCounterStore = defineStore('counter', {
-//    state: () => ({
-//        count: 0
-//    }),
-//    actions: {
-//        increment() {
-//            this.count++;
-//        }
-//    },
-//    persist: true, // 開啟持久化功能
-//});
 
 var baseUrl = window.location.href.indexOf("localhost") == -1 ? "/DuDuPay" : "";
-//const dudu_url = 'https://2ac8-1-34-134-176.ngrok-free.app/';
-//const dudu_url = 'https://test2cms.dudupay.com.tw/';
 const dudu_url = "https://www.dudupay.com.tw/";
 
 const Appz = {
@@ -66,21 +45,10 @@ const Appz = {
     const cartCount = ref(0); // 購物車總數量
     const cartItems = ref([]); // 購物車項目列表
     const headerCartItems = computed(() => {
-      //console.log(cartItems.value)
       return cartItems.value.flatMap((dealer) => dealer.cars);
     });
-    //console.log("headerCartItems", headerCartItems.value)
 
-    // Add a request interceptor
-    //axios.interceptors.request.use(function (config) {
-    //    const token = store.getState().session.token;
-    //    config.headers.Authorization = token;
-
-    //    return config;
-    //});
-    //axios.defaults.headers.post['Authorization'] = `Bearer ${''}`;
     axios.defaults.headers.common["Authorization"] = `Bearer ${""}`;
-    //axios.defaults.headers.post['Content-Type'] = 'application/json';
 
     //捕捉 401錯誤
 

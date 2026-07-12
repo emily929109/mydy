@@ -774,7 +774,6 @@
                         <div class="collapse navbar-collapse" id="navbarVerticalCollapse">
                             <div class="navbar-vertical-content scrollbar">
                                 <ul class="navbar-nav flex-column mb-3">
-                                    @*mb-7*@
                                     @*申辦 登入*@
                                     <li v-if="setMenu.loginHide" class="nav-item">
                                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
@@ -790,28 +789,6 @@
                                                 <span class="nav-link-icon fs-0"><span class="far fa-user"></span></span><span class="nav-link-text ps-1">立即申辦</span>
                                             </div>
                                         </a>
-                                        @* 登入 *@
-                                        @*<a class="ean-link dropdown-indicator" href="#multi-level-login" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="multi-level">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-icon"><span class="fas fa-layer-group"></span></span><span class="nav-link-text ps-1">登入</span>
-                                                </div>
-                                            </a>
-                                            <ul class="nav collapse false" id="multi-level-login">
-                                                <li class="nav-item">
-                                                    <a class="ean-link" href="../../#authentication-modal" data-bs-toggle="modal" role="button" aria-expanded="false" aria-controls="dashboard">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">會員登入</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="ean-link" href="../../#authentication-modal" data-bs-toggle="modal" role="button" aria-expanded="false" aria-controls="dashboard">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">特約商登入</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            </ul>*@
 
                                         @* 登入 *@
                                         <a class="ean-link" href="../../#authentication-modal" data-bs-toggle="modal" role="button" aria-expanded="false" aria-controls="dashboard">
@@ -819,11 +796,6 @@
                                                 <span class="nav-link-icon"><span class="fas fa-user-alt"></span></span><span class="nav-link-text ps-1">會員登入</span>
                                             </div>
                                         </a>
-                                        @*<a class="ean-link" href="../../#authentication-modal-2" data-bs-toggle="modal" role="button" aria-expanded="false" aria-controls="dashboard">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-icon"><span class="fas fa-user-alt"></span></span><span class="nav-link-text ps-1">特約商登入</span>
-                                                </div>
-                                            </a>*@
                                     </li>
 
                                     @* 會員專屬*@
@@ -843,134 +815,6 @@
                                         </a>
                                     </li>
 
-                                    @* 特約商 我的專屬*@
-                                    <!--<li class="nav-item" v-if="setMenu.dealer_1">
-                                        <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
-                                            <div class="col-auto navbar-vertical-label">
-                                                特約商專屬
-                                            </div>
-                                            <div class="col ps-0">
-                                                <hr class="mb-0 navbar-vertical-divider" />
-                                            </div>
-                                        </div>
-                                        <a class="ean-link dropdown-indicator" href="#e-commerce" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="e-commerce">
-                                            <div class="d-flex align-items-center">
-                                                <span class="nav-link-icon"><span class="fas fa-shopping-cart"></span></span><span class="nav-link-text ps-1">我是特約商</span>
-                                            </div>
-                                        </a>
-                                        <ul class="nav collapse false ms-2" id="e-commerce">
-                                            <li class="nav-item">
-                                                <a class="ean-link dropdown-indicator" href="#product" data-bs-toggle="collapse" aria-expanded="false" aria-controls="e-commerce">
-                                                    <div class="d-flex align-items-center">
-                                                        <span class="nav-link-text ps-4">產生 QRCode</span>
-                                                    </div>
-                                                </a>
-                                                <ul class="nav collapse false ms-2" id="product">
-                                                    <li class="nav-item">
-                                                        <a class="ean-link" href="~/Home/DealerQRCode_2" aria-expanded="false">
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="nav-link-text ps-4">自訂專區</span>
-                                                            </div>
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="ean-link" href="~/Home/DealerQRCode_3" aria-expanded="false">
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="nav-link-text ps-4">店家 QR</span>
-                                                            </div>
-                                                        </a>
-                                                    </li>-->
-                                    @*<li class="nav-item">
-                                            <a class="ean-link" href="#!" aria-expanded="false">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-text ps-4">API 綁定</span>
-                                                </div>
-                                            </a>
-                                        </li>*@
-                                    <!--</ul>
-                                        </li>
-
-                                    </ul>
-
-                                    <ul class="nav collapse false ms-2" id="e-commerce">
-                                        <li class="nav-item">
-                                            <a class="ean-link dropdown-indicator" href="#product-1" data-bs-toggle="collapse" aria-expanded="false" aria-controls="e-commerce">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-text ps-4">訂單查詢/撥款</span>
-                                                </div>
-                                            </a>
-                                            <ul class="nav collapse false ms-2" id="product-1">
-                                                <li class="nav-item">
-                                                    <a :class="[authority.query ? '' : 'ean_disabled','ean-link']" href="~/Home/QueryOrder" aria-expanded="false">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">訂單查詢</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a :class="[authority.cashApply ? '' : 'ean_disabled','ean-link']" href="~/Home/QueryPayApply" aria-expanded="false">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">申請撥款</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="ean-link dropdown-indicator" href="#product-11" data-bs-toggle="collapse" aria-expanded="false" aria-controls="e-commerce">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-text ps-4">購物商城</span>
-                                                </div>
-                                            </a>
-                                            <ul class="nav collapse false ms-2" id="product-11">
-                                                <li class="nav-item">-->
-                                    @*<a :class="[authority.query ? '' : 'ean_disabled','ean-link']" href="~/Home/DealerProduct" aria-expanded="false">*@
-                                    <!--<a :class="['ean-link']" href="~/Home/DealerProduct" aria-expanded="false">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">商品管理</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-                                    </ul>
-
-                                    <ul class="nav collapse false ms-2" id="e-commerce">
-                                        <li class="nav-item">
-                                            <a class="ean-link dropdown-indicator" href="#product-2" data-bs-toggle="collapse" aria-expanded="false" aria-controls="e-commerce">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-text ps-4">設定</span>
-                                                </div>
-                                            </a>
-                                            <ul class="nav collapse false ms-2" id="product-2">
-                                                <li class="nav-item">
-                                                    <a :class="[authority.admin ? '' : 'ean_disabled','ean-link']" href="~/Home/DealerRole" aria-expanded="false">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">角色權限管理</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="ean-link" href="~/Home/DealerSetPassword" aria-expanded="false">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">更改密碼</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            </ul>
-                                        </li>
-
-                                    </ul>-->
-                                    @* 特約商登出 *@
-                                    <!--<ul class="nav collapse false ms-2" id="e-commerce">
-                                            <span @@click="Logout()" class="ean-link" href="" data-bs-toggle="collapse" aria-expanded="false" aria-controls="e-commerce">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-text ps-4">登出</span>
-                                                </div>
-                                            </span>
-                                        </ul>
-
-                                    </li>-->
                                     @*特約商修改(關掉大標題)*@
                                     <li class="nav-item" v-if="setMenu.dealer_1">
                                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
@@ -1059,18 +903,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
                                     @*公司 介紹*@
                                     <li class="nav-item">
                                         <div class="row navbar-vertical-label-wrapper mt-3 mb-2">
@@ -1096,34 +928,12 @@
                                                 <span class="nav-link-icon"><span class="fas fa-plane mr-2"></span></span><span class="nav-link-text ps-1">旅遊好康</span>
                                             </div>
                                         </a>
-                                        @*<a class="ean-link" href="~/Home/StoreList" role="button" aria-expanded="false" aria-controls="dashboard">
-                                                <div class="d-flex align-items-center">
-                                                    <span class="nav-link-icon"><span class="far fa-newspaper"></span></span><span class="nav-link-text ps-1">購物專區</span>
-                                                </div>
-                                            </a>*@
-                                        @*<a class="ean-link dropdown-indicator" href="#multi-level-1" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="multi-level">*@
-
+                                       
                                         <a class="ean-link" href="~/Home/StoreList" role="button" aria-expanded="false" aria-controls="dashboard">
                                             <div class="d-flex align-items-center">
                                                 <span class="nav-link-icon"><span class="fas fa-shopping-bag mr-2"></span></span><span class="nav-link-text ps-1">購物專區</span>
                                             </div>
                                         </a>
-                                        @*<ul class="nav collapse false" id="multi-level-1">
-                                                <li class="nav-item">
-                                                    <a class="ean-link" href="~/Home/StoreList" aria-expanded="false">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">線上商城</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <a class="ean-link" href="~/Home/Dealer" aria-expanded="false">
-                                                        <div class="d-flex align-items-center">
-                                                            <span class="nav-link-text ps-4">合作店家</span>
-                                                        </div>
-                                                    </a>
-                                                </li>
-                                            </ul>*@
 
                                         <a class="ean-link dropdown-indicator" href="#dealer" role="button" data-bs-toggle="collapse" aria-expanded="false" aria-controls="multi-level">
                                             <div class="d-flex align-items-center">
@@ -1194,18 +1004,6 @@
 
 
                                 </ul>
-                                @*<div class="settings mb-3">
-                                        <div class="card alert p-0 shadow-none" role="alert" style="border:0">
-                                            <div class="btn-close-falcon-container">
-                                                <div class="btn-close-falcon" aria-label="Close" data-bs-dismiss="alert"></div>
-                                            </div>
-                                            <div class="card-body text-center">
-                                                <img src="~/assets/img/icons/spot-illustrations/navbar-vertical.png" alt="" width="80" />
-                                                <p class="fs--2 mt-2">無敵選股術 <br />來去了解</p>
-                                                <div class="d-grid"><a class="btn btn-sm btn-purchase" href="">不錯，來去看看</a></div>
-                                            </div>
-                                        </div>
-                                    </div>*@
                             </div>
                         </div>
 
@@ -1239,7 +1037,6 @@
                                     <div class="dropdown-menu dropdown-menu-card border-0 mt-0">
                                         <div class="card shadow-none dark__bg-1000">
                                             <div class="max-h-dropdown">
-                                                @*<img class="img-dropdown" src="../assets/img/icons/spot-illustrations/authentication-corner.png" width="130" alt="" />*@
                                                 <div class="row">
                                                     <div class="">
                                                         <div class="nav flex-column">
@@ -1251,12 +1048,8 @@
                                                             <a class="dropdown-item link-600 fw-medium" style="font-size: 18px; border-bottom: 1px dashed #d7d7d7;" href="~/Home/DealerQRCode_3">
                                                                 <span class="fas fa-qrcode fs-0 me-1"></span>店家 QR
                                                             </a>
-                                                            @*<a class="dropdown-item link-600 fw-medium ms-2" style="font-size:18px;" href="#!">
-                                        <span class="fab fa-laravel fs-0 me-1"></span>API 綁定
-                                    </a>*@
                                                         </div>
                                                         <div class="nav flex-column">
-                                                            @*<p class="ean-link text-800 mb-0 fw-black fw-bold">設定</p>*@
                                                             <a :class="[authority.admin ? '' : 'ean_disabled','dropdown-item link-600 fw-medium']" style="font-size:18px;" href="~/Home/DealerRole">
                                                                 <span class="fas fa-cogs fs-0 me-1"></span>角色權限管理
                                                             </a>
@@ -1302,37 +1095,7 @@
                                     <a class="nav-link" href="~/Home/MemberCenter" role="button" aria-haspopup="true" aria-expanded="false">會員中心</a>
                                 </li>
 
-                                @*<li v-if="setMenu.member_1" class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">我的帳務</a>
-            <div class="dropdown-menu dropdown-menu-card border-0 mt-0" style="min-width:12rem;">
-                <div class="bg-white dark__bg-1000 rounded-3">
-                    <a class="dropdown-item item-link link-600 fw-medium" href="~/Home/ScanCode">
-                        <span class="fas fa-expand fs-0 me-1"></span>掃碼消費
-                    </a>
-                    <a class="dropdown-item item-link link-600 fw-medium" href="~/Home/MemberOrder">
-                        <span class="far fa-list-alt fs-0 me-1"></span>訂單紀錄
-                    </a>
-                    <a class="dropdown-item item-link link-600 fw-medium" href="~/Home/Account">
-                        <span class="fas fa-money-bill-wave fs-0 me-1"></span>我的帳單
-                    </a>
-                    <a class="dropdown-item item-lin link-600 fw-medium" href="~/Home/AmountUp">
-                        <span class="fas fa-sort-numeric-up-alt fs-0 me-1"></span>我的額度
-                    </a>
-                    <a class="dropdown-item item-link link-600 fw-medium" href="~/Home/MyPush">
-                        <span class="fas fa-users fs-0 me-1"></span>我的推薦
-                    </a>
-                    <a class="dropdown-item item-link link-600 fw-medium" href="https://inv.dudupay.com.tw" target="_blank">
-                        <span class="fas fa-users fs-0 me-1"></span>發票查詢
-                    </a>
-                    <a class="dropdown-item item-link link-600 fw-medium" href="https://www.einvoice.nat.gov.tw/" target="_blank">
-                        <span class="fas fa-users fs-0 me-1"></span>載具歸戶
-                    </a>
-                    <a class="dropdown-item item-link link-600 fw-medium" href="" @@click="Logout()">
-                        <span class="fas fa-users fs-0 me-1"></span>登出
-                    </a>
-                </div>
-            </div>
-        </li>*@
+                              
                                 <li v-if="setMenu.member_1" class="nav-item seperate"></li>
 
                                 @*=============網頁版導覽列*=============*@
@@ -1404,7 +1167,6 @@
                             <li class="nav-item dropdown" v-if="setMenu.showProfile">
                                 <a class="nav-link pe-0 " id="navbarDropdownUser" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                                     <div class="member-icon">
-                                        @*<img class="rounded-circle" src="../../assets/img/team/3-thumb.png" alt="">*@
                                         <img class="rounded-circle" src="~/img/memberIcon.jpg" alt="">
 
                                     </div>

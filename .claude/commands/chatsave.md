@@ -36,6 +36,6 @@
 ```
 
 3. 使用 Write 工具將整理好的內容儲存至：
-   C:\Users\emily\Desktop\emily\01_project\99_memories\{使用者輸入的檔名}.txt
+   /Users/yiyinglin/Desktop/Personal/02_project/07_mydy/99_memories/{使用者輸入的檔名}.txt
 
 4. 完成後告知使用者：「已儲存至 99_memories/{檔名}.txt」
