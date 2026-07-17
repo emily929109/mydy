@@ -1,0 +1,573 @@
+@* PDF *@
+@*<link href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf_viewer.min.css" rel="stylesheet" type="text/css" />*@
+<link href="~/css/pdf_viewer.min.css" rel="stylesheet" type="text/css" />
+<style>
+    .label_color {
+        color: #261ff2;
+        font-weight: bold;
+    }
+
+    .star_color {
+        color: #E4603C;
+    }
+
+    .wrapper {
+        position: relative;
+        width: 100%;
+        /*height: 300px;*/
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .signature-pad {
+        /*position: absolute;*/
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 350px;
+        background-color: white;
+        border: 1px solid #d8e2ef;
+    }
+
+    .video-pad {
+        /*position: absolute;*/
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 400px;
+        background-color: white;
+        border: 1px solid #d8e2ef;
+    }
+
+    .video-size {
+        width: 100%;
+        height: 550px;
+    }
+
+        .video-size video {
+            width: 100%;
+            height: 100%
+        }
+
+    .theme-wizard .nav-link.active .nav-item-circle {
+        background-color: #00af9a !important;
+        color: #fff;
+        border-color: #00af9a;
+    }
+
+    .theme-wizard .nav-link.active {
+        color: #00af9a;
+    }
+
+    #pdf_container {
+        background: #ffffff;
+        text-align: center;
+        display: none;
+        padding: 1px;
+        overflow: auto
+    }
+
+    [v-cloak] {
+        display: none !important;
+    }
+    /*---------#lineModal--------*/
+    #lineModal .modal-header {
+        border: none;
+        padding-bottom: 5px !important;
+    }
+
+        #lineModal .modal-header .modal-title {
+            font-family: "M PLUS Rounded 1c", sans-serif;
+            color: #ab0909;
+        }
+
+    #lineModal img.line-qr {
+        width: 100%;
+        max-width: 300px;
+        border: 2px solid;
+        border-radius: 1rem;
+        border-color: #5e6e8280;
+    }
+
+    #lineModal .btn-custom {
+        color: #fff;
+        background-color: #49c5b6;
+        box-shadow: 0 2px 8px 0 rgba(112, 112, 112, 0.5);
+        transition: all 0.3s ease;
+    }
+
+        #lineModal .btn-custom:hover,
+        #lineModal .btn-custom:focus {
+            transform: translateY(-2px)
+        }
+
+    #lineModal btn[data-bs-dismiss] {
+        color: #49c5b6;
+        background-color: #fff;
+        border: 1px solid #49c5b6
+    }
+    /*stepper優化*/
+    :root {
+        --color-green: #00af9a;
+        --color-dark-green: #028b7a;
+        --color-grey: #ebebeb;
+        --color-drak-grey: #cbc8c8;
+        --color-pink: #ff0000a3;
+    }
+
+    .theme-wizard .nav-link.done {
+        color: var(--color-green);
+    }
+
+        .theme-wizard .nav-link.done .nav-item-circle-parent:before,
+        .theme-wizard .nav-item:not(:first-child) .active .nav-item-circle-parent:after {
+            background-color: var(--color-green);
+        }
+
+        .theme-wizard .nav-link.done .nav-item-circle {
+            background-color: var(--color-green) !important;
+            border-color: var(--color-green);
+        }
+</style>
+
+<!-- ===============================================-->
+<!--    Main Content-->
+<!-- ===============================================-->
+<main class="main" id="app">
+    @if (ViewBag.MetaTag != null)
+    {
+        <script type="text/javascript">
+            window.onload = function () {
+                localStorage.removeItem('twca_msg');
+                localStorage.setItem('twca_msg', JSON.stringify("@ViewBag.MetaTag"));                
+                //var twca_msg = JSON.parse(localStorage.getItem('twca_msg'));
+                //console.log(twca_msg);
+
+            };
+        </script>
+    }
+
+    @*@ViewBag.MetaTag*@
+    <div class="row justify-content-center pt-4">
+        <div class="col-sm-10 col-lg-7 col-xxl-5">
+            @*<a class="d-flex flex-center mb-4" href="#"><img class="me-2" src="~/assets/img/icons/spot-illustrations/falcon.png" alt="" width="45" /><span class="font-sans-serif fw-bolder fs-4 d-inline-block"><span style="color:Orchid">DUDU</span>PAY</span></a>*@
+            <div class="card theme-wizard mb-5">
+                <div class="card-header bg-light pt-3 pb-2">
+                    @* 流程 *@
+                    <ul class="nav justify-content-between nav-wizard">
+                        <li class="nav-item"><a class="nav-link done fw-semi-bold" href="#bootstrap-wizard-tab1" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-user"></span></span></span><span class="d-none d-md-block mt-1 fs--1">註冊會員</span></a></li>
+                        <li class="nav-item"><a class="nav-link done fw-semi-bold" href="#bootstrap-wizard-tab2" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-cloud-upload-alt"></span></span></span><span class="d-none d-md-block mt-1 fs--1">上傳照片</span></a></li>
+                        <li class="nav-item"><a class="nav-link done fw-semi-bold" href="#bootstrap-wizard-tab3" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="far fa-edit"></span></span></span><span class="d-none d-md-block mt-1 fs--1">填寫基本資料</span></a></li>
+                        <li class="nav-item"><a class="nav-link active fw-semi-bold" href="#bootstrap-wizard-tab4" data-bs-toggle="tab" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-thumbs-up"></span></span></span><span class="d-none d-md-block mt-1 fs--1">簽署約定書</span></a></li>
+                    </ul>
+                </div>
+                <div v-cloak class="py-1" id="wizard-controller">
+                    <div class="tab-content">
+                        <div class="tab-pane active px-sm-3" role="tabpanel" aria-labelledby="bootstrap-wizard-tab1" id="bootstrap-wizard-tab1">
+
+                            <img class="bg-auth-circle-shape" style="z-index:-1" src="~/assets/img/icons/spot-illustrations/bg-shape.png" alt="" width="250"><img class="bg-auth-circle-shape-2" src="~/assets/img/icons/spot-illustrations/shape-1.png" alt="" width="150">
+                            <div class="z-index-1">
+                                <div class="card-body p-0">
+                                    <div class="row g-0 h-100">
+                                        <div class="col-md-12 col-sm-12 col-12 col-lg-12  flex-center">
+                                            <span>{{test_order}}</span>
+                                            <div class="p-4 p-md-1 flex-grow-1">
+                                                <div class="d-flex">
+                                                    <h3 class="fw-bold me-3" style="color:#00af9a">同意約定書</h3>
+                                                    @*<a href="~/Home/UploadFile"> <p class="bg-300" style="border-radius:3px;"><span class="fas fa-cloud-upload-alt fs-2 align-text-bottom"></span>身分證重新上傳</p></a>*@
+                                                </div>
+                                                <p style="display:block;align-items:center;" class="star_color">
+                                                    *請點擊下方簽名按鈕進行簽名<br>
+                                                </p>
+
+                                                @*<object data="https://test2cms.dudupay.com.tw/img/DUDUPAY享後付條款暨約定書.pdf" type="application/pdf" frameborder="0" width="100%" height="600px" style="padding: 20px;">
+                                                        <embed src="https://test2cms.dudupay.com.tw/img/DUDUPAY享後付條款暨約定書.pdf" width="100%" height="600px" />
+                                                    </object>*@
+
+                                                @*<div style="height:500px;width:100%; border:1px solid #d8e2ef;">
+                                                        <iframe style="width:100%;height:498px;" src="https://test2cms.dudupay.com.tw/img/DUDUPAY享後付條款暨約定書.pdf"></iframe>
+                                                        <button @@click="sign()" style="float:left;left:25%;top:-20%;position:relative;width:30%;height:10%;border:solid 1px red;">簽名處</button>
+                                                    </div>*@
+
+
+                                                @*<object data="https://test2cms.dudupay.com.tw/img/DUDUPAY享後付約定書_20231006.pdf" type="application/pdf" width="100%" height="100%">
+                                                        <p>
+                                                            Your web browser doesn't have a PDF plugin.
+                                                            Instead you can <a href="filename.pdf">
+                                                                click here to
+                                                                download the PDF file.
+                                                            </a>
+                                                        </p>
+                                                    </object>*@
+
+
+                                                @*<div style="height:500px;width:100%; border:1px solid #d8e2ef;">
+                                                    <iframe style="width:100%;height:500px;" src="/img/DUDUPAY享後付條款暨約定書.pdf"></iframe>*@
+                                                @*<object style="height:500px;width:100%; border:1px solid #d8e2ef;" data="https://test2cms.dudupay.com.tw/img/DUDUPAY享後付約定書_20231006.pdf" type="application/pdf" width="100%" height="500px"></object>*@
+                                                @*<embed :src="contractImage" width="100%" height="500" type='application/pdf'>*@
+                                                @*<button @@click="sign()" style="float:left;left:25%;top:-20%;position:relative;width:30%;height:10%;border:solid 1px red;">簽名處</button>
+                                                    </div>*@
+
+
+                                                <div class="d-flex justify-content-center mb-2" id="pdf_cont" style="width:100%;max-height:20rem;position:relative">
+                                                    <div class="pdf_width" style="border:solid 1px black;max-height:20rem;width:100%;overflow:scroll;" id="pdf_container"></div>
+                                                    @*<button @@click="sign()" style="float:left;left:25%;top:-20%;position:relative;width:30%;height:10%;border:solid 1px red;">簽名處</button>*@
+                                                </div>
+                                                <button v-if="showSignButton" @@click="signButton()" class="btn" style="position: absolute; left: 50px; bottom: 120px; background-color: rgb(0, 175, 154); color: #fff; ">簽名</button>
+
+                                                @*<button @@click="sign()" style="float:left !important;left:25%;top:-20% !important;position:relative;width:30%;height:10%;border:solid 1px red;">簽名處</button>*@
+
+                                                @*<div class="mb-3" style="width:80%;border:solid 1px black">
+                                                        <div style="width:100%;border:solid 1px black;max-height:30rem;" id="pdf_container"></div>
+                                                    </div>*@
+
+
+                                                @* OK *@
+                                                @*<div class="mb-3">
+                                                        <div style="height:500px;width:100%; border:1px solid #d8e2ef;">
+                                                            <img style="height:498px;width:100%;" :src="contractImage" />
+                                                            <button @@click="sign()" style="float:left;left:25%;top:-20%;position:relative;width:30%;height:10%;border:solid 1px red;">簽名處</button>
+                                                        </div>
+                                                    </div>*@
+
+                                                @*<object style="height:500px;width:100%; border:1px solid #d8e2ef;" data="/img/DUDUPAY享後付約定書_20231006.pdf" type="application/pdf" width="100%" height="500px"></object>*@
+                                                @*<embed src="/img/DUDUPAY享後付約定書_20231006.pdf" width="100%" height="500" type='application/pdf'>*@
+                                                @*<button @@click="sign()" style="float:left;left:25%;top:-20%;position:relative;width:30%;height:10%;border:solid 1px red;">簽名處</button>*@
+                                                @*<div class="mb-3">
+                                                        <div style="height:100rem;width:100%; border:1px solid #d8e2ef;">
+                                                            <img id="eantest" style="height:100rem;width:100%;" :src="contractImage" />
+                                                            <button @@click="sign()" style="float:left;left:7%;top:-12.8%;position:relative;width:32%;height:5%;border:solid 1px red;">簽名處</button>
+                                                        </div>
+                                                    </div>*@
+                                                <div class="d-flex justify-content-center  mb-2">
+                                                    <div class="p-2">
+                                                        <button class="btn btn-primary" style="width:10rem;background-color:#00af9a;border-color:#00af9a;" @@click="Send()">送 出</button>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*簽名處*@
+    <div class="modal fade" id="sign_msg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10000">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="modal-header">
+                    <h5 class="modal-title">簽名</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="btn-wrapper d-flex gap-2 justify-content-end mb-3">
+                        <button @@click="clearImage()" class="btn btn-secondary">清除重簽</button>
+                        <button @@click="saveImage()" class="btn btn-primary">確定簽名</button>
+                    </div>
+
+                
+                    <div>
+                        <div class="wrapper">
+                            <canvas id="video-pad" style="height:400px;width:100%;border:dashed 3px red;"></canvas>
+                            <canvas id="signature-pad" class="signature-pad" style="float:left;position:absolute;height:400px;width:100%;opacity:0.2"></canvas>
+                        </div>
+
+                        <div class="video-size" style="display:none;">
+                            <video id="signature-video" width="100%" height="100" controls>
+                                <source src="" type="video/mp4">
+                                <source src="" type="video/ogg">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+
+                        <div class="star_color">
+                            *請保留頭頂至下巴完整輪廓於影片紅框內，正楷簽名<br>
+                            *簽名須同身分證，勿簽簡字
+                        </div>
+                        <div>經度：{{google.longitude}}  緯度：{{google.latitude}}</div>
+                    </div>
+                     
+                                
+
+               
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*顯示簽名QRCode*@
+    <div class="modal fade" id="toolmsg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content border-0">
+                <div class="modal-header">
+                    <h5 class="modal-title">訊息</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-2">未偵測到相機權限<br />請至裝置設定中開啟相機權限<br />或使用其他設備掃描以下QR-code，使用帳號、密碼登入後繼續完成申辦流程</div>
+                    <div id="qrcode" class="d-flex justify-content-center"></div>
+                </div>
+            </div>
+        </div>      
+    </div>
+
+
+    @*會員註冊完成*@
+    <div class="modal fade" id="finishmsg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    @*<button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>*@
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1 fw-bold" style="color:#00af9a" id="tooltippopoversLabel">會員註冊完成</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <h5 style="margin-bottom:1.15rem" v-text="msg"></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="p-2">方便聯絡您的時間：</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio1" type="radio" name="inlineRadioOptions" value="10:00~13:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio1">10: 00~13: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio2" type="radio" name="inlineRadioOptions" value="13:00~16:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio2">13: 00~16: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio3" type="radio" name="inlineRadioOptions" value="16:00~18:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio3">16: 00~18: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio4" type="radio" name="inlineRadioOptions" value="18:00~21:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio4">18: 00~21: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio5" type="radio" name="inlineRadioOptions" value="不限時間" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio5">不限時間</label>
+                                </div>
+                                @*<div class="form-check">
+                                        <input class="form-check-input" id="inlineRadio5" type="radio" name="inlineRadioOptions" value="我在店裡" v-model="checked" />
+                                        <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio5">我在店裡</label>
+                                    </div>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 pb-0">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-center mb-2">
+                                <button class="btn btn-primary" style="width:19rem;background-color:#00af9a;border-color:#00af9a;" @@click="Close(checked)">完 成</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    @*註冊完成顯示完成訊息*@
+    <div class="modal fade" id="registerOK" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1 fw-bold" style="color:#00af9a">會員註冊完成</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <h5 style="margin-bottom:1.15rem">註冊完成!</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 pb-0">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-center mb-2">
+                                <button class="btn btn-primary" style="width:19rem;background-color:#00af9a;border-color:#00af9a;" @@click="closeRegisterOK()">關 閉</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="lineModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header justify-content-center">
+                    <h3 class="modal-title fw-bold text-center">加入LINE!<br />獲得更多好友 專屬好康</h3>
+                    @*<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>*@
+                </div>
+                <div class="modal-body fs-1 fw-bold pt-0 text-center">
+                    掃描QR code或直接前往領取DU幣!
+                    <img class="line-qr mt-2" src="~/img/LINE-QR.png" alt="line-qrcode" />
+                </div>
+                <div class="modal-footer justify-content-between">
+                    @*<button type="button" class="btn" data-bs-dismiss="modal">暫時不要</button>*@
+                    <a href="~/Home/Index">暫時不要</a>
+                    <a href="https://lin.ee/NGb5dwy" target="_blank"><button type="button" class="btn py-3 btn-custom">前往領取優惠</button></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* 超額 *@
+    @*<div class="modal fade" id="nonMember_orderConfirm_modal" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+            <div class="modal-dialog mt-6" role="document">
+                <div class="modal-content border-0">
+                    <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                            <h4 class="mb-1 fw-bold" style="color:#00af9a;">確定結帳</h4>
+                        </div>
+                        <div class="p-4 pb-0">
+                            <div class="row">
+                                <div class="col">
+                                    <form class="mb-3">
+
+                                        <div class="mb-0">
+                                            <label class="form-label fw-bold fs-1 fs-lg-1">商店名稱：{{json.store_name}}</label>
+                                        </div>
+                                        <div class="mb-0">
+                                            <label class="form-label fw-bold fs-1 fs-lg-1">商品名稱：{{json.item}}</label>
+                                        </div>
+                                        <div class="mb-0">
+                                            <label class="form-label fw-bold fs-1 fs-lg-1">共分幾期：{{selected}}</label>
+                                        </div>
+                                        <div class="mb-0">
+                                            <label class="form-label fw-bold fs-1 fs-lg-1">?期應繳：${{parseInt(json.kc_perd_fee).toLocaleString() }}</label>
+                                        </div>
+                                    </form>
+                                    <div class="d-flex justify-content-center mb-4">
+                                        <button @@click="nonMemberConfirm(json,selected)" style="background-color:#00af9a;border-color:#00af9a;" class="btn btn-primary" type="submit">確 認</button>
+                                    </div>
+                                </div>
+
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>*@
+    @* 照會時間(超額) *@
+    @*<div class="modal fade" id="finishmsg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+            <div class="modal-dialog mt-6" role="document">
+                <div class="modal-content border-0">
+                    <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                            <h4 class="mb-1 fw-bold" style="color:#00af9a" id="tooltippopoversLabel">申請完成</h4>
+                        </div>
+                        <div class="p-4 pb-0">
+                            <div class="row">
+                                <div class="col">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4 pb-0">
+                            <div class="row">
+
+                                <div class="col">
+                                    <h5 class="p-2">已收到您的申請資料，我們將盡快審核您的本次訂單，審查結果將以簡訊通知。</h5>
+                                    <h5 class="p-2">方便聯絡您的時間：</h5>
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="inlineRadio1" type="radio" name="inlineRadioOptions" value="10:00~13:00" v-model="checked" />
+                                        <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio1">10: 00~13: 00</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="inlineRadio2" type="radio" name="inlineRadioOptions" value="13:00~16:00" v-model="checked" />
+                                        <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio2">13: 00~16: 00</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="inlineRadio3" type="radio" name="inlineRadioOptions" value="16:00~18:00" v-model="checked" />
+                                        <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio3">16: 00~18: 00</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="inlineRadio4" type="radio" name="inlineRadioOptions" value="18:00~21:00" v-model="checked" />
+                                        <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio4">18: 00~21: 00</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" id="inlineRadio5" type="radio" name="inlineRadioOptions" value="不限時間" v-model="checked" />
+                                        <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio5">不限時間</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-2 pb-0">
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <button class="btn btn-primary" style="width:19rem;background-color:#00af9a;border-color:#00af9a;" @@click="Close(checked)">完 成</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+</main>
+
+
+@* google 經緯度 要放 blockUI 之前*@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+@*screen block*@
+<script src="~/Scripts/jquery.blockUI.js"></script>
+@*<script src="https://unpkg.com/vue@3.2.40/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.min.js"></script>*@
+
+@* signal R *@
+@*<script src="~/Scripts/jquery.signalR-2.4.0.min.js"></script>
+    <script src="http://localhost:14908/SignalR/js" type="text/javascript"></script>*@
+
+
+
+@*signature_pad*@
+@*<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.6/dist/signature_pad.umd.min.js"></script>*@
+<script type="text/javascript" src="~/js/signature_pad.js"></script>
+<script type="text/javascript" src="~/js/common.js"></script>
+
+@* 產生QRCode *@
+<script src="~/js/chart/qrcode.js"></script>
+@* PDF *@
+@*https://mozilla.github.io/pdf.js/examples/*@
+@*<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.min.js"></script>*@
+<script type="text/javascript" src="~/js/pdf.min.js"></script>
+
+
+<script src="~/js/memberSign2.js?v=1.9211411"></script>
+
+
+
+@* 日期UI *@
+@*<link href="~/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+    <script src="~/assets/js/flatpickr.js"></script>*@
+
+
+

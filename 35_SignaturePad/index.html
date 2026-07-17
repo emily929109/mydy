@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Signature Pad</title>
+  </head>
+  <body>
+    <div class="signature-wrapper">
+      <!-- 建議外層用一個 div 包裹，並設定寬高來控制畫布大小 -->
+      <canvas id="signature-pad" width="400" height="200"></canvas>
+    </div>
+
+    <button id="clear">清除</button>
+    <button id="save">儲存簽名</button>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@5.0.4/dist/signature_pad.umd.min.js"></script>
+    <script>
+      // 1. 取得 Canvas 元素
+      const canvas = document.getElementById("signature-pad");
+
+      // 2. 初始化 SignaturePad
+      const signaturePad = new SignaturePad(canvas, {
+        minWidth: 1, // 筆劃最細寬度
+        maxWidth: 4, // 筆劃最粗寬度
+        penColor: "rgb(0, 0, 0)", // 筆刷顏色（黑色）
+        backgroundColor: "rgba(255, 255, 255, 0)", // 背景色（透明）
+      });
+
+      // 3. 「清除」功能
+      document.getElementById("clear").addEventListener("click", () => {
+        signaturePad.clear();
+      });
+
+      // 4. 「儲存」功能（轉換為 Base64 圖片）
+      document.getElementById("save").addEventListener("click", () => {
+        if (signaturePad.isEmpty()) {
+          alert("請先簽名再進行儲存！");
+          return;
+        }
+
+        // 取得 Base64 格式的 PNG 圖片資料 (data:image/png;base64,...)
+        const dataURL = signaturePad.toDataURL();
+        console.log(dataURL);
+
+        // 接下來你就可以透過 axios / AJAX 將 dataURL 送回後端 C# 儲存
+      });
+    </script>
+  </body>
+</html>
