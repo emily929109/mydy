@@ -1,0 +1,46 @@
+
+MemberSign2.cshtml（畫面）+ memberSign2.js（邏輯，Vue3 Options-less setup）共同組成「簽署約定書」流程。核心互動元件是 #sign_msg modal 內的兩層 canvas：
+
+- #video-pad：畫出鏡頭畫面（含臉部，用來佐證本人操作）
+- #signature-pad：透明疊圖層，SignaturePad 套件在上面接收手寫簽名
+
+相機權限如何偵測
+
+沒有用 navigator.permissions.query，而是直接嘗試呼叫 getUserMedia，靠 promise 的 then/catch 分流：
+
+// memberSign2.js:384-398
+const getCameraStream = video => {
+    navigator.mediaDevices
+        .getUserMedia(constraints)   // constraints = { audio:false, video:{facingMode:"user"} }
+        .then(function success(stream) {
+            showSignPad();            // 拿
+            video.srcObject = stream;
+        }).catch((err) => {
+            computeToMobileSign();    // 被拒絕 / 無鏡頭 / 非HTTPS 等任何失敗 → 走轉手機簽署
+        });
+};Encrypt() 呼叫 /api/Member/EncryptByDES）跳到手機版繼續簽名。
+
+觸發點是按下畫面上的「簽名」按鈕 → signButton() → 若有登入會員 → VideoInit()（memberSign2.js:521-543）初始化 canvas 尺寸並呼叫 getCameraStream(video)，同時用 requestAnimationFrame 的 getFrameFromVideo() 持續把 video 影格鏡像繪製到 canvas_video 上（左右翻轉，因為前鏡頭）。
+
+按下「確定簽名」(saveImage()) 之後做的事
+
+memberSign2.js:290-379：
+
+1. 檢查 signaturePad.isEmpty()，空的話 alert 阻擋。
+2. video.pause() 停止鏡頭串流畫面更新。
+ localStorage.member。
+  - 解出的 _id 若跟目前登入的 member.id 不同，alert「帳號與要簽署的會員不同人」並中止。
+4. blockUI_txt() 蓋一層 loading 遮罩。
+5. removeImgBg(canvas_signature)（common.js:194-236）：對簽名圖做去背處理，把接近白色的像素轉透明。
+6. 組出兩份 base64：
+  - sign_image：signaturePad.toDataURL('image/jpeg') 去掉 header
+  - video_base64：canvas_video.toDataURL() 去掉 header（含臉部畫面的那一格）
+7. axios.post('/api/Member/SaveImageMerge', ) 送到後端合併存檔。
+8. 成功時：
+  - finish.value = true
+  - 關閉 #sign_msg modal
+  - LoadPdfFromUrl('/img/'+_mobile+'/ID0K-000.pdf') 重新載入「已合併簽名」的合約 PDF 顯示在頁面上
+  - alert('簽名成功,請繼續按送出')
+9. 失敗則 alert 後端回傳的錯誤訊息。
+
+之後使用者才點主畫面上的「送出」(Send()，memberSign2.js:219-249)：檢查 finish.value 為 true 且簽名非空，再依 order.value.order_type（綜合/足額/超額/註冊帶訂單）決定顯示照會時間 modal 或直接呼叫 _nonMemberClose() 打/api/Member/FinishRegister 完成註冊、導頁到訂單頁或超額結帳頁。
