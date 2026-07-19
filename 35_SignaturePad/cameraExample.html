@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Element Plus 相機串流範本</title>
+    <!-- 引入 Element Plus CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/element-plus/dist/index.css"
+    />
+    <!-- 引入 Vue 3 與 Element Plus JS CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/element-plus"></script>
+    <style>
+      body {
+        background-color: #f5f7fa;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family:
+          "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
+          "Microsoft YaHei", Arial, sans-serif;
+      }
+      .camera-card {
+        width: 400px;
+        max-width: 90%;
+      }
+      .video-container {
+        width: 100%;
+        height: 300px;
+        background-color: #000000;
+        border-radius: 4px;
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* 讓畫面填滿區塊並保持比例 */
+      }
+      .placeholder-text {
+        color: #909399;
+        font-size: 14px;
+      }
+      .controls {
+        margin-top: 20px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <el-card class="camera-card" header="本機相機測試">
+        <!-- 畫面播放區塊 -->
+        <div class="video-container">
+          <video
+            v-if="isStreaming"
+            ref="videoRef"
+            autoplay
+            playsinline
+            muted
+          ></video>
+          <div v-else class="placeholder-text">
+            <el-icon><el-icon-camera /></el-icon> 相機尚未啟動
+          </div>
+        </div>
+
+        <!-- 按鈕控制區區塊 -->
+        <div class="controls">
+          <el-button v-if="!isStreaming" type="primary" @click="startCamera">
+            開啟相機
+          </el-button>
+          <el-button v-else type="danger" @click="stopCamera">
+            關閉相機
+          </el-button>
+        </div>
+      </el-card>
+    </div>
+
+    <script>
+      const { createApp, ref, nextTick } = Vue;
+
+      const app = createApp({
+        setup() {
+          const videoRef = ref(null);
+          const isStreaming = ref(false);
+          let mediaStream = null;
+
+          // 啟動相機的方法
+          const startCamera = async () => {
+            const constraints = {
+              video: { facingMode: "user" }, // 預設使用前鏡頭/自拍鏡頭
+              audio: false, // 關閉麥克風，避免產生測試時的噪音
+            };
+
+            try {
+              // 透過大管家 navigator 向瀏覽器與硬體申請串流
+              const stream =
+                await navigator.mediaDevices.getUserMedia(constraints);
+
+              mediaStream = stream;
+              isStreaming.value = true;
+
+              // 等待 Vue DOM 更新完成後，再將實體訊號線插上 video 標籤
+              await nextTick();
+              if (videoRef.value) {
+                videoRef.value.srcObject = stream;
+              }
+            } catch (error) {
+              isStreaming.value = false;
+              // 針對常見的權限阻擋進行提示
+              if (error.name === "NotAllowedError") {
+                ElementPlus.ElMessage.error(
+                  "相機權限遭拒絕，請檢查瀏覽器設定。",
+                );
+              } else if (error.name === "NotFoundError") {
+                ElementPlus.ElMessage.error("找不到可用的相機裝置。");
+              } else {
+                ElementPlus.ElMessage.error("無法啟動相機: " + error.message);
+              }
+            }
+          };
+
+          // 關閉相機的方法（釋放硬體資源資源）
+          const stopCamera = () => {
+            if (mediaStream) {
+              // 關閉水管內所有的軌道
+              mediaStream.getTracks().forEach((track) => track.stop());
+              mediaStream = null;
+            }
+            isStreaming.value = false;
+          };
+
+          return {
+            videoRef,
+            isStreaming,
+            startCamera,
+            stopCamera,
+          };
+        },
+      });
+
+      // 註冊 Element Plus 的圖示（選用，優化視覺視覺）
+      app.use(ElementPlus);
+      app.mount("#app");
+    </script>
+  </body>
+</html>
