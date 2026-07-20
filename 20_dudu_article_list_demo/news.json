@@ -1,5 +1,12 @@
 [
   {
+    "href": "/Home/News?id=hokkaido",
+    "img": "/img/news/hokkaido/banner_1040x1040.jpg",
+    "text": "走進北海道的秋季秘境，從紅葉山林到靜謐湖泊，展開一場難忘的秋日旅程",
+    "category": "探索旅程",
+    "date": "2026/07/22"
+  },
+  {
     "href": "/Home/News?id=petHairLoss",
     "img": "/img/news/petHairLoss/banner_1024x1024.jpg",
     "text": "狗狗掉毛不停是警訊嗎？常見原因、照護方式與就醫時機一次解析",
