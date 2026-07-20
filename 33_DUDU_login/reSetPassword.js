@@ -34,85 +34,8 @@ const App = {
       }
 
       //------------------------------------
-      var letters = new Array(
-        "A",
-        "B",
-        "C",
-        "D",
-        "E",
-        "F",
-        "G",
-        "H",
-        "J",
-        "K",
-        "L",
-        "M",
-        "N",
-        "P",
-        "Q",
-        "R",
-        "S",
-        "T",
-        "U",
-        "V",
-        "X",
-        "Y",
-        "W",
-        "Z",
-        "I",
-        "O",
-      );
-
-      var letters2 = new Array(
-        "a",
-        "b",
-        "c",
-        "d",
-        "e",
-        "f",
-        "g",
-        "h",
-        "j",
-        "k",
-        "l",
-        "m",
-        "n",
-        "p",
-        "q",
-        "r",
-        "s",
-        "t",
-        "u",
-        "v",
-        "x",
-        "y",
-        "w",
-        "z",
-        "i",
-        "o",
-      );
-      var letters3 = new Array(
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "0",
-      );
-      var letters4 = new Array("!", "！", "@", "#", "$", "%", "&");
       //有大寫
-      var hasUpper = false;
-      for (var i = 0; i < 26; i++) {
-        if (u.pw.v.indexOf(letters[i]) != -1) {
-          //有大寫
-          hasUpper = true;
-          break;
-        }
-      }
+      var hasUpper = /[A-Z]/.test(u.pw.v);
       if (!hasUpper) {
         u.pw.error = "ng";
         u.pw.msg = "要有英文大寫";
@@ -124,14 +47,7 @@ const App = {
       }
       //---
       //有小寫
-      var hasLower = false;
-      for (var i = 0; i < 26; i++) {
-        if (u.pw.v.indexOf(letters2[i]) != -1) {
-          //有小寫
-          hasLower = true;
-          break;
-        }
-      }
+      var hasLower = /[a-z]/.test(u.pw.v);
       if (!hasLower) {
         u.pw.error = "ng";
         u.pw.msg = "要有英文小寫";
@@ -142,13 +58,7 @@ const App = {
         u.pw.msg = "";
       }
       //有數字
-      var hasNumber = false;
-      for (var i = 0; i < 10; i++) {
-        if (u.pw.v.indexOf(letters3[i]) != -1) {
-          hasNumber = true;
-          break;
-        }
-      }
+      var hasNumber = /[0-9]/.test(u.pw.v);
       if (!hasNumber) {
         u.pw.error = "ng";
         u.pw.msg = "要有數字";
@@ -160,13 +70,7 @@ const App = {
       }
 
       //避開特殊字元
-      var hasSpecChar = false;
-      for (var i = 0; i < 7; i++) {
-        if (u.pw.v.indexOf(letters4[i]) != -1) {
-          hasSpecChar = true;
-          break;
-        }
-      }
+      var hasSpecChar = /[!！@#$%&]/.test(u.pw.v);
       if (hasSpecChar) {
         u.pw.error = "ng";
         u.pw.msg = "不能有特殊字如: !@#$%&";
