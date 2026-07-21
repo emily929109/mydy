@@ -1,0 +1,623 @@
+@* 發證日期 *@
+<link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+
+<style>
+    .error_border {
+        border: solid 1px red !important;
+        border-color: #e63757;
+        padding-right: calc(1.5em + 0.625rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23e63757'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23e63757' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.15625rem) center;
+        background-size: calc(0.75em + 0.3125rem) calc(0.75em + 0.3125rem);
+    }
+
+    .nomal_border {
+        border: solid 1px #00d27a !important;
+        border-color: #00d27a;
+        padding-right: calc(1.5em + 0.625rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2300d27a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(0.375em + 0.15625rem) center;
+        background-size: calc(0.75em + 0.3125rem) calc(0.75em + 0.3125rem);
+    }
+
+    .nomal_border_pw {
+        border: solid 1px #00d27a !important;
+        border-color: #00d27a;
+        padding-right: calc(1.5em + 0.625rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2300d27a' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(2.375em + 0.15625rem) center;
+        background-size: calc(0.75em + 0.3125rem) calc(0.75em + 0.3125rem);
+    }
+
+    .error_border_pw {
+        border: solid 1px red !important;
+        border-color: #e63757;
+        padding-right: calc(1.5em + 0.625rem);
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23e63757'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23e63757' stroke='none'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right calc(2.375em + 0.15625rem) center;
+        background-size: calc(0.75em + 0.3125rem) calc(0.75em + 0.3125rem);
+    }
+
+    /*.error_border2 {
+            border: 1px solid var(--falcon-input-border-color);
+        }*/
+    .error_msg {
+        width: 100%;
+        margin-top: 0.25rem;
+        font-size: 75%;
+        color: #e63757;
+        font-style: italic;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.3125rem 1rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: var(--falcon-input-color);
+        background-color: var(--falcon-input-bg);
+        background-clip: padding-box;
+        /*border: 1px solid var(--falcon-input-border-color);*/
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0.25rem;
+        -webkit-box-shadow: var(--falcon-box-shadow-inset);
+        box-shadow: var(--falcon-box-shadow-inset);
+        webkit-transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+        -o-transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+    }
+
+    .theme-wizard .nav-link.active .nav-item-circle {
+        background-color: #00af9a !important;
+        color: #fff;
+        border-color: #00af9a;
+    }
+
+    .theme-wizard .nav-link.active {
+        color: #00af9a;
+    }
+
+    /*.label_color {
+            color: #068ab1;
+            font-weight:bold;
+        }*/
+    .star_color {
+        color: #E4603C;
+    }
+
+    [v-cloak] {
+        display: none !important;
+    }
+
+    label {
+        margin-bottom: 0 !important;
+    }
+
+    /*stepper優化*/
+    :root {
+        --color-green: #00af9a;
+        --color-dark-green: #028b7a;
+        --color-grey: #ebebeb;
+        --color-drak-grey: #cbc8c8;
+        --color-pink: #ff0000a3;
+    }
+
+    .theme-wizard .nav-link.done {
+        color: var(--color-green);
+    }
+
+        .theme-wizard .nav-link.done .nav-item-circle-parent:before,
+        .theme-wizard .nav-item:not(:first-child) .active .nav-item-circle-parent:after {
+            background-color: var(--color-green);
+        }
+
+        .theme-wizard .nav-link.done .nav-item-circle {
+            background-color: var(--color-green) !important;
+            border-color: var(--color-green);
+        }
+</style>
+
+
+
+<div id="app">
+
+    <div class="row justify-content-center pt-4">
+        <div class="col-sm-10 col-lg-7 col-xxl-5">
+            @*<a class="d-flex flex-center mb-4" href="#"><img class="me-2" src="~/assets/img/icons/spot-illustrations/falcon.png" alt="" width="45" /><span class="font-sans-serif fw-bolder fs-4 d-inline-block"><span style="color:Orchid">嘟嘟</span>配</span></a>*@
+            <div class="card theme-wizard mb-5">
+                <div class="card-header bg-light pt-3 pb-2">
+                    @* 流程 *@
+                    <ul class="nav justify-content-between nav-wizard">
+                        <li class="nav-item"><a class="nav-link done fw-semi-bold" href="#bootstrap-wizard-tab1" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-user"></span></span></span><span class="d-none d-md-block mt-1 fs--1">註冊會員</span></a></li>
+                        <li class="nav-item"><a class="nav-link done fw-semi-bold" href="#bootstrap-wizard-tab2" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-cloud-upload-alt"></span></span></span><span class="d-none d-md-block mt-1 fs--1">上傳照片</span></a></li>
+                        <li class="nav-item"><a class="nav-link active fw-semi-bold" href="#bootstrap-wizard-tab3" data-bs-toggle="tab" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="far fa-edit"></span></span></span><span class="d-none d-md-block mt-1 fs--1">填寫基本資料</span></a></li>
+                        <li class="nav-item"><a class="nav-link fw-semi-bold" href="#bootstrap-wizard-tab4" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-thumbs-up"></span></span></span><span class="d-none d-md-block mt-1 fs--1">簽署約定書</span></a></li>
+                    </ul>
+                </div>
+                <div class="py-4" id="wizard-controller">
+                    <div class="tab-content">
+                        <div class="tab-pane active px-sm-3" role="tabpanel" aria-labelledby="bootstrap-wizard-tab1" id="bootstrap-wizard-tab1">
+
+                            <img class="bg-auth-circle-shape" style="z-index:-1" src="~/assets/img/icons/spot-illustrations/bg-shape.png" alt="" width="250"><img class="bg-auth-circle-shape-2" src="~/assets/img/icons/spot-illustrations/shape-1.png" alt="" width="150">
+                            <div class="overflow-hidden z-index-1">
+                                <div class="card-body p-0">
+                                    <div class="row g-0 h-100">
+                                        <div class="col-md-12 d-flex flex-center">
+                                            <div v-cloak class="p-4 p-md-1 flex-grow-1">
+                                                <div class="d-flex">
+                                                    <h3 class="fw-bold me-3" style="color:#00af9a">填寫基本資料</h3>
+
+                                                    @*<a href="~/Home/UploadFile"> <p class="bg-300" style="border-radius:3px;"><span class="fas fa-cloud-upload-alt fs-2 align-text-bottom"></span>身分證重新上傳</p></a>*@
+                                                </div>
+
+                                                <form>
+                                                    <span class="text-danger">注意: *為必填資料</span><br>
+                                                    <span class="star_color">*請核對以下資料，若有錯誤再請您修改內容！</span><br>
+                                                    <span class="star_color">*注意：基本資料若填寫錯誤，將造成無法申辦！</span>
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary"><span class="star_color">*</span>請選擇發票索取方式</label><label class="form-label text-danger">(發票方式變更僅適用於變更後的訂單，先前的訂單開立方式不會變更)</label>
+                                                        <div :class="u.voice_type.error ||
+                                                             u.voice_txt_mobile.msg!='' ||
+                                                             u.voice_txt_give.msg!='' ||
+                                                             u.voice_txt_cq.msg != '' ||
+                                                             u.voice_txt_comp.msg != '' ||
+                                                             u.voice_txt_oaddress.msg != ''
+                                                             ? 'error_border' : ''">
+                                                            @* 父 二聯電子發票*@
+                                                            <div class="form-check ">
+                                                                <input class="form-check-input" id="type1" type="radio" name="inlineRadioOptions" value="1" v-model="u.voice_type.v" @@change="changeVoice(1)" />
+                                                                <label class="form-check-label" for="type1">二聯電子發票</label>
+                                                            </div>
+                                                            @* 子 二聯電子發票 子項目*@
+                                                            <div v-show="showTypePage.v1">
+                                                                <div class="ms-4">
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="type1_1" type="radio" name="inlineRadioOptions1" value="1" v-model="u.voice_subtype.v" @@change="changeVoice1_1(1)" />
+                                                                        <label class="form-check-label" for="type1_1">手機條碼載具</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="type1_2" type="radio" name="inlineRadioOptions1" value="2" v-model="u.voice_subtype.v" @@change="changeVoice1_1(2)" />
+                                                                        <label class="form-check-label" for="type1_2">東元會員載具</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" id="type1_3" type="radio" name="inlineRadioOptions1" value="3" v-model="u.voice_subtype.v" @@change="changeVoice1_1(3)" />
+                                                                        <label class="form-check-label" for="type1_3">自然人憑證載具</label>
+                                                                    </div>
+                                                                </div>
+                                                                @* 子子 二聯電子發票 *@
+                                                                @* 顯示 手機修碼 *@
+                                                                <div class="ms-4">
+                                                                    <div v-show="showTypePage.v1_1">
+                                                                        若選擇手機條碼，請填寫您已歸戶之手機條碼，發票即會自動存入。詳情請參照財政部網站說明。
+                                                                        (手機條碼格式:第一個字元/ + 7個英數字符號共八個字元)<br>
+                                                                        您的手機條碼載具：
+                                                                        <input class="form-control" type="text" v-model.trim="u.voice_txt_mobile.v" placeholder="EX：/AB0458D" />
+                                                                    </div>
+                                                                    @* 顯示 東元會員載具 *@
+                                                                    <div v-show="showTypePage.v1_2">
+                                                                        若選擇會員載具，發票即會儲存於會員的帳號內。 公司將於開獎月29日至電子發票整合服務平台下載中獎清冊(A 檔)，會員若有中獎本公司將於開獎日翌日起10日以手機簡訊通知會員，並以掛號郵寄方式提供中獎電子發票證明聯予中獎會員作為兌獎憑證。
+                                                                        <input class="form-control" placeholder="中獎發票寄送地址" type="text" v-model.trim="u.voice_txt_oaddress.v" maxlength="50" />
+                                                                    </div>
+                                                                    @* 顯示 自然人憑證載具 *@
+                                                                    <div v-show="showTypePage.v1_3">
+                                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>請輸入自然人憑證載具</label>
+                                                                        <input class="form-control" type="text" v-model.trim="u.voice_txt_cq.v" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                            @* 父 三聯電子發票(公司用)*@
+                                                            @*<div class="form-check ">
+                                                                    <input class="form-check-input" id="type2" type="radio" name="inlineRadioOptions" value="2" v-model="u.voice_type.v" @@change="changeVoice(2)" />
+                                                                    <label class="form-check-label" for="type2">三聯電子發票(公司用)</label>
+                                                                </div>*@
+                                                            @* 子三聯電子發票 子項目*@
+                                                            @*<div class="ms-4" v-show="showTypePage.v2">
+                                                                    <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>統一編號(限8碼數字)</label>
+                                                                    <input class="form-control" type="number" v-model.trim="u.voice_txt_comp.v" />
+                                                                </div>*@
+
+
+                                                            @* 父 捐贈發票*@
+                                                            <div class="form-check ">
+                                                                <input class="form-check-input" id="type3" type="radio" name="inlineRadioOptions" value="3" v-model="u.voice_type.v" @@change="changeVoice(3)" />
+                                                                <label class="form-check-label" for="type3">捐贈發票</label>
+                                                            </div>
+                                                            @* 子 捐贈發票*@
+                                                            <div class="ms-4" v-show="showTypePage.v3">
+                                                                若選擇發票捐贈，請任選預設的發票捐贈機構，系統會自動代入捐贈碼，即完成發票捐贈。
+                                                                <select class="form-select js-choice" v-model="u.voice_txt_give.v">
+                                                                    <option value="">--請選擇單位--</option>
+                                                                    <option value="88888">中華民國兒童癌症基金會</option>
+                                                                    <option value="589">社團法人臺灣照顧生命協會(貓狗119)</option>
+                                                                    <option value="51156">社團法人台灣公益聯盟</option>
+                                                                </select>
+                                                            </div>
+                                                            @* 父 索取紙本發票*@
+                                                            @*<div class="form-check">
+                                                                    <input class="form-check-input" id="type4" type="radio" name="inlineRadioOptions" value="4" v-model="u.voice_type.v" @@change="changeVoice(4)" />
+                                                                    <label class="form-check-label" for="type4">索取紙本發票</label>
+                                                                </div>*@
+                                                            @* 子 索取紙本發票 子項目*@
+                                                            @*<div class="ms-4" v-show="showTypePage.v4">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input"  id="type2_1" type="radio" name="inlineRadioOptions2" value="1" v-model="u.voice_subtype_2.v" />
+                                                                        <label class="form-check-label" for="type2_1">同戶籍地址</label>
+                                                                    </div>
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input"  id="type2_2" type="radio" name="inlineRadioOptions2" value="2" v-model="u.voice_subtype_2.v" />
+                                                                        <label class="form-check-label" for="type2_2">居住地址 </label>
+                                                                    </div>
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input"  id="type2_3" type="radio" name="inlineRadioOptions2" value="3" v-model="u.voice_subtype_2.v" />
+                                                                        <label class="form-check-label" for="type2_3">其他</label>
+                                                                    </div>
+                                                                    <input class="form-control" placeholder="其他地址" type="text" v-model.trim="u.voice_txt_oaddress.v" />
+                                                                </div>*@
+                                                            <div v-if="u.voice_type.msg != '' ? true : false" class="error_msg" v-text="u.voice_type.msg"></div>
+                                                            <div v-else-if="u.voice_txt_mobile.msg != '' ? true : false" class="error_msg" v-text="u.voice_txt_mobile.msg"></div>
+                                                            <div v-else-if="u.voice_txt_give.msg != '' ? true : false" class="error_msg" v-text="u.voice_txt_give.msg"></div>
+                                                            <div v-else-if="u.voice_txt_cq.msg != '' ? true : false" class="error_msg" v-text="u.voice_txt_cq.msg"></div>
+                                                            <div v-else-if="u.voice_txt_comp.msg != '' ? true : false" class="error_msg" v-text="u.voice_txt_comp.msg"></div>
+                                                            <div v-else-if="u.voice_txt_oaddress.msg != '' ? true : false" class="error_msg" v-text="u.voice_txt_oaddress.msg"></div>
+
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    @*<div class="mb-3">
+                                                            <label class="form-label text-primary"><span class="star_color">*</span>請選擇發票索取方式</label>&nbsp;&nbsp;&nbsp;
+                                                            <div :class="u.voice_type.error || u.voice_txt_mobile.msg!='' || u.voice_txt_give.msg!='' ? 'error_border' : ''">
+                                                                <div class="form-check form-check-inline">
+                                                                    <input class="form-check-input" id="type1" type="radio" name="inlineRadioOptions" value="0" v-model="u.voice_type.v" @@change="changeVoice(1)" />
+                                                                    <label class="form-check-label" for="type1">手機條碼</label>
+                                                                </div>
+                                                                <div class="form-check form-check-inline">
+                                                                    <input class="form-check-input" id="type2" type="radio" name="inlineRadioOptions" value="1" v-model="u.voice_type.v" @@change="changeVoice(2)" />
+                                                                    <label class="form-check-label" for="type2">會員載具</label>
+                                                                </div>
+                                                                <div class="form-check form-check-inline">
+                                                                    <input class="form-check-input" id="type3" type="radio" name="inlineRadioOptions" value="2" v-model="u.voice_type.v" @@change="changeVoice(3)" />
+                                                                    <label class="form-check-label" for="type3">捐贈發票</label>
+                                                                </div>
+                                                                <div v-if="u.voice_type.msg != '' ? true : false" class="error_msg" v-text="u.voice_type.msg"></div>
+                                                                <div v-else-if="u.voice_txt_mobile.msg != '' ? true : false" class="error_msg" v-text="u.voice_txt_mobile.msg"></div>
+                                                                <div v-else-if="u.voice_txt_give.msg != '' ? true : false" class="error_msg" v-text="u.voice_txt_give.msg"></div>
+
+
+                                                            </div>
+                                                            <div v-show="showTypePage.v1">
+                                                                若選擇手機條碼，請填寫您已歸戶之手機條碼，發票即會自動存入。詳情請參照財政部網站說明。
+                                                                (手機條碼格式:第一個字元/ + 7個英數字符號共八個字元)<br>
+                                                                您的手機條碼載具：
+                                                                <input class="form-control" type="text" v-model="u.voice_txt_mobile.v" placeholder="EX：/AB0458D" />
+                                                            </div>
+                                                            <div v-show="showTypePage.v2">
+                                                                若選擇會員載具，發票即會儲存於會員的帳號內。 公司將於開獎月29日至電子發票整合服務平台下載中獎清冊(A 檔)，會員若有中獎本公司將於開獎日翌日起10日以手機簡訊通知會員，並以掛號郵寄方式提供中獎電子發票證明聯予中獎會員作為兌獎憑證。
+                                                            </div>
+                                                            <div v-show="showTypePage.v3">
+                                                                若選擇發票捐贈，請任選預設的發票捐贈機構，系統會自動代入捐贈碼，即完成發票捐贈。
+                                                                <select class="form-select js-choice" v-model="u.voice_txt_give.v">
+                                                                    <option value="">--請選擇單位--</option>
+                                                                    <option value="88888">中華民國兒童癌症基金會</option>
+                                                                    <option value="589">社團法人臺灣照顧生命協會(貓狗119)</option>
+                                                                    <option value="51156">社團法人台灣公益聯盟</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>*@
+
+
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>身分證字號</label>
+                                                        <input :class="[u.id.error == 'ng' ? 'error_border' : u.id.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" autocomplete="on" id="card-name" v-model.trim="u.id.v" :maxlength="maxLength" />
+                                                        <div v-if="u.id.msg != '' ? true : false" class="error_msg" v-text="u.id.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">@*<span class="star_color">*</span>*@姓名</label>
+                                                        <input :class="[u.name.error == 'ng' ? 'error_border' : u.name.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" v-model.trim="u.name.v" />
+                                                        <div v-if="u.name.msg != '' ? true : false" class="error_msg" v-text="u.name.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">@*<span class="star_color">*</span>*@生日</label>
+                                                        <input :class="[u.birthDay.error == 'ng' ? 'error_border' : u.birthDay.error == 'ng' ? 'nomal_border' : '','form-control datetimepicker']" data-options='{"disableMobile":true}' style="fill:none;background-color:white;" id="datepicker" type="text" v-model="u.birthDay.v" />
+                                                        @*<input :class="[u.name.error ? 'error_border' : '','form-control']" v-model="u.birthDay.v" type="text" autocomplete="on" id="card-email" />*@
+                                                        <div v-if="u.birthDay.msg != '' ? true : false" class="error_msg" v-text="u.birthDay.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">@*<span class="star_color">*</span>*@發證日期</label>
+                                                        <input type="text" :class="[u.issue_date.error == 'ng' ? 'error_border' : u.issue_date.error == 'ok' ? 'nomal_border': '','form-control datepickerTW']" v-model="u.issue_date.v">
+                                                        <div v-if="u.issue_date.msg != '' ? true : false" class="error_msg" v-text="u.issue_date.msg"></div>
+                                                        <select :class="[u.issue_site.error == 'ng' ? 'error_border' : u.issue_site.error == 'ok' ? 'nomal_border': '','form-select js-choice']" v-model="u.issue_site.v" id="organizerSingle1" size="1" name="organizerSingle1" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option value="">--發證縣市--</option>
+                                                            <option value="北縣">北縣</option>
+                                                            <option value="宜縣">宜縣</option>
+                                                            <option value="桃縣"> 桃縣</option>
+                                                            <option value="竹縣"> 竹縣</option>
+                                                            <option value="苗縣"> 苗縣</option>
+                                                            <option value="中縣"> 中縣</option>
+                                                            <option value="彰縣"> 彰縣</option>
+                                                            <option value="投縣"> 投縣</option>
+                                                            <option value="雲縣"> 雲縣</option>
+                                                            <option value="嘉縣"> 嘉縣</option>
+                                                            <option value="南縣"> 南縣</option>
+                                                            <option value="高縣"> 高縣</option>
+                                                            <option value="屏縣"> 屏縣</option>
+                                                            <option value="東縣"> 東縣</option>
+                                                            <option value="花縣"> 花縣</option>
+                                                            <option value="澎縣"> 澎縣</option>
+                                                            <option value="基市"> 基市</option>
+                                                            <option value="竹市"> 竹市</option>
+                                                            <option value="嘉市"> 嘉市</option>
+                                                            <option value="連江"> 連江</option>
+                                                            <option value="金門"> 金門</option>
+                                                            <option value="北市"> 北市</option>
+                                                            <option value="高市"> 高市</option>
+                                                            <option value="新北市"> 新北市</option>
+                                                            <option value="中市"> 中市</option>
+                                                            <option value="南市"> 南市</option>
+                                                            <option value="桃市">桃市</option>
+                                                        </select>
+                                                        <div v-if="u.issue_site.msg != '' ? true : false" class="error_msg" v-text="u.issue_site.msg"></div>
+                                                        <select :class="[u.issue_reason.error == 'ng' ? 'error_border' : u.issue_reason.error == 'ok' ? 'nomal_border': '','form-select js-choice']" v-model="u.issue_reason.v" id="organizerSingle" size="1" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option value="">--領補換類別--</option>
+                                                            <option value="初發">初發</option>
+                                                            <option value="補發">補發</option>
+                                                            <option value="換發">換發</option>
+                                                        </select>
+                                                        <div v-if="u.issue_reason.msg != '' ? true : false" class="error_msg" v-text="u.issue_reason.msg"></div>
+
+                                                    </div>
+                                                    @*<div class="mb-3">
+                                                            <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>發證日期</label>
+                                                            <input :class="[u.issue_date.error == 'ng' ? 'error_border' : u.issue_date.error == 'ok' ? 'nomal_border': '','form-control datetimepicker']" style="fill:none;" id="datepicker2" type="text" data-options='{"disableMobile":true}' v-model="u.issue_date.v" />
+                                                            <div v-if="u.issue_date.msg != '' ? true : false" class="error_msg" v-text="u.issue_date.msg"></div>
+                                                        </div>*@
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">@*<span class="star_color">*</span>*@戶籍地址</label>
+                                                        <input :class="[u.address.error == 'ng' ? 'error_border' : u.address.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" v-model.trim="u.address.v" maxlength="50" />
+                                                        <div v-if="u.address.msg != '' ? true : false" class="error_msg" v-text="u.address.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>居住地址</label>&nbsp;&nbsp;&nbsp;
+                                                        <div class="form-check form-check-inline">
+                                                            <input class="form-check-input" id="address_type" type="checkbox" :value="u.address_type.v" @@change="change(u.address_type.v)" v-model="u.address_type.v" maxlength="50"/>
+                                                            <label class="form-check-label text-primary" for="address_type">同戶籍地址</label>
+                                                        </div>                                                      
+                                                        <input :class="[u.current_address.error == 'ng' ? 'error_border' : u.current_address.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" v-model.trim="u.current_address.v" />
+                                                        <div v-if="u.current_address.msg != '' ? true : false" class="error_msg" v-text="u.current_address.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">居住電話</label>
+                                                        <input :class="[u.tel.error == 'ng' ? 'error_border' :'','form-control']" type="text" v-model.trim="u.tel.v" maxlength="11" />
+                                                        <span class="fs--1 fs-lg--1 mb-3"> 電話號碼格式(02-12345678)或(0912345678)</span>
+                                                        <div v-if="u.tel.msg != '' ? true : false" class="error_msg" v-text="u.tel.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>聯絡人</label>
+                                                        <input :class="[u.link_name.error=='ng' ? 'error_border' : u.link_name.error == 'ok' ? 'nomal_border' : '','form-control mb-1']" type="text" placeholder="姓名" v-model.trim="u.link_name.v" />
+                                                        <div v-if="u.link_name.msg != '' ? true : false" class="error_msg" v-text="u.link_name.msg"></div>
+                                                        <input :class="[u.link_mobile.error == 'ng' ? 'error_border' : u.link_mobile.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" placeholder="手機號碼" v-model.trim="u.link_mobile.v" maxlength="11"/>
+                                                        <div v-if="u.link_mobile.msg != '' ? true : false" class="error_msg" v-text="u.link_mobile.msg"></div>
+                                                        <select :class="[u.link_relation.error == 'ng' ? 'error_border' : u.link_relation.error == 'ok' ? 'nomal_border' : '','form-select js-choice']" v-model.trim="u.link_relation.v" id="organizerSingle" size="1" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                                            <option value="">--聯絡人關係--</option>
+                                                            <option value="01">父子</option>
+                                                            <option value="02">父女</option>
+                                                            <option value="03">母子</option>
+                                                            <option value="04">母女</option>
+                                                            <option value="05">兄弟</option>
+                                                            <option value="06">姊妹</option>
+                                                            <option value="07">朋友</option>
+                                                            <option value="08">兄妹</option>
+                                                            <option value="09">姑叔姪</option>
+                                                            <option value="10">姨甥</option>
+                                                            <option value="11">夫妻</option>
+                                                            <option value="12">表兄弟姊妹</option>
+                                                            <option value="13">同事</option>
+                                                            <option value="14">姐弟</option>
+                                                            <option value="15">同學</option>
+                                                            <option value="16">老闆</option>
+                                                            <option value="17">堂兄弟姊妹</option>
+                                                            <option value="18">祖孫</option>
+                                                            <option value="19">外祖孫</option>
+                                                            <option value="20">公婆媳</option>
+                                                            <option value="21">姑嫂</option>
+                                                            <option value="22">伯父母</option>
+                                                            <option value="23">舅嬸</option>
+                                                            <option value="24">姻親</option>
+                                                            <option value="25">乾父子</option>
+                                                            <option value="26">乾母子</option>
+                                                            <option value="27">繼父</option>
+                                                            <option value="28">繼母</option>
+                                                            <option value="29">岳父母</option>
+                                                            <option value="30">情侶</option>
+                                                        </select>
+                                                        <div v-if="u.link_relation.msg != '' ? true : false" class="error_msg" v-text="u.link_relation.msg"></div>
+
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>工作公司</label>&nbsp;&nbsp;&nbsp;
+                                                        <div :class="u.work_type.error ? 'error_border' : ''">
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" id="work_type1" type="radio" name="work_typeRadioOptions" value="1" v-model="u.work_type.v" />
+                                                                <label class="form-check-label" for="work_type1">就業中</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" id="work_type2" type="radio" name="work_typeRadioOptions" value="2" v-model="u.work_type.v" />
+                                                                <label class="form-check-label" for="work_type2">學生</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" id="work_type3" type="radio" name="work_typeRadioOptions" value="3" v-model="u.work_type.v" />
+                                                                <label class="form-check-label" for="work_type3">其他</label>
+                                                            </div>
+                                                        </div>
+                                                        <div v-if="u.work_type.msg != '' ? true : false" class="error_msg" v-text="u.work_type.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>公司名稱/學校</label>
+                                                        <input :class="[u.work_name.error =='ng' ? 'error_border' : u.work_name.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" v-model.trim="u.work_name.v" maxlength="20" />
+                                                        <div v-if="u.work_name.msg != '' ? true : false" class="error_msg" v-text="u.work_name.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">公司電話</label>
+                                                        <input :class="[u.work_tel.error =='ng' ? 'error_border' : '','form-control']" type="text" v-model.trim="u.work_tel.v" maxlength="11"/>
+                                                        <div v-if="u.work_tel.msg != '' ? true : false" class="error_msg" v-text="u.work_tel.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>信用卡發卡銀行</label>&nbsp;&nbsp;&nbsp;
+                                                        <div :class="u.create_type.error ? 'error_border' : ''">
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" id="create_type1" type="radio" name="create_typeRadioOptions" value="1" v-model="u.create_type.v" />
+                                                                <label class="form-check-label" for="create_type1">有卡</label>
+                                                            </div>
+                                                            <div class="form-check form-check-inline">
+                                                                <input class="form-check-input" id="create_type2" type="radio" name="create_typeRadioOptions" value="2" v-model="u.create_type.v" />
+                                                                <label class="form-check-label" for="create_type2">無卡</label>
+                                                            </div>
+                                                        </div>
+                                                        <div v-if="u.create_type.msg != '' ? true : false" class="error_msg" v-text="u.create_type.msg"></div>
+                                                        <input :class="[u.create_co.error == 'ng' ? 'error_border' : u.create_co.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" placeholder="輸入發卡銀行" v-model.trim="u.create_co.v" />
+                                                        <div v-if="u.create_co.msg != '' ? true : false" class="error_msg" v-text="u.create_co.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">退款帳號</label>
+                                                        <input :class="[u.bankCode.error =='ng' ? 'error_border' : '','form-control']" type="text" v-model.trim="u.bankCode.v" placeholder="銀行代號" />
+                                                        <div v-if="u.bankCode.msg != '' ? true : false" class="error_msg" v-text="u.bankCode.msg"></div>
+                                                        <input :class="[u.bankName.error =='ng' ? 'error_border' : u.bankName.error == 'ok' ? 'nomal_border' : '','form-control']" type="text" v-model.trim="u.bankName.v" placeholder="銀行名稱" />
+                                                        <div v-if="u.bankName.msg != '' ? true : false" class="error_msg" v-text="u.bankName.msg"></div>
+                                                        <input :class="[u.bankAcc.error =='ng' ? 'error_border' : '','form-control']" type="text" v-model.trim="u.bankAcc.v" placeholder="銀行帳號" />
+                                                        <div v-if="u.bankAcc.msg != '' ? true : false" class="error_msg" v-text="u.bankAcc.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name"><span class="star_color">*</span>LINE ID</label>
+                                                        <input :class="[u.lineId.error =='ng' ? 'error_border' : '','form-control']" type="text" v-model.trim="u.lineId.v" />
+                                                        <div v-if="u.lineId.msg != '' ? true : false" class="error_msg" v-text="u.lineId.msg"></div>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label text-primary" for="card-name">需要申請額度金額(非必填)</label>
+                                                        <input class="form-control" type="text" placeholder="輸入額度範圖" v-model.trim="u.cash.v" />
+                                                    </div>
+
+                                                </form>
+                                                @*<div class="mb-0">
+                                                        <a href="#">忘記密碼</a>
+                                                    </div>*@
+                                                <div class="card-footer">
+                                                    <div class="px-sm-3 px-md-1">
+                                                        <ul class="pager wizard list-inline mb-0">
+                                                            <li class="previous">
+                                                                @*<button class="btn btn-link ps-0" type="button"><span class="fas fa-chevron-left me-2" data-fa-transform="shrink-3"></span>Prev</button>*@
+                                                            </li>
+                                                            <li class="next">
+                                                                <button class="btn btn-primary px-5 px-sm-6" style="background-color:#00af9a;border-color:#00af9a;" type="submit" @@click="Send(u)">下一步<span class="fas fa-chevron-right ms-2" data-fa-transform="shrink-3"> </span></button>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                    @*<div class="mb-0">
+                                                            <a href="#">忘記密碼</a>
+                                                        </div>*@
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                @*<div class="card-footer bg-light">
+                        <div class="px-sm-3 px-md-5">
+                            <ul class="pager wizard list-inline mb-0">
+                                <li class="previous">
+                                    <button class="btn btn-link ps-0" type="button"><span class="fas fa-chevron-left me-2" data-fa-transform="shrink-3"></span>Prev</button>
+                                </li>
+                                <li class="next">
+                                    <button class="btn btn-primary px-5 px-sm-6" type="submit">下一步<span class="fas fa-chevron-right ms-2" data-fa-transform="shrink-3"> </span></button>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+        @*<div class="modal fade" id="error-modal" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px">
+                    <div class="modal-content position-relative p-5">
+                        <div class="d-flex align-items-center">
+                            <div class="lottie me-3" data-options='{"path":"~/assets/img/animated-icons/warning-light.json"}'></div>
+                            <div class="flex-1">
+                                <button class="btn btn-link text-danger position-absolute top-0 end-0 mt-2 me-2" data-bs-dismiss="modal"><span class="fas fa-times"></span></button>
+                                <p class="mb-0">You don't have access to the link. Please try again.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>*@
+    </div>
+
+
+
+    @*顯示錯誤訊息*@
+    @*<div class="modal fade" id="toolmsg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+            <div class="modal-dialog mt-6" role="document">
+                <div class="modal-content border-0">
+                    <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                        <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                            <h4 class="mb-1" id="tooltippopoversLabel">訊息</h4>
+                        </div>
+                        <div class="p-4 pb-0">
+                            <div class="row">
+                                <div class="col">
+                                    <h5 style="margin-bottom:2.25rem" v-text="msg"></h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="align-items:center;text-align:center">
+                            <img src="https://qr-official.line.me/sid/L/858ithpw.png?shortenUrl=true" width="200" height="200"><br>
+                            <a href="https://lin.ee/ymgRA5D"><img src="https://scdn.line-apps.com/n/line_add_friends/btn/zh-Hant.png" alt="加入好友" height="46" width="200" border="0"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+
+</div>
+
+
+
+@*screen block*@
+@*<script src="~/Scripts/jquery.blockUI.js"></script>
+    <script src="https://unpkg.com/vue@3.2.40/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.min.js"></script>*@
+<script src="~/js/common.js?v=1.0"></script>
+<script src="~/js/memberInfo.js?v=1.511"></script>
+
+
+@* 日期UI *@
+<link href="~/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+<script src="~/assets/js/flatpickr.js"></script>
+
+
+
+
+
+

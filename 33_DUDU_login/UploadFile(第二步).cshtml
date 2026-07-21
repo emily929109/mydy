@@ -1,0 +1,388 @@
+
+<style>
+    :root {
+        --color-green: #00af9a;
+        --color-dark-green: #028b7a;
+        --color-grey: #ebebeb;
+        --color-drak-grey: #cbc8c8;
+        --color-pink: #ff0000a3;
+    }
+
+    .theme-wizard .nav-link.active .nav-item-circle {
+        background-color: #00af9a !important;
+        color: #fff;
+        border-color: #00af9a;
+    }
+
+    .theme-wizard .nav-link.active {
+        color: #00af9a;
+    }
+
+    .star_color {
+        color: #E4603C;
+    }
+
+    /*-------小額申請 開始-------*/
+    .ez-btn {
+        top: 20px;
+        right: 20px;
+        border-color: var(--color-green);
+        color: #fff;
+        border-radius: 1rem;
+        border-width: 2px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        background-color: var(--color-green);
+    }
+
+        .ez-btn svg {
+            color: yellow;
+            transition: all 0.3s ease;
+        }
+
+        .ez-btn:hover,
+        .ez-btn:focus {
+            color: var(--color-green);
+            background-color: #fff;
+        }
+
+
+            .ez-btn:hover svg {
+                color: var(--color-pink);
+            }
+
+    .modal-ez-btn:hover,
+    .modal-ez-btn:focus {
+        color: #fff;
+        font-weight: bold;
+        background-color: var(--color-dark-green)
+    }
+
+
+
+    .modal-close-btn:hover,
+    .modal-close-btn:focus {
+        font-weight: bold;
+        background-color: var(--color-drak-grey)
+    }
+
+
+
+    .modal-header-custom button {
+        top: 20px;
+        right: 20px;
+    }
+
+    .modal-header-custom svg {
+        color: var(--color-pink);
+    }
+
+    .modal-ez-btn {
+        background-color: var(--color-green);
+        color: #fff;
+    }
+
+    .modal-close-btn {
+        background-color: var(--color-grey)
+    }
+
+    .modal-footer-custom > button {
+        width: 49%;
+    }
+
+
+
+    @@media (max-width:576px) {
+        .modal-footer-custom > button {
+            width: 100%;
+        }
+    }
+
+    /*stepper*/
+    .theme-wizard .nav-link.done {
+        color: var(--color-green);
+    }
+
+        .theme-wizard .nav-link.done .nav-item-circle-parent:before,
+        .theme-wizard .nav-item:not(:first-child) .active .nav-item-circle-parent:after {
+            background-color: var(--color-green);
+        }
+
+        .theme-wizard .nav-link.done .nav-item-circle {
+            background-color: var(--color-green) !important;
+            border-color: var(--color-green);
+        }
+
+    /*上傳*/
+    .uplaod-block {
+        width: 48%;
+        min-height: 220px;
+    }
+
+    .upload-d4-img {
+        cursor: pointer;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    .upload {
+        background-color: var(--color-grey);
+        border-radius: 1rem;
+    }
+
+    .uplaod-block-title {
+        color: var(--color-green);
+    }
+
+    .uplaod-block-img {
+        border: 1px dashed var(--color-green);
+        border-radius: 1rem;
+        overflow: hidden;
+        position: relative;
+        margin-top: auto;
+        aspect-ratio: 4 / 3;
+    }
+
+    .uplaod-block label {
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+
+    @@media (max-width:576px) {
+        .uplaod-block {
+            width: 100%;
+        }
+    }
+    /*stepper優化*/
+    :root {
+        --color-green: #00af9a;
+        --color-dark-green: #028b7a;
+        --color-grey: #ebebeb;
+        --color-drak-grey: #cbc8c8;
+        --color-pink: #ff0000a3;
+    }
+
+    .theme-wizard .nav-link.done {
+        color: var(--color-green);
+    }
+
+        .theme-wizard .nav-link.done .nav-item-circle-parent:before,
+        .theme-wizard .nav-item:not(:first-child) .active .nav-item-circle-parent:after {
+            background-color: var(--color-green);
+        }
+
+        .theme-wizard .nav-link.done .nav-item-circle {
+            background-color: var(--color-green) !important;
+            border-color: var(--color-green);
+        }
+</style>
+
+
+<div id="app">
+
+
+    <div class="row justify-content-center pt-4 position-relative">
+        <div class="col-12 col-lg-7 col-md-10 col-xxl-5">
+            @*<a class="d-flex flex-center mb-4" href="~/index.html"><img class="me-2" src="~/assets/img/icons/spot-illustrations/falcon.png" alt="" width="45" /><span class="font-sans-serif fw-bolder fs-4 d-inline-block"><span style="color:Orchid">嘟嘟</span>配</span></a>*@
+            <div class="card theme-wizard mb-5 px-3">
+                <div class="card-header pt-3 pb-2">
+                    @* 流程 *@
+                    <ul class="nav justify-content-between nav-wizard">                        
+                        <li class="nav-item"><a class="nav-link done fw-semi-bold done" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-check"></span></span></span><span class="d-none d-md-block mt-1 fs--1">註冊會員</span></a></li>
+                        <li class="nav-item"><a class="nav-link active fw-semi-bold" data-bs-toggle="tab" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-cloud-upload-alt"></span></span></span><span class="d-none d-md-block mt-1 fs--1">上傳照片</span></a></li>
+                        <li class="nav-item"><a class="nav-link fw-semi-bold" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="far fa-edit"></span></span></span><span class="d-none d-md-block mt-1 fs--1">填寫基本資料</span></a></li>
+                        <li class="nav-item"><a class="nav-link fw-semi-bold" data-wizard-step="data-wizard-step"><span class="nav-item-circle-parent"><span class="nav-item-circle"><span class="fas fa-thumbs-up"></span></span></span><span class="d-none d-md-block mt-1 fs--1">簽署約定書</span></a></li>
+                    </ul>
+                </div>
+                <div class="py-4 position-relative" id="wizard-controller">
+                    <div class="tab-content">
+                        <div class="tab-pane active px-sm-3" role="tabpanel" aria-labelledby="bootstrap-wizard-tab2" id="bootstrap-wizard-tab2">
+                           
+
+                            <div class="mb-3">
+                              
+                                <div class="card-body pb-0">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <h3 class="fw-bold" style="color:#00af9a">上傳照片</h3>
+                                            <div class="flex-1">
+
+
+                                                <h5 class="mb-2 text-decoration-underline star_color">提醒您：使用非本人身分進行驗證，可能觸犯詐欺罪，將被處以刑責。</h5>
+                                                <ul>
+                                                    <li>請分開拍攝身分證正、反面照片</li>
+                                                    <li>正向、橫式、接近滿版</li>
+                                                    <li>手機請保持直立，證件橫置於桌面</li>
+                                                    <li>請確保在光線充足及證件背景淨空下拍攝</li>
+                                                    <li>證件文字需拍清晰，避免模糊不清及反光</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            @*上傳照片*@
+                            <div class="d-flex gap-3 flex-wrap mb-3">
+                                @*身分證正面*@
+                                <div class="uplaod-block d-flex flex-column">
+                                    <div class="upload-title">身分證正面(必填)</div>
+                                    <div class="p-3 uplaod-block-img">
+                                        <div class="upload h-100">
+                                            @*<input type="file" id="file" ref="file_1" v-on:change="handleFileUpload('ID0A', $event)" />*@
+                                            @*<input type="file" onchange="readURL1(this)" accept="image/*" capture="camera" ng-file-select="onFileSelect1($files)">*@
+                                            <label for="file1">
+                                                <img class="upload-d4-img position-absolute" style="width:30px;" src="~/assets/img/icons/cloud-upload.svg" />
+                                                <img v-if="!image1_path==''" :src="image1_path" style="width:100%;height:100%;object-fit:contain;" />
+                                            </label>
+                                            <input type="file" id="file1" style="visibility:hidden;display:none;" ref="file_1" v-on:change="handleFileUpload('ID0A', $event)">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*身分證反面*@
+                                <div class="uplaod-block d-flex flex-column">
+                                    <div class="upload-title">身分證反面(必填)</div>
+                                    <div class="p-3 uplaod-block-img">
+                                        <div class="upload h-100 position-relative">
+                                            <label for="file2">
+                                                <img class="upload-d4-img position-absolute" style="width:30px;" src="~/assets/img/icons/cloud-upload.svg" />
+                                                <img v-if="!image2_path==''" :src="image2_path" style="width:100%;height:100%;object-fit:contain;" />
+                                            </label>
+                                            <input type="file" id="file2" style="visibility: hidden; display: none;" ref="file_2" v-on:change="handleFileUpload('ID0B', $event)">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*第二證件*@
+                                <div class="uplaod-block d-flex flex-column">
+                                    <div class="upload-title">第二證件</div>
+                                    <h6 class="star_color">可提供健保卡、駕駛執照、軍證、護照、工作證，名片</h6>
+                                    <div class="p-3 uplaod-block-img">
+                                        <div class="upload h-100">
+                                            <label for="file3">
+                                                <img class="upload-d4-img position-absolute" style="width:30px;" src="~/assets/img/icons/cloud-upload.svg" />
+                                                <img v-if="!image3_path==''" :src="image3_path" style="width:100%;height:100%;object-fit:contain;" />
+                                            </label>
+                                            <input type="file" id="file3" style="visibility: hidden; display: none;" ref="file_3" v-on:change="handleFileUpload('ID0Q', $event)">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @*自拍照*@
+                                <div class="uplaod-block d-flex flex-column">
+                                    <div class="upload-title">自拍照(必填)</div>
+                                    <h6 class="star_color">請保留頭頂至下巴完整輪廓，拍照時請脫口罩</h6>
+                                    <div class="p-3 uplaod-block-img">
+                                        <div class="upload h-100">
+                                            <label for="file4">
+                                                <img class="upload-d4-img position-absolute" style="width:30px;" src="~/assets/img/icons/cloud-upload.svg" />
+                                                <img v-if="!image4_path==''" :src="image4_path" style="width:100%;height:100%;object-fit:contain;" />
+                                            </label>
+                                            <input type="file" id="file4" style="visibility: hidden; display: none;" ref="file_4" v-on:change="handleFileUpload('ID0L', $event)">
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                            </div>
+
+                            @*其他證明文件*@
+                            <div class="uplaod-block" style="width:100%;">
+                                <div class="upload-title">上傳其他證明文件(非必填)</div>
+                                <h6 class="star_color">請提供「薪轉證明」、「扣繳憑單」等財力證明文件或「學生證」、「軍證」、「識別證」、「名片」等正反面照片</h6>
+                                <div class="p-3 uplaod-block-img" style="aspect-ratio:16/9;">
+                                    <div class="upload h-100">
+                                        <label for="file5">
+                                            <img class="upload-d4-img position-absolute" style="width:30px;" src="~/assets/img/icons/cloud-upload.svg" />
+                                            <img v-if="!image5_path==''" :src="image5_path" style="width:100%;height:100%;object-fit:contain;" />
+                                        </label>
+                                        <input type="file" id="file5" style="visibility: hidden; display: none;" ref="file_5" v-on:change="handleFileUpload('ID0C', $event)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    @*<button class="btn btn-link ps-0" type="button"><span class="fas fa-chevron-left me-2" data-fa-transform="shrink-3"></span>Prev</button>*@
+                    @*<button class="btn btn-primary px-5 px-sm-6" style="background-color:#00af9a;border-color:#00af9a;" type="submit" :disabled='isDisabled' @@click="next()">下一步<span class="fas fa-chevron-right ms-2" data-fa-transform="shrink-3"> </span></button>*@
+                    <button type="button" class="btn modal-ez-btn fw-bold py-2 ms-auto mt-3 py-2 d-block" :disabled='isDisabled' @@click="next()" style=" width: 100%; max-width: 180px;">下一步</button>
+                    <button v-if="showEasyButton" class="btn fw-bold ez-btn position-absolute" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal"><span class="fas fa-bolt me-2" data-fa-transform="shrink-3"> </span>無證件快速申請</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    @*顯示錯誤訊息*@
+    <div class="modal fade" id="toolmsg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1" id="tooltippopoversLabel" style="color:#00af9a">訊息</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <h5 style="margin-bottom:2.25rem" v-text="error_msg"></h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="align-items:center;text-align:center">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*小額申請*@
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header-custom p-3 pb-0 position-relative">
+                    <div class="fs-2 fw-bold modal-title">
+                        <span class="fas fa-exclamation-triangle"></span>
+                        提示
+                    </div>
+                    <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    「無證件快速申請」可免除證件且無需人工審核。因提供評估的資訊較少，僅提供初步額度。<br /><br />
+                    若您希望獲得更高額度，請關閉此視窗完成證件上傳。
+                </div>
+                <div class="modal-footer-custom d-flex gap-3 p-3 flex-wrap flex-sm-nowrap">
+                    <button @@click="easy()" type="button" class="btn modal-ez-btn fw-bold py-2">前往無證件快速申請</button>
+                    <button type="button" class="btn modal-close-btn fw-bold py-2" data-bs-dismiss="modal">取消，繼續上傳證件</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+@*screen block*@
+@*<script src="~/Scripts/jquery.blockUI.js"></script>
+    <script src="https://unpkg.com/vue@3.2.40/dist/vue.global.js"></script>*@
+@*<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.min.js"></script>*@
+
+
+<script src="~/js/common.js?v=1.0"></script>
+<script src="~/js/uploadFile.js?v=1.2111"></script>
+
+
+@* 日期UI *@
+@*<link href="~/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+    <script src="~/assets/js/flatpickr.js"></script>*@
+
+
+

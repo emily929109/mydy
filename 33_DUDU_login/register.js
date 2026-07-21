@@ -6,7 +6,6 @@ const App = {
       mail: { v: "", error: "0", msg: "" },
       pw_register: { v: "", error: "0", msg: "" },
       repw_register: { v: "", error: "0", msg: "" },
-      type: { v: "1", error: "0", msg: "" },
       otpNum: { v: "", error: "0", msg: "" },
       agree: { v: false, error: "0", msg: "" },
       recommend_code: { v: "", error: "0", msg: "" },
@@ -32,15 +31,6 @@ const App = {
     const previousUrl = ref("");
 
     onMounted(() => {
-      console.log(dudu_order);
-      console.log(purchase_item);
-
-      //if (_getNavigatorVersion().indexOf('Safari') >= 0) {
-      //    alert('目前註冊不支援Safari瀏覽器,請改用Chrome瀏覽器');
-      //    window.location.href = '../Home/Index';
-      //    return;
-      //}
-
       //已經在登入狀態
       if (member.value !== null && member.value.login_ok_msg == "*") {
         alert("您已經有帳號登入了,如要申請新帳號請先登出！");
@@ -101,16 +91,6 @@ const App = {
       } else {
         ru.value.mobile.error = "ok";
         ru.value.mobile.msg = "";
-      }
-      //------------------------------------
-      //check 申辦項目
-      if (ru.value.type.v == "") {
-        ru.value.type.error = "ng";
-        ru.value.type.msg = "請選擇申辦項目";
-        //return;
-      } else {
-        ru.value.type.error = "ok";
-        ru.value.type.msg = "";
       }
       //------------------------------------
       //check mail
@@ -305,7 +285,6 @@ const App = {
         ru.value.mobile.error == "ok" &&
         ru.value.pw_register.error == "ok" &&
         ru.value.repw_register.error == "ok" &&
-        ru.value.type.error == "ok" &&
         ru.value.otpNum.error == "ok" &&
         ru.value.mail.error == "ok"
       ) {
@@ -325,7 +304,6 @@ const App = {
           url: "/api/Member/Register_2",
           headers: { "Content-Type": "application/json" },
           params: {
-            type: ru.value.type.v,
             pw: ru.value.pw_register.v,
             mobile: ru.value.mobile.v,
             mail: ru.value.mail.v,
@@ -438,14 +416,14 @@ const App = {
 
     close = () => {
       if (purchase_item !== null) {
-        //商城註冊
+        // 1. 商城帶購物車註冊
         window.location.href = "../Home/UploadFile?noshow=1";
         return;
       }
 
-      var _push = getUrlParameter("push");
+      var _push = getUrlParameter("push"); // 檢查網址是否帶店家碼
       if (_push != "null") {
-        // 註冊帶訂單AE86
+        // 4 碼英數混合 → 店家代號（例：AE86）
         if (
           /^[A-Za-z0-9]{4}$/.test(_push) && // 長度 4 且英數字
           /[A-Za-z]/.test(_push) && // 至少一個英文字
@@ -454,7 +432,7 @@ const App = {
           // 至少一個數字
           //帶店家代號且是註冊帶訂單不可走簡易註冊
           if (dudu_order != null && dudu_order.order_type == "註冊帶訂單") {
-            window.location.href = "../Home/UploadFile?noshow=1";
+            window.location.href = "../Home/UploadFile?noshow=1"; // 店家QR流程
           } else {
             window.location.href = "../Home/UploadFile"; //正常註冊
           }
@@ -488,6 +466,7 @@ const App = {
     // ------------ mail 驗證流程 ------------
     const isSubmitting = ref(false);
     const countdown = ref(0);
+    const hasSentMailCode = ref(false); // 是否已成功發送過一次驗證碼，之後皆視為重新發送
 
     const mailBtnText = computed(() => {
       if (isSubmitting.value) {
@@ -507,15 +486,16 @@ const App = {
         return;
       }
 
-      sendMailCodeRequest(check_mail)
+      sendMailCodeRequest(check_mail, hasSentMailCode.value)
         .then((response) => {
-          isSubmitting.value = true;
-
           if (response.data.success) {
-            // 請求成功，開始倒數
+            // 請求成功，開始倒數，並標記之後皆為重新發送
+            hasSentMailCode.value = true;
             startCountdown();
           } else {
+            console.log(response.data);
             const message = getApiMessage(response.data, "驗證碼發送失敗");
+            console.log(message);
             if (message == "此Email已經註冊過了,可能您已經有帳號,請直接登入") {
               alert(message);
               $("#mail-modal").modal("hide");
@@ -545,12 +525,14 @@ const App = {
     };
 
     // 發送驗證信
-    const sendMailCodeRequest = (check_mail) => {
+    const sendMailCodeRequest = (check_mail, isResend) => {
+      isSubmitting.value = true;
+
       return axios({
         method: "post",
         url: "/api/AnonymousOTP/SendMailCode",
         headers: { "Content-Type": "application/json" },
-        params: { mail: check_mail },
+        params: { mail: check_mail, IsResend: isResend },
       });
     };
 
