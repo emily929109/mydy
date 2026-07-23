@@ -7,18 +7,6 @@
 </script>
 <link href="~/css/elementPlus/elementPlus.css" rel="stylesheet" />
 <style>
-  html {
-    scrollbar-gutter: stable; /* 保持滾輪部空位 */
-  }
-
-  body.el-message-box-parent--hidden,
-  body.el-popup-parent--hidden {
-    width: 100% !important; /* 抵銷 EP 多減的 15px →body 內容不移動 */
-  }
-
-  v-cloak {
-    display: none;
-  }
   /* ---------- Page banner ---------- */
   .page-banner {
     background: #00ab98ad;
@@ -56,7 +44,7 @@
     gap: 16px;
     margin: 0 auto;
     width: 100%;
-    min-width: 900px;
+    min-width: 1000px;
   }
 
   .category-column {
@@ -69,8 +57,8 @@
   }
 
   .category-column__header {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 1rem;
+    font-weight: 900;
     color: #6c7090;
     padding: 14px;
     border-bottom: 1px solid #ddd;
@@ -84,6 +72,8 @@
     flex: 1;
     margin-bottom: 12px;
     padding: 14px;
+    max-height: 700px;
+    overflow: auto;
   }
 
   .category-row {
@@ -126,7 +116,7 @@
 
   .category-row__name {
     flex: 1;
-    font-size: 14px;
+    font-size: 16px;
     color: #2c2f48;
   }
 
@@ -156,13 +146,6 @@
 
   .el-button.custom-btn {
     padding: 1.2em 2em;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @@keyframes pulse {
-    50% {
-      opacity: 0.5;
-    }
   }
 
   .info-wrapper {
@@ -196,11 +179,11 @@
     color: rgb(156 163 175);
   }
 
-  .category-row:hover .category-row__action {
-    opacity: 1;
-  }
-
   @@media (hover: hover) and (pointer: fine) {
+    .category-row:hover .category-row__action {
+      opacity: 1;
+    }
+
     .category-row__action .action_up:hover,
     .category-row__action .action_down:hover {
       color: #409eff;
@@ -215,6 +198,11 @@
     }
   }
 
+  @@media (max-width: 768px) {
+    .category-row .category-row__action {
+      opacity: 1;
+    }
+  }
   /* RWD*/
   .page-banner-inner-wrapper,
   .category-board,
@@ -231,6 +219,11 @@
   }
 
   /* ---------- 轉移modal ---------- */
+  .el-modal-dialog .el-dialog {
+    width: 90%;
+    max-width: 500px;
+  }
+
   .dialog-radio-group {
     display: flex;
     flex-direction: column;
@@ -312,6 +305,45 @@
     border-color: #f59e0b !important;
     color: white !important;
   }
+
+  .fixed-footer {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 32px;
+    border-radius: 50px;
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    z-index: 1500;
+  }
+
+  /* 數量 */
+  .category-column__footer {
+    font-size: 14px;
+    color: #6c7090;
+    background: #f9fafb;
+    padding: 10px 12px 12px 12px;
+    font-weight: bold;
+    border-top: 1px solid #ddd;
+  }
+
+  .category-column__header-count,
+  .category-column__footer .footer-category-count span,
+  .category-column__footer .footer-product-count span {
+    color: var(--el-color-primary);
+  }
+
+  .category-row__product-count {
+    border-radius: 9999px;
+    background: #38bdf8;
+    color: #fff;
+    padding: 0.125rem 0.5rem;
+    font-size: 12px;
+  }
 </style>
 
 <div id="app" v-cloak>
@@ -332,12 +364,15 @@
       <div class="category-board">
         <!-- 主分類 -->
         <div class="category-column">
-          <div class="category-column__header">主分類</div>
+          <div class="category-column__header">
+            主分類 (全
+            <span class="category-column__header-count"> {{ mainList.length }} </span> 項)
+          </div>
           <div class="category-column__body">
             <div
               v-for="(item, idx) in mainList"
               :key="item.categoryId"
-              class="category-row"
+              class="category-row flex-wrap flex-lg-nowrap"
               :class="{
                               'category-row--selected': selectedMainId === item.categoryId,
                               'category-row--disabled': !effectiveEnabled(item)
@@ -357,19 +392,18 @@
                 <el-tag type="primary">{{ item.name }}</el-tag>
               </div>
 
-              <span class="category-row__switch-wrap" @@click.stop>
+              <span class="category-row__switch-wrap">
                 <el-switch v-model="item.isVisible" />
               </span>
+
+              <span class="category-row__product-count"> {{item.productCount}} </span>
               <!-- 操作列 -->
-              <div class="category-row__action bg-white" @@click.stop>
+              <div class="category-row__action bg-white w-100 w-md-auto text-center" @@click.stop>
                 <button class="action_up" @@click="moveItem(item, 'up')">
                   <i class="fa-solid fa-arrow-up"></i>
                 </button>
                 <button class="action_down" @@click="moveItem(item, 'down')">
                   <i class="fa-solid fa-arrow-down"></i>
-                </button>
-                <button class="action_edit" @@click="onEdit(item)">
-                  <i class="fa-solid fa-pen"></i>
                 </button>
                 <button class="action_transfer" @@click="onTransfer(item)">
                   <i class="fa-solid fa-truck-moving"></i>
@@ -377,16 +411,24 @@
               </div>
             </div>
           </div>
+          <div class="category-column__footer d-flex justify-content-between">
+            <div class="footer-category-count">主類共 <span>{{ mainList.length }}</span> 項</div>
+            <div class="footer-product-count">
+              全站上架商品共 <span> {{totalProductCount}} </span> 件
+            </div>
+          </div>
         </div>
 
         <!-- 次分類 -->
         <div class="category-column">
-          <div class="category-column__header">次分類</div>
+          <div class="category-column__header">
+            次分類(全 <span class="category-column__header-count"> {{totalSubCount}} </span> 項)
+          </div>
           <div class="category-column__body">
             <div
               v-for="(item, idx) in subList"
               :key="item.categoryId"
-              class="category-row"
+              class="category-row flex-wrap flex-md-nowrap"
               :class="{
                                'category-row--selected': selectedSubId === item.categoryId,
                                'category-row--disabled': !effectiveEnabled(item)
@@ -407,16 +449,16 @@
               <span class="category-row__switch-wrap" @@click.stop>
                 <el-switch v-model="item.isVisible" />
               </span>
+
+              <span class="category-row__product-count"> {{item.productCount}} </span>
+
               <!-- 操作列 -->
-              <div class="category-row__action bg-white" @@click.stop>
+              <div class="category-row__action bg-white w-100 w-md-auto text-center" @@click.stop>
                 <button class="action_up" @@click="moveItem(item, 'up')">
                   <i class="fa-solid fa-arrow-up"></i>
                 </button>
                 <button class="action_down" @@click="moveItem(item, 'down')">
                   <i class="fa-solid fa-arrow-down"></i>
-                </button>
-                <button class="action_edit" @@click="onEdit(item)">
-                  <i class="fa-solid fa-pen"></i>
                 </button>
                 <button class="action_transfer" @@click="onTransfer(item)">
                   <i class="fa-solid fa-truck-moving"></i>
@@ -424,16 +466,26 @@
               </div>
             </div>
           </div>
+          <div class="category-column__footer d-flex justify-content-between">
+            <div class="footer-category-count">
+              所選主類共 <span>{{ subList.length }}</span> 項次類
+            </div>
+            <div class="footer-product-count">
+              所選主類上架商品共 <span> {{ totalSubProductCount }} </span> 件
+            </div>
+          </div>
         </div>
 
         <!-- 子分類 -->
         <div class="category-column">
-          <div class="category-column__header">子分類</div>
+          <div class="category-column__header">
+            子分類(全 <span class="category-column__header-count"> {{totalLeafCount }} </span> 項)
+          </div>
           <div class="category-column__body">
             <div
               v-for="(item, idx) in leafList"
               :key="item.icategoryIdd"
-              class="category-row"
+              class="category-row flex-wrap flex-md-nowrap"
               :class="{'category-row--disabled': !effectiveEnabled(item)}"
             >
               <span class="category-row__num">{{ idx + 1 }}</span>
@@ -450,16 +502,16 @@
               <span class="category-row__switch-wrap" @@click.stop>
                 <el-switch v-model="item.isVisible" />
               </span>
+
+              <span class="category-row__product-count"> {{item.productCount}} </span>
+
               <!-- 操作列 -->
-              <div class="category-row__action bg-white" @@click.stop>
+              <div class="category-row__action bg-white w-100 w-md-auto text-center" @@click.stop>
                 <button class="action_up" @@click="moveItem(item, 'up')">
                   <i class="fa-solid fa-arrow-up"></i>
                 </button>
                 <button class="action_down" @@click="moveItem(item, 'down')">
                   <i class="fa-solid fa-arrow-down"></i>
-                </button>
-                <button class="action_edit" @@click="onEdit(item)">
-                  <i class="fa-solid fa-pen"></i>
                 </button>
                 <button class="action_transfer" @@click="onTransfer(item)">
                   <i class="fa-solid fa-truck-moving"></i>
@@ -467,12 +519,21 @@
               </div>
             </div>
           </div>
+
+          <div class="category-column__footer d-flex justify-content-between">
+            <div class="footer-category-count">
+              所選次類共 <span>{{ leafList.length }}</span> 項子類
+            </div>
+            <div class="footer-product-count">
+              所選次類上架商品共 <span> {{ totalLeafProductCount }} </span> 件
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- ===== 儲存按鈕 ===== -->
-    <div class="text-center my-4">
+    <div class="text-center my-4 fixed-footer">
       <el-button type="warning" class="custom-btn fs-0 fw-bold" @@click="onUpdate">
         <i class="fa-solid fa-floppy-disk me-2"></i>
         儲存所有變更
@@ -483,7 +544,7 @@
     <div class="info-wrapper d-flex my-4 fs--1 mx-auto align-items-center gap-2 p-3">
       <i class="fa-solid fa-circle-info"> </i>
       <div>
-        商城分類管理為「商城前台顯示設定」，分類名稱與結構來源於"分期系統>消費者興趣標籤。您可在此修改商城前台顯示名、調整排序、開關顯示，但不可刪除分類（需至
+        商城分類管理為「商城前台顯示設定」，分類名稱與結構來源於「分期系統>消費者興趣標籤」。您可在此修改商城前台、調整排序、開關顯示，但不可刪除分類（需至
         CRM 系統操作）。若需隱藏或移轉商品，請使用
         <i class="fa-solid fa-truck-moving mx-1"></i> 按鈕。
       </div>
@@ -491,8 +552,8 @@
   </div>
 
   <!-- ===== 三欄分類管理 結束 ===== -->
-  <!-- ===== 轉移modal 開始 ===== -->
-  <el-dialog v-model="dialogFormVisible" width="500px" custom-class="custom-category-dialog">
+  <!-- ===== 隱藏轉移 隱藏下架modal 開始 ===== -->
+  <el-dialog v-model="dialogFormVisible">
     <template #header>
       <div class="my-dialog-header">
         <i class="fa-solid fa-truck-moving me-2" style="color: rgb(217 119 6); font-size: 18px"></i>
@@ -532,7 +593,7 @@
             <el-select
               v-model="form.subCategoryId"
               :disabled="!form.mainCategoryId"
-              :placeholder="form.mainCategoryId ? '— 請選擇次分類 —' : '— 先選主分類 —'"
+              :placeholder="form.mainCategoryId ? '— 不指定 ( 默認其他 ) —' : '— 請先選主分類 —'"
               @@change="handleSubChange"
             >
               <el-option
@@ -549,7 +610,7 @@
             <el-select
               v-model="form.leafCategoryId"
               :disabled="!form.subCategoryId"
-              :placeholder="form.subCategoryId ? '— 請選擇子分類 —' : '— 先選次分類 —'"
+              :placeholder="form.subCategoryId ? '— 不指定 ( 默認其他 ) —' : '— 先選次分類 —'"
               @@change="handleLeafChange"
             >
               <el-option
@@ -562,8 +623,8 @@
           </div>
         </div>
       </div>
-      <div class="action-card danger-card" :class="{ active: form.actionType === 'DISMISS' }">
-        <el-radio value="DISMISS">
+      <div class="action-card danger-card" :class="{ active: form.actionType === 'DELIST' }">
+        <el-radio value="DELIST">
           <span class="action-card-title danger-text">隱藏分類，並強制下架所屬商品</span>
         </el-radio>
         <div class="card-desc">強制下架所有此分類下商品，重新上架時需要商家重新設定分類。</div>
@@ -573,7 +634,7 @@
     <template #footer>
       <div class="dialog-footer">
         <el-button @@click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @@click="updateCategoryAllInOne"> 確定執行 </el-button>
+        <el-button type="primary" @@click="handleTransferOrDelist"> 確定執行 </el-button>
       </div>
     </template>
   </el-dialog>
