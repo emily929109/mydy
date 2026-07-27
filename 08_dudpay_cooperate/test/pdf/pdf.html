@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -15,26 +15,7 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.0.332/pdf.min.js"></script> -->
-    <script src="https://www.jsdelivr.com/package/npm/pdfjs-dist"></script>
-    <script src="https://cdnjs.com/libraries/pdf.js"></script>
-    <script src="https://unpkg.com/pdfjs-dist/"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/+esm"></script>
-    <!-- <script type="module">
-      import pdfjsDist from "https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/+esm";
-    </script> -->
-
-    <script src="
-https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/wasm/openjpeg_nowasm_fallback.min.js
-"></script>
-    <link
-      href="
-https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/web/pdf_viewer.min.css
-"
-      rel="stylesheet"
-    />
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/pdf.min.mjs"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <style>
       .modal-dialog {
@@ -47,6 +28,20 @@ https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/web/pdf_viewer.min.css
 
       .modal-content {
         height: 100%;
+      }
+
+      #pdf-container {
+        height: 100%;
+        overflow-y: auto;
+      }
+
+      #pdf-container canvas {
+        display: block;
+        margin: 0 auto 10px auto;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+      }
+      .modal-body {
+        overflow: hidden;
       }
     </style>
   </head>
@@ -80,20 +75,15 @@ https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/web/pdf_viewer.min.css
             ></button>
           </div>
           <div class="modal-body">
-            <iframe
-              id="pdfFrame"
-              src="/pdfjs/web/viewer.html?file=B-71_V04_東元資融特約商DUDUPAY合作契約書.pdf"
-              style="width: 100%; height: 100%; border: none"
-            >
-            </iframe>
+            <div id="pdf-container"></div>
           </div>
-          <!-- <canvas id="canvas"></canvas> -->
           <div class="modal-footer">
             <div class="form-group form-check">
               <input
                 class="form-check-input"
                 id="agreement-check"
                 type="checkbox"
+                disabled
               />
               <label
                 class="form-check-label"
@@ -116,65 +106,77 @@ https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/web/pdf_viewer.min.css
       </div>
     </div>
     <script>
-      // // 當 Modal 打開時載入 PDF
-      // const pdfModal = document.getElementById("exampleModal");
+      // pdf.js套件的原理 : 把 pdf 每一頁個別 render 在 canvas
+      // 用到的 API :
+      // 1. pdfjsLib.getDocument(url) : 下載 pdf 並解析成一個物件 PDFDocumentProxy
+      // 2. pdf.getPage(pageNum) :  針對某一頁，拿到該頁的繪圖資訊
+      // 3. page.render({ canvasContext, viewport })
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
-      // pdfModal.addEventListener("show.bs.modal", function (event) {
-      //   const pdfUrl = "https://www.pdffiller.com/s/dY9ccx4m"; // 改成你的PDF路徑
-      //   document.getElementById("pdfFrame").src = pdfUrl;
-      // });
+      const pdfUrl = { url: "test.pdf" };
+      const pdfContainer = document.getElementById("pdf-container");
+      const pdfModal = document.getElementById("exampleModal");
+      const agreementCheck = document.getElementById("agreement-check");
+      let pdfLoaded = false;
 
-      // const iframe = document.getElementById("pdfFrame");
-      // console.log(iframe);
+      // 判斷 pdf-container 是否已經滾動到底部（容許 1px 誤差）
+      function isScrolledToBottom(el) {
+        return Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) <= 1;
+      }
 
-      //test
-      // var url = "/cdn.mozilla.net/pdfjs/helloworld.pdf";
-      // PDFJS.workerSrc = "//mozilla.github.io/pdf.js/build/pdf.worker.js";
-      // var loadingTask = PDFJS.getDocument( url );
-      // loadingTask.promise.then(
-      // 	function( pdf ) {
-      // 		console.log( "PDF loaded" );
-      // 		var pageNumber = 1;
-      // 		pdf.getPage(pageNumber).then( function( page ) {
-      // 			console.log( "Page loaded" );
-      // 			var scale = 1.5;
-      // 			var viewport = page.getViewport( scale );
-      // 			var canvas = document.getElementById( "example" );
-      // 			var context = canvas.getContext( "2d" );
-      // 			canvas.height = viewport.height;
-      // 			canvas.width = viewport.width;
-      // 			var renderContext = {
-      // 				canvasContext: context,
-      // 				viewport: viewport
-      // 			};
-      // 			var renderTask = page.render( renderContext );
-      // 			renderTask.then( function () { console.log( "Page rendered" ); });
-      // 		});
-      // 	}, function ( reason ) {
-      // 		console.error( reason );
-      // 	}
-      // );
+      pdfContainer.addEventListener("scroll", function () {
+        if (isScrolledToBottom(pdfContainer)) {
+          agreementCheck.disabled = false;
+        }
+      });
 
-      // pdfjsLib.GlobalWorkerOptions.workerSrc =
-      //   "https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.worker.min.js";
+      pdfModal.addEventListener("show.bs.modal", function () {
+        // 每次打開 Modal 都重置勾選狀態，需重新滑到底才能打勾
+        agreementCheck.checked = false;
+        agreementCheck.disabled = true;
 
-      pdfjsLib
-        .getDocument("B-71_V04_東元資融特約商DUDUPAY合作契約書.pdf")
-        .promise.then(function (pdf) {
-          console.log("this file has" + pdf._pdfInfo.numPages);
-          // console.log("PDF loaded");
-          // const viewer = pdf.querySelector("#viewer");
-          console.log(pdf);
-        });
+        // 檢查 PDF 是否已經載入過，避免重複載入
+        if (pdfLoaded) return;
+        pdfLoaded = true;
 
-      const viewer = document.querySelector("#viewer");
+        pdfjsLib
+          .getDocument(pdfUrl)
+          .promise.then(function (pdf) {
+            // renderTasks 裝每一頁 PDF 渲染流程的 Promise
+            const renderTasks = [];
 
-      const iframe = document.querySelector("iframe ");
-      const container = document.querySelector("#viewerContainer");
-      const sizer = container.querySelector("#sizer");
-      console.log(sizer.scrollHeight);
+            for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+              renderTasks.push(
+                pdf.getPage(pageNum).then(function (page) {
+                  const viewport = page.getViewport({ scale: 1.5 });
+                  const canvas = document.createElement("canvas");
+                  const context = canvas.getContext("2d");
+                  canvas.height = viewport.height;
+                  canvas.width = viewport.width;
 
-      console.log(iframe);
+                  pdfContainer.appendChild(canvas);
+
+                  return page.render({
+                    canvasContext: context,
+                    viewport: viewport,
+                  }).promise;
+                }),
+              );
+            }
+
+            return Promise.all(renderTasks);
+          })
+          .then(function () {
+            // 內容不夠長、根本不需要捲動時，直接允許打勾
+            if (isScrolledToBottom(pdfContainer)) {
+              agreementCheck.disabled = false;
+            }
+          })
+          .catch(function (reason) {
+            console.error("PDF 載入失敗:", reason);
+          });
+      });
     </script>
   </body>
 </html>
