@@ -5,6 +5,10 @@ var canvas_video;
 var canvas_signature;
 var sign_show = false;
 
+var mediaStream = null; // 目前正在進行中的串流，供清理用
+var frameLoopHandle = null; // getFrameFromVideo 的 requestAnimationFrame handle
+var videoInitPromise = null; // VideoInit 執行中的 Promise，供清理用
+
 const App = {
   setup() {
     const member = ref(JSON.parse(localStorage.getItem("member")));
@@ -42,7 +46,6 @@ const App = {
         headers: { "Content-Type": "application/json" },
       })
         .then((response) => {
-          console.log(response.data);
           if (response.data.success) {
             test_order.value = response.data.order_type; //'註冊帶訂單';
             order.value = response.data;
@@ -60,7 +63,6 @@ const App = {
         })
         .finally(() => {
           $.unblockUI();
-          console.log("完成");
         });
     };
 
@@ -122,6 +124,24 @@ const App = {
       $("#sign_msg").on("hide.bs.modal", function (e) {
         sign_show = false;
         console.log(sign_show);
+
+        // 關掉raF
+        if (frameLoopHandle) {
+          cancelAnimationFrame(frameLoopHandle);
+          frameLoopHandle = null;
+        }
+
+        // 關掉串流
+        if (mediaStream) {
+          mediaStream.getTracks().forEach((t) => t.stop());
+          mediaStream = null;
+        }
+
+        // 停止播放影片
+        if (video) {
+          video.pause();
+          video.srcObject = null;
+        }
       });
     });
 
@@ -237,7 +257,7 @@ const App = {
       }
     };
 
-    //顯示簽名板
+    // 按簽名
     signButton = () => {
       var member = JSON.parse(localStorage.getItem("member"));
       if (member == null) {
@@ -358,19 +378,52 @@ const App = {
       };
     };
 
-    //----video pad
     const getCameraStream = (video) => {
-      navigator.mediaDevices
+      // 若已有正在進行中的串流則停止
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((t) => t.stop());
+        mediaStream = null;
+      }
+
+      return navigator.mediaDevices
         .getUserMedia(constraints)
         .then(function success(stream) {
+          mediaStream = stream;
           showSignPad();
           video.srcObject = stream;
+
+          // <video> readyState有五個數值 (0~4)。當數值 >= 2 時表已取得當前影格資料
+          if (video.readyState >= 2) return; // HAVE_CURRENT_DATA
+
+          // 確保第一影格順利載入完成才執行後續
+          return new Promise((resolve) => {
+            video.addEventListener("loadeddata", () => resolve(), {
+              once: true,
+            });
+          });
         })
         .catch((err) => {
-          //電腦轉手機簽署
-          //如果不允許攝影 也變進入此 顯示qrcode
-          //showSignPad();//test debug
+          switch (err.name) {
+            case "NotAllowedError":
+            case "PermissionDeniedError":
+              alert("未取得相機權限，請至瀏覽器或裝置設定中開啟相機權限後再試");
+              break;
+            case "NotFoundError":
+            case "DevicesNotFoundError":
+            case "NotReadableError":
+            case "TrackStartError":
+              alert("找不到可用的攝影機裝置，請確認裝置已連接鏡頭");
+              break;
+            case "SecurityError":
+              alert("目前網頁非安全連線，無法使用相機");
+              break;
+            default:
+              alert("相機發生未知錯誤");
+          }
+          // 電腦轉手機簽署
           computeToMobileSign();
+          // 讓 VideoInit 知道串流失敗，不要啟動raF擷取迴圈
+          throw err;
         });
     };
 
@@ -475,11 +528,14 @@ const App = {
       });
     };
 
+    // 此為無限遞迴 raF，關掉 modal 或下一次VideoInit時才會停
     getFrameFromVideo = (video, canvas) => {
       const ctx = canvas.getContext("2d");
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.shadowColor = "rgb(255, 255, 255)";
       //SignaturePad.prototype.removeBlanks(ctx);
+
+      // 因串流取得的自拍畫面為類似監視器視角，故需反轉
       ctx.save();
       ctx.translate(video.width - changeWidth, 0); //橫式 - changeWidth
       ctx.scale(-1, 1);
@@ -487,18 +543,22 @@ const App = {
       ctx.drawImage(video, 0, 0, video.width, video.height);
       ctx.restore();
 
-      //tmpbase64.value = canvas.toDataURL();//test
-      canvas_video = canvas;
-
-      requestAnimationFrame(() => getFrameFromVideo(video, canvas));
+      frameLoopHandle = requestAnimationFrame(() =>
+        getFrameFromVideo(video, canvas),
+      );
     };
 
     VideoInit = () => {
+      if (videoInitPromise) {
+        return videoInitPromise;
+      }
+
+      // <canvas>
       canvas_video = document.getElementById("video-pad");
       canvas_video.height = 400;
       canvas_video.width = screen.width;
 
-      //video
+      // <video>
       video = document.getElementById("signature-video");
       video.height = 400;
       video.width = screen.width;
@@ -509,11 +569,25 @@ const App = {
       video.setAttribute("muted", "");
       video.setAttribute("playsinline", "");
 
-      //video.autoplay = true;
-      //video.controls = true;
+      videoInitPromise = getCameraStream(video)
+        .then(() => {
+          // 若背景還有正在進行中的 rAF 則清除
+          if (frameLoopHandle) {
+            cancelAnimationFrame(frameLoopHandle);
+            frameLoopHandle = null;
+          }
 
-      getCameraStream(video); //video pad
-      getFrameFromVideo(video, canvas_video);
+          // 啟動新的擷取迴圈
+          getFrameFromVideo(video, canvas_video);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          videoInitPromise = null;
+        });
+
+      return videoInitPromise;
     };
 
     //一般流程 照會時間 完成註冊
