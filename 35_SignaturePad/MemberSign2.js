@@ -519,7 +519,7 @@ const App = {
         text:
           siteOriginUrl +
           "Home/MemberSign2?openExternalBrowser=1&code=" +
-          EncryptTxt, //加密後內容"
+          EncryptTxt,
         width: 300,
         height: 300,
         colorDark: "#5868bf",
@@ -847,24 +847,26 @@ var signaturePad = new SignaturePad(canvas_signature, {
 });
 
 //============PDF=======================
+// pdf.js套件的原理 : 把 pdf 每一頁個別 render 在 canvas
+// 用到的 API :
+// 1. pdfjsLib.getDocument(url) : 下載 pdf 並解析成一個promise物件 PDFDocumentProxy
+// 2. pdf.getPage(pageNum) :  針對某一頁，拿到該頁的繪圖資訊
+// 3. page.render({ canvasContext, viewport })
+
 var pdfjsLib = window["pdfjs-dist/build/pdf"];
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js";
 var pdfDoc = null;
-var scale = 1; //Set Scale for Zoom.
-var resolution = IsMobile() ? 1.5 : 1; //Set Resolution as per Desktop and Mobile.
+var scale = 3.5; //Set Scale for Zoom.
+
 function LoadPdfFromUrl(url) {
   //Read PDF from URL.
   pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
     pdfDoc = pdfDoc_;
-
-    //Reference the Container DIV.
     var pdf_container = document.getElementById("pdf_container");
     pdf_container.innerText = ""; //init
     pdf_container.style.display = "block";
-    pdf_container.style.height = IsMobile() ? "500px" : "820px";
 
-    //Loop and render all pages.
     for (var i = 1; i <= pdfDoc.numPages; i++) {
       RenderPage(pdf_container, i);
     }
@@ -875,40 +877,21 @@ function LoadPdfFromUrl(url) {
 }
 function RenderPage(pdf_container, num) {
   pdfDoc.getPage(num).then(function (page) {
-    //Create Canvas element and append to the Container DIV.
     var canvas = document.createElement("canvas");
 
     canvas.id = "pdf-" + num;
     ctx = canvas.getContext("2d");
     pdf_container.appendChild(canvas);
 
-    //Create and add empty DIV to add SPACE between pages.
-    var spacer = document.createElement("div");
-    spacer.style.height = "20px";
-    pdf_container.appendChild(spacer);
-
-    //Set the Canvas dimensions using ViewPort and Scale.
+    // 內部清晰度
     var viewport = page.getViewport({ scale: scale });
-    canvas.height = resolution * viewport.height;
-    canvas.width = resolution * viewport.width;
-
-    //Render the PDF page.
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
     var renderContext = {
       canvasContext: ctx,
       viewport: viewport,
-      transform: [resolution, 0, 0, resolution, 0, 0],
     };
 
     page.render(renderContext);
-
-    //到合約底部
-    pdf_container.scrollTo(0, pdf_container.scrollHeight - 0); //550
   });
-}
-
-function IsMobile() {
-  var r = new RegExp(
-    "Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini",
-  );
-  return r.test(navigator.userAgent);
 }
