@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <title>decodeURIComponent 加號驗證</title>
+  </head>
+  <body>
+    <h2>加號解析大比對</h2>
+    <p>輸入的測試字串：<code>Element+Plus</code></p>
+
+    <button onclick="runDecodeTest()">點擊執行驗證</button>
+
+    <hr />
+
+    <h3>比對結果：</h3>
+
+    <p>
+      【方法 A】使用 <strong>URLSearchParams</strong> 解析：<br />
+      結果：<strong id="url-search-result" style="color: red"></strong>
+    </p>
+
+    <p>
+      【方法 B】使用 <strong>decodeURIComponent</strong> 解析：<br />
+      結果：<strong id="decode-result" style="color: green"></strong>
+    </p>
+
+    <script>
+      function runDecodeTest() {
+        var testStr = "Element+Plus";
+
+        // 1. 使用 URLSearchParams 解析
+        var urlParams = new URLSearchParams("?keyword=" + testStr);
+        var resultA = urlParams.get("keyword");
+
+        // 2. 使用 decodeURIComponent 直接解析
+        var resultB = decodeURIComponent(testStr);
+
+        // 3. 渲染到畫面上
+        document.getElementById("url-search-result").innerText =
+          '"' + resultA + '" (加號變空白了)';
+        document.getElementById("decode-result").innerText =
+          '"' + resultB + '" (加號依然是加號！)';
+
+        // Console 印出詳細資訊
+        console.log("【測試字串】:", testStr);
+        console.log("【URLSearchParams】:", resultA);
+        console.log("【decodeURIComponent】:", resultB);
+      }
+    </script>
+  </body>
+</html>

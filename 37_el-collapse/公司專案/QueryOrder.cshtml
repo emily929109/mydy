@@ -1,0 +1,464 @@
+
+<link href="~/css/elementPlus/elementPlus.css" rel="stylesheet" />
+<style>
+    /*[v-cloak] {
+        display: none !important;
+    }*/
+
+    .pickup-tag {
+        cursor: pointer;
+    }
+
+    .pickup-detail {
+        margin-top: 0.5rem;
+        text-align: left;
+    }
+
+    /*日期 fade*/
+    .v-enter-active, .v-leave-active {
+        transition: opacity 1s;
+    }
+
+    .v-enter-from, .v-leave-to {
+        opacity: 0;
+    }
+
+    .v-enter-to, .v-leave-from {
+        opacity: 1;
+    }
+
+    .devider {
+        width: 1px;
+        background: #5e6e8266;
+        height: 18px;
+    }
+</style>
+
+
+
+<div id="app" class="mt-2 mb-5" style="min-height:600px;">
+    @*<a href="#settings-offcanvas" data-bs-toggle="offcanvas" style="float:left;z-index:999 !important;position:fixed;top:48%;">
+            <i style="opacity:0.8" class="fa fa-cog fa-spin fa-2x fa-fw"></i>
+        </a>*@
+
+    <div class="row justify-content-center pt-4">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xxl-9">
+
+            <div class="d-flex justify-content-center">
+                <span class="fw-bold p-0" style="color:#00af9a;font-size:1.7rem;">訂單查詢</span>
+            </div>
+            <div class="d-flex mb-0 flex-row-reverse">
+                <div class="fs--2 p-2">權限：{{m.dealer_role}}</div>
+                <div class="fs--2 p-2">使用者：{{m.dealer_acc}}</div>
+            </div>
+
+
+
+            @* search *@
+            <div class="d-flex">
+                <div class="p-2 flex-grow-1 bg-200 border border-300">
+                    <ul class="navbar-nav  align-items-center d-block d-lg-block d-sm-block">
+                        <li class="nav-item" style="align-items:center;display:flex;">
+                            <div class="me-2" style="position:relative;width:auto;font-size:0.833333333rem;">
+                                <form class="position-relative" data-bs-display="static" aria-expanded="false">
+                                    <input class="form-control" style="border-radius:0.5rem !important;padding-left:2rem;padding-right:2rem;line-height:1.7;box-shadow:none;" v-model.trim="seoInput" placeholder="姓名/訂單編號">
+                                    <span class="fa fa-search fa-w-16" style="position:absolute;color:#b6c1d2;top:50%;left:0.9rem;transform:translateY(-48%)"></span>
+                                </form>
+                            </div>
+                            <button class="btn btn-sm btn-success me-1" style="min-width:55px;" type="button" @@click="seoQuery(seoInput)">
+                                查詢
+                            </button>
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+
+
+
+
+            @*<div class="card mb-3" id="ordersTable" data-list="{&quot;valueNames&quot;:[&quot;order&quot;,&quot;date&quot;,&quot;address&quot;,&quot;status&quot;,&quot;amount&quot;],&quot;page&quot;:3,&quot;pagination&quot;:true}">*@
+            <div class="card mb-3" id="ordersTable" data-list="{&quot;pagination&quot;:true}">
+                <div class="card-header">
+                    <div class="row flex-between-center">
+                        <div class="col-3 col-sm-auto d-flex align-items-center pe-0">
+                            @*<h5 class="fs-0 mb-0 text-nowrap py-2 py-xl-0">今日訂單</h5>*@
+                        </div>
+                        <div class="col-9 col-sm-auto ms-auto text-end ps-0">
+                            @*<div class="d-none" id="orders-bulk-actions">*@
+                            <div class="" id="">
+                                <div class="d-flex">
+                                    <select class="form-select form-select-sm me-2" :value="selected_send_type" @@change="change_send_type(selected_send_type)" v-model="selected_send_type" aria-label="Bulk actions">
+                                        <option value="">--取貨資訊--</option>
+                                        <option value="99">全部</option>
+                                        <option value="0">宅配</option>
+                                        <option value="1">自取</option>
+                                    </select>
+                                    <select class="form-select form-select-sm me-2" :value="selected_status" @@change="change_status(selected_status)" v-model="selected_status" aria-label="Bulk actions">
+                                        <option value="">--訂單狀態--</option>
+                                        <option value="9">送件中</option>
+                                        <option value="0">可撥款</option>
+                                        <option value="2">審核中</option>
+                                        <option value="3">已撥款</option>
+                                        <option value="1">已取消</option>
+                                        <option value="4">已退貨</option>
+                                        <option value="99">全部</option>
+                                    </select>
+
+                                    <select class="form-select form-select-sm" :value="selected_date" @@change="change_date(selected_date)" v-model="selected_date" aria-label="Bulk actions">
+                                        <option value="">--日期查詢--</option>
+                                        <option value="1">今日</option>
+                                        <option value="2">昨日</option>
+                                        <option value="3">七天內</option>
+                                        <option value="4">一個月內</option>
+                                        <option value="5">三個月內</option>
+                                        <option value="6">自訂</option>
+                                    </select>
+                                    <transition>
+                                        <div v-show="show_selectDate" style="float:right;position:absolute; top:0;right:0;width:20rem;height:224px;">
+                                            <div class="modal-content">
+                                                <div class="position-absolute top-0 end-0 z-index-1">
+                                                    <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" @@click="show_selectDate=false"></button>
+                                                </div>
+                                                <div class="modal-body p-0">
+                                                    <div class="rounded-top-sm py-2 pe-10 bg-light mb-2">
+                                                        <h5 class="mb-1 fs-0 ms-2 text-start" id="modalExampleDemoLabel">請選擇日期</h5>
+                                                    </div>
+                                                    <div class="p-2">
+                                                        <div class="col-md-auto position-relative">
+                                                            <input class="form-control form-control-sm datetimepicker ps-4 flatpickr-input active" id="datetimepicker" type="text" v-model="date_value" data-options='' readonly="readonly">
+                                                            <span class="fa fa-calendar-alt fa-w-14 text-primary position-absolute top-50 translate-middle-y ms-2" style="left:0;"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer" style="border-top:0;">
+                                                    <button class="btn btn-sm btn-success" type="button" @@click="selfDateQuery(date_value)">查詢 </button>
+                                                </div>
+                                            </div>
+                                            @*<div class="modal-content">
+                                                    <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                                                        <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" @@click="show_selectDate=false"></button>
+                                                    </div>
+                                                    <div class="modal-body p-0">
+                                                        <div class="rounded-top-lg py-3 pe-10 bg-light">
+                                                            <h5 class="mb-1" id="modalExampleDemoLabel">請選擇日期</h5>
+                                                        </div>
+                                                        <div class="p-4">
+                                                            <form>
+                                                                <div class="input-group" style="align-items:center">
+                                                                    <input class="form-control datetimepicker" id="datetimepicker" type="text" v-model="date_value" data-options='' />
+                                                                    <span class="fas fa-calendar-alt fs-2 ms-1"></span>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button class="btn btn-success" type="button" @@click="selfDateQuery(date_value)">查詢 </button>
+                                                    </div>
+                                                </div>*@
+
+                                        </div>
+
+                                    </transition>
+
+                                </div>
+                            </div>
+                            @*<div id="orders-actions">
+                                    <button class="btn btn-falcon-default btn-sm" type="button"><svg class="svg-inline--fa fa-plus fa-w-14" data-fa-transform="shrink-3 down-2" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg="" style="transform-origin: 0.4375em 0.625em;"><g transform="translate(224 256)"><g transform="translate(0, 64)  scale(0.8125, 0.8125)  rotate(0 0 0)"><path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z" transform="translate(-224 -256)"></path></g></g></svg><span class="d-none d-sm-inline-block ms-1">New</span></button>
+                                    <button class="btn btn-falcon-default btn-sm mx-2" type="button"><svg class="svg-inline--fa fa-filter fa-w-16" data-fa-transform="shrink-3 down-2" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="filter" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="" style="transform-origin: 0.5em 0.625em;"><g transform="translate(256 256)"><g transform="translate(0, 64)  scale(0.8125, 0.8125)  rotate(0 0 0)"><path fill="currentColor" d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z" transform="translate(-256 -256)"></path></g></g></svg><span class="d-none d-sm-inline-block ms-1">Filter</span></button>
+                                    <button class="btn btn-falcon-default btn-sm" type="button"><svg class="svg-inline--fa fa-external-link-alt fa-w-16" data-fa-transform="shrink-3 down-2" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="external-link-alt" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" data-fa-i2svg="" style="transform-origin: 0.5em 0.625em;"><g transform="translate(256 256)"><g transform="translate(0, 64)  scale(0.8125, 0.8125)  rotate(0 0 0)"><path fill="currentColor" d="M432,320H400a16,16,0,0,0-16,16V448H64V128H208a16,16,0,0,0,16-16V80a16,16,0,0,0-16-16H48A48,48,0,0,0,0,112V464a48,48,0,0,0,48,48H400a48,48,0,0,0,48-48V336A16,16,0,0,0,432,320ZM488,0h-128c-21.37,0-32.05,25.91-17,41l35.73,35.73L135,320.37a24,24,0,0,0,0,34L157.67,377a24,24,0,0,0,34,0L435.28,133.32,471,169c15,15,41,4.5,41-17V24A24,24,0,0,0,488,0Z" transform="translate(-256 -256)"></path></g></g></svg><span class="d-none d-sm-inline-block ms-1">Export</span></button>
+                                </div>*@
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive scrollbar">
+                        <table class="table table-sm table-striped fs--1 fs-md--1 fs-lg-0 mb-0 overflow-hidden">
+                            <thead class="bg-200 text-900">
+                                <tr>
+                                    @*<th>
+                                            <div class="form-check fs-0 mb-0 d-flex align-items-center">
+                                                <input class="form-check-input" id="checkbox-bulk-customers-select" type="checkbox" data-bulk-select="{&quot;body&quot;:&quot;table-orders-body&quot;,&quot;actions&quot;:&quot;orders-bulk-actions&quot;,&quot;replacedElement&quot;:&quot;orders-actions&quot;}">
+                                            </div>
+                                        </th>*@
+                                    <th class="sort pe-1 align-middle white-space-nowrap" @@click="changeSort('kc_order_no','str')">
+                                        訂單編號<span :class="[isReverse.kc_order_no ? 'bi-sort-alpha-down' : 'bi-sort-alpha-down-alt']"></span>
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap pe-5" @@click="changeSort('cust_name','str')">
+                                        姓名<span :class="[isReverse.cust_name ? 'bi-sort-alpha-down' : 'bi-sort-alpha-down-alt']"></span>
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap" style="min-width: 8.5rem;" @@click="changeSort('kc_item_desc','str')">
+                                        商品名稱<span :class="[isReverse.kc_item_desc ? 'bi-sort-alpha-down' : 'bi-sort-alpha-down-alt']"></span>
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap text-end">
+                                        月付款
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap text-end">
+                                        期數
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap text-end">
+                                        取貨資訊
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap text-end" @@click="changeSort('kc_loan_amt','num')">
+                                        現金金額<span :class="[isReverse.kc_loan_amt ? 'bi-sort-alpha-down' : 'bi-sort-alpha-down-alt']"></span>
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap text-end">撥款金額</th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap text-end" @@click="changeSort('date','str')">
+                                        訂單日期<span :class="[isReverse.date ? 'bi-sort-alpha-down' : 'bi-sort-alpha-down-alt']"></span>
+                                    </th>
+                                    <th class="sort pe-1 align-middle white-space-nowrap text-end">
+                                        訂單狀態
+                                    </th>
+                                    <th class="no-sort"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="list" id="table-orders-body">
+                                <tr class="btn-reveal-trigger" v-for="v in jsonShow.slice(pageStart, pageEnd)">
+                                    <td class="order py-2 align-middle fw-medium white-space-nowrap">
+                                        @*<a href="#"><strong>{{v.kc_order_no}}</strong></a>*@
+                                        {{v.kc_order_no}}
+                                    </td>
+                                    <td class="name py-2 align-middle fw-medium">{{v.cust_name}}</td>
+                                    <td class="item py-2 align-middle fw-medium">{{v.kc_item_desc}}</td>
+                                    <td class="item py-2 align-middle fw-medium">{{v.kc_perd_fee}}</td>
+                                    <td class="item py-2 align-middle fw-medium">{{v.kc_loan_perd}}</td>
+                                    <td class="item py-2 align-middle text-end fw-medium">
+                                        <template v-if="v.send_type == 0 || v.send_type == 1">
+                                            <el-tag class="pickup-tag"
+                                                    :type="v.send_type == 0 ? 'primary' : 'success'"
+                                                    effect="light"
+                                                    @@click="togglePickupInfo(v.kc_order_no)">
+                                                <span :class="v.send_type == 0 ? 'fa fa-truck' : 'fa fa-store'" class="me-1"></span>
+                                                {{ v.send_type == 0 ? '宅配' : '自取' }}
+                                            </el-tag>
+                                            <el-collapse-transition>
+                                                <div v-show="expandedOrders[v.kc_order_no]" class="pickup-detail">
+                                                    <el-descriptions :column="1" size="small" border>
+                                                        <el-descriptions-item v-if="v.item_spec != null || v.item_list != null" label="規格">
+                                                            <span v-if="v.item_spec != null">{{JSON.parse(v.item_spec).name}}</span>
+                                                            <span v-else><span v-for="vv in v.item_list">{{vv.item}}</span></span>
+                                                        </el-descriptions-item>
+                                                        <template v-if="v.send_type == 0">
+                                                            <el-descriptions-item label="收貨人">{{v.car_name}}</el-descriptions-item>
+                                                            <el-descriptions-item label="電話">{{v.car_mobile}}</el-descriptions-item>
+                                                            <el-descriptions-item label="地址">{{v.car_address}}</el-descriptions-item>
+                                                            <el-descriptions-item label="備註">{{v.car_mark}}</el-descriptions-item>
+                                                        </template>
+                                                        <template v-else>
+                                                            <el-descriptions-item label="取件人">{{v.home_name}}</el-descriptions-item>
+                                                            <el-descriptions-item label="電話">{{v.home_mobile}}</el-descriptions-item>
+                                                            <el-descriptions-item label="備註">{{v.home_mark}}</el-descriptions-item>
+                                                        </template>
+                                                    </el-descriptions>
+                                                </div>
+                                            </el-collapse-transition>
+                                        </template>
+                                        <span v-else class="text-500">無</span>
+                                    </td>
+                                    <td class="amount-1 py-2 align-middle text-end  fw-medium">NT${{v.kc_loan_amt}}</td>
+                                    <td class="amount-2 py-2 align-middle text-end  fw-medium">NT${{v.kc_give_amt}}</td>
+                                    <td class="date py-2 align-middle text-end  fw-medium">{{v.date}}<br>{{v.time}}
+
+
+                                    <td class="status py-2 align-middle text-center fs-0 white-space-nowrap">
+                                        <span v-if="v.trade_status==0" class="badge badge rounded-pill d-block badge-soft-primary">
+                                            可撥款<span class="fa fa-stream fa-w-16 ms-1"></span>
+                                        </span>
+                                        <span v-else-if="v.trade_status==9" class="badge badge rounded-pill d-block badge-soft-warning">
+                                            送件中<span class="fas fa-suitcase-rolling fa-w-16 ms-1"></span>
+                                        </span>
+                                        <span v-else-if="v.trade_status==2" class="badge badge rounded-pill d-block badge-soft-danger">
+                                            審核中<span class="fa fa-redo fa-w-16 ms-1"></span>
+                                        </span>
+                                        <span v-else-if="v.trade_status==3" class="badge badge rounded-pill d-block badge-soft-success">
+                                            已撥款<span class="fa fa-check fa-w-16 ms-1"></span>
+                                        </span>
+                                        <span v-else-if="v.trade_status==4" class="badge badge rounded-pill d-block badge-soft-dark">
+                                            已退貨<span class="fa fa-ban fa-w-16 ms-1"></span>
+                                        </span>
+                                        <span v-else class="badge badge rounded-pill d-block badge-soft-secondary">
+                                            已取消<span class="fa fa-ban fa-w-16 ms-1"></span>
+                                        </span>
+                                    </td>
+                                    @*<td class="status py-2 align-middle text-center fs-0 white-space-nowrap">
+                                            <a v-if="v.trade_status==0" data-bs-toggle="tooltip" data-bs-placement="top" @@click="clearOrder(v)" href="#!" title="取消訂單">
+                                                <span class="fas fa-trash-alt text-danger me-1 ms-1"></span>
+                                            </a>
+                                        </td>*@
+
+                                    <td class="py-2 align-middle white-space-nowrap text-end">
+                                        <div v-if="v.trade_status==0 || v.trade_status==9" class="dropdown font-sans-serif position-static">
+                                            <button class="btn btn-link text-600 btn-sm dropdown-toggle btn-reveal" type="button" id="order-dropdown-0" data-bs-toggle="dropdown" data-boundary="viewport" aria-haspopup="true" aria-expanded="false">
+                                                <span class="fas fa-ellipsis-h "></span>
+                                            </button>
+                                            <div class="dropdown-menu dropdown-menu-end border py-0" aria-labelledby="order-dropdown-0">
+                                                <div class="bg-white py-2">
+                                                    @*<a class="dropdown-item text-success" href="#!">
+                                                            <span class="fas fa-check-circle text-success me-1"></span>確 認
+                                                        </a>
+                                                        <div class="dropdown-divider"></div>*@
+                                                    <a class="dropdown-item text-danger" @@click="clearOrder(v)" href="#!">
+                                                        <span class="fas fa-trash-alt text-danger me-1"></span>取消訂單
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <button @@click.prevent="setPage(currentPage-1)" class="btn btn-sm btn-falcon-default me-1" type="button" title="Previous" data-list-pagination="prev" :disabled="disabled_prev">
+                            <span class="fa fa-chevron-left fa-w-10"></span>
+                            @*<svg class="svg-inline--fa fa-chevron-left fa-w-10" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-left" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M34.52 239.03L228.87 44.69c9.37-9.37 24.57-9.37 33.94 0l22.67 22.67c9.36 9.36 9.37 24.52.04 33.9L131.49 256l154.02 154.75c9.34 9.38 9.32 24.54-.04 33.9l-22.67 22.67c-9.37 9.37-24.57 9.37-33.94 0L34.52 272.97c-9.37-9.37-9.37-24.57 0-33.94z"></path></svg>*@
+                        </button>
+                        @*<ul class="pagination mb-0">
+                                <li :class="{'active': (currentPage === (n))}" v-for="(n, index) in totalPage" :key="index" @@click.prevent="setPage(n)">
+                                    <button class="page" data-i="1" data-page="3" type="button">{{n}}</button>
+                                </li>
+
+
+                            </ul>*@
+
+                        <!-- 頁碼 -->
+                        <ul class="pagination mb-0 flex-wrap gap-2 justify-content-center ">
+                            <li v-for="(n, index) in displayPages"
+                                :key="index"
+                                :class="{'active': currentPage === n, 'disabled': n === '...'}"
+                                @@click.prevent="setPage(n)">
+                                <button class="page btn btn-sm"
+                                        type="button"
+                                        :disabled="n === '...'">
+                                    {{ n }}
+                                </button>
+                            </li>
+                        </ul>
+
+                        <button @@click.prevent="setPage(currentPage+1)" class="btn btn-sm btn-falcon-default ms-1" type="button" title="Next" data-list-pagination="next" :disabled="disabled_next">
+                            <span class="fa fa-chevron-right fa-w-10"></span>
+                            @*<svg class="svg-inline--fa fa-chevron-right fa-w-10" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="chevron-right" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" data-fa-i2svg=""><path fill="currentColor" d="M285.476 272.971L91.132 467.314c-9.373 9.373-24.569 9.373-33.941 0l-22.667-22.667c-9.357-9.357-9.375-24.522-.04-33.901L188.505 256 34.484 101.255c-9.335-9.379-9.317-24.544.04-33.901l22.667-22.667c9.373-9.373 24.569-9.373 33.941 0L285.475 239.03c9.373 9.372 9.373 24.568.001 33.941z"></path></svg>*@
+
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-status align-items-center d-flex flex-wrap gap-3">
+                <div>訂單狀態:</div>
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="devider"></div>
+                    <div><span class="text-warning">[送件中] : </span>額度條件不足，訂單由人工審核中，尚待審件完成</div>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="devider"></div>
+                    <div><span class="text-primary">[可撥款] : </span>此訂單已可向DUDU申請撥款</div>
+                </div>
+
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="devider"></div>
+                    <div><span class="text-danger">[審核中] : </span>DUDU 正在進行撥款審核</div>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="devider"></div>
+                    <div><span class="text-success">[已撥款] : </span>DUDU 已完成撥款作業</div>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+                    <div class="devider"></div>
+                    <div><span class="text-secondary">[已取消] : </span>由店家取消訂單或該筆訂單審核未通過</div>
+                </div>
+                <div class="d-flex gap-3 align-items-center">
+
+                    <div class="devider"></div>
+                    <div><span class="text-dark">[已退貨] : </span>店家於申請撥款後取消訂單</div>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+    @* 顯示 確認取消訂單 *@
+    <div class="modal fade" id="clear_modal" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="d-flex justify-content-center alert-danger rounded-top-lg py-3 ps-4 pe-6">
+                        <span class="fas fa-exclamation-triangle text-danger fs-5"></span>
+                    </div>
+                    <div class="d-flex justify-content-center text-success">
+                        訂單編號:&nbsp;{{confirm.kc_order_no}}
+                    </div>
+                    <div class="d-flex mb-3">
+                        <div class="p-2  flex-grow-1">
+                            取消後此筆訂單作廢，無法復原，您確定要刪除嗎？
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center mb-3">
+                        <div class="btn btn-primary me-3" @@click="confirmDelete(confirm)" style="background-color:#00af9a;border-color:#00af9a">確 定</div>
+                        <div class="btn btn-primary" data-bs-dismiss="modal" style="background-color:#00af9a;border-color:#00af9a">取 消</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- 按鈕 內容-->
+    @*<div class="offcanvas offcanvas-start settings-panel border-0" id="settings-offcanvas" tabindex="-1" aria-labelledby="settings-offcanvas">
+            <div class="offcanvas-header settings-panel-header bg-shape">
+                <div class="z-index-1 py-1 light">
+                    <h5 class="text-white"> <span class="fas fa-palette me-2 fs-0"></span>關鍵字查詢說明</h5>
+                </div>
+                <button class="btn-close btn-close-white z-index-1 mt-0" type="button" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body scrollbar-overlay px-card" id="themeController">
+                <h5 class="fs-0">訂單查詢</h5>
+                <div class="mb-3">
+                    ◎單一：連續數字模糊比對，例：213214 【搜尋→21321456、32132145、57213214】<br>
+                    ◎聯集(或or)：半形逗號(,)，例：21321456,21321457,2121458【搜尋→21321456、21321457、2121458】<br>
+                    ◎區間：分號(-)，例：0004567-0004578【搜尋→0004567、0004568、0004569…004578】
+                </div>
+                <hr />
+                <h5 class="fs-0">訂單加姓名查詢</h5>
+                <div class="mb-3">
+                    ◎交集 (且and):加(+)，例：213214+王 【搜尋→21321456 王小明、32132145 王哈哈、57213214 王西瓜】<br>
+                    ◎聯集 (or)：半形逗號(,)，例：21321456,王【搜尋→21321456 李阿狗、3814566 王阿牛、2121458 劉連王】
+                </div>
+                <hr />
+            </div>
+        </div>*@
+
+
+</div>
+
+@*<script>
+        // JS 檔案清單
+        const scripts = ['/js/common.js'];
+        // 動態載入每一個 JS 檔
+        scripts.forEach(file => {
+            const script = document.createElement('script');
+            script.src = file + '?v=1.1';// + new Date().getTime(); // 加入時間戳避免快取
+            document.body.appendChild(script);
+        });
+    </script>*@
+<script src="~/js/common.js?v=1.0"></script>
+<script src="~/js/elementPlus/elementPlus.js"></script>
+<script src="~/js/queryOrder.js?v=1.312"></script>
+
+@* 日期UI *@
+<link href="~/vendors/flatpickr/flatpickr.min.css" rel="stylesheet" />
+<script src="~/assets/js/flatpickr.js"></script>
+
+@*icon use bootstrap*@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css" />
+
