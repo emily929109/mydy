@@ -471,7 +471,7 @@
           <!--item-->
           <div
             class="news-item col-12 col-md-6 col-lg-4 mb-4"
-            :class="{ ended: news.category === '已結束活動' }"
+            :class="{ ended: isEnded(news) }"
             v-for="(news, index) in filteredNews"
             :key="index"
             :style="{ animationDelay: (index % 3) * 0.2 + 's' }"
@@ -560,15 +560,41 @@
           ]);
 
           const allNews = ref([]);
-          const newsData = ref([]); // 存儲詳細文章內容
           const currentCategory = ref("全部");
           const isListView = ref(true);
           const currentArticle = ref(null);
           const listScrollY = ref(0);
 
+          // "YYYY/MM/DD" -> Date（本機時區、當天 00:00）
+          const parseDateStr = (str) => {
+            const [y, m, d] = str.split("/").map(Number);
+            return new Date(y, m - 1, d);
+          };
+
+          // 促銷時段尚未開始：不顯示在任何地方
+          const notStarted = (news) => {
+            if (!news.promoStart) return false; // 如未設定 promoStart，則已開始
+            return new Date() < parseDateStr(news.promoStart); // 比較時間物件時JS會自動為毫秒時間戳記
+          };
+
+          // 促銷時段已結束（含 promoEnd 當天全天有效，過了當天 23:59:59 才算結束）
+          const isEnded = (news) => {
+            if (!news.promoEnd) return false;
+            const end = parseDateStr(news.promoEnd);
+            end.setHours(23, 59, 59, 999);
+            return new Date() > end;
+          };
+
           const filteredNews = computed(() => {
-            if (currentCategory.value === "全部") return allNews.value;
-            return allNews.value.filter(
+            const visible = allNews.value.filter((news) => !notStarted(news));
+
+            if (currentCategory.value === "已結束活動") {
+              return visible.filter((news) => isEnded(news));
+            }
+
+            const notEnded = visible.filter((news) => !isEnded(news));
+            if (currentCategory.value === "全部") return notEnded;
+            return notEnded.filter(
               (news) => news.category === currentCategory.value,
             );
           });
@@ -610,21 +636,16 @@
 
           const fetchNews = async () => {
             try {
-              // 同時取得列表與詳細資料
-              const [listRes, dataRes] = await Promise.all([
-                axios.get("news.json"),
-                axios.get("news_data.json"),
-              ]);
-
-              allNews.value = Array.isArray(listRes.data) ? listRes.data : [];
-              newsData.value = Array.isArray(dataRes.data) ? dataRes.data : [];
+              const res = await axios.get("news.json");
+              allNews.value = Array.isArray(res.data) ? res.data : [];
 
               // 檢查初始 URL 是否有文章 ID
               const params = new URLSearchParams(window.location.search);
               const articleId = params.get("id");
-              if (articleId && Array.isArray(newsData.value)) {
-                const article = newsData.value.find((a) => a.id === articleId);
-                if (article) {
+              if (articleId) {
+                const article = allNews.value.find((a) => a.id === articleId);
+                // 尚未開始的促銷文章不可透過直接連結存取；已結束的仍可查看
+                if (article && !notStarted(article)) {
                   currentArticle.value = article;
                   isListView.value = false;
                 }
@@ -661,7 +682,7 @@
             // 根據列表json物件中的 href 取得文章 id
             const hrefParams = new URLSearchParams(news.href.split("?")[1]);
             const id = hrefParams.get("id");
-            const article = newsData.value.find((a) => a.id === id);
+            const article = allNews.value.find((a) => a.id === id);
 
             if (article) {
               listScrollY.value = window.scrollY; // 儲存列表目前捲動位置
@@ -703,8 +724,8 @@
             const category = params.get("category") || "全部";
 
             if (articleId) {
-              const article = newsData.value.find((a) => a.id === articleId);
-              if (article) {
+              const article = allNews.value.find((a) => a.id === articleId);
+              if (article && !notStarted(article)) {
                 listScrollY.value = window.scrollY; // 儲存列表捲動位置
                 currentArticle.value = article;
                 isListView.value = false;
@@ -744,6 +765,7 @@
             changeCategory,
             viewArticle,
             goBack,
+            isEnded,
           };
         },
       });

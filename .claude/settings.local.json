@@ -10,7 +10,18 @@
       "Bash(git log:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(npx *)"
+      "Bash(npx *)",
+      "Bash(claude plugin *)",
+      "Read(//Users/yiyinglin/.claude/**)",
+      "Bash(npm ls *)",
+      "Bash(cp /tmp/news_test.json news.json)",
+      "Bash(curl -s localhost:8934/news.json)",
+      "Bash(kill %1)",
+      "Bash(jobs)",
+      "Bash(cp /tmp/news.json.bak news.json)",
+      "Read(//private/tmp/**)",
+      "Bash(rm -f /tmp/news.json.bak /tmp/news_test.json)"
     ]
-  }
+  },
+  "skillOverrides": {}
 }
