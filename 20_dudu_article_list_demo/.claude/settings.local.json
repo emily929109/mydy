@@ -7,7 +7,8 @@
       "Bash(node:*)",
       "Bash(find C:/Users/emily/Desktop/emily/01_project/20_dudu_article_list_demo -name *.mp4 -o -name *fuji* -type f)",
       "Bash(ls:*)",
-      "Bash(awk 'NR==41,NR==47' news_data.json)"
+      "Bash(awk 'NR==41,NR==47' news_data.json)",
+      "Bash(command -v node)"
     ]
   }
 }
