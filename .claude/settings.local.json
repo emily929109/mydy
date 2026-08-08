@@ -20,7 +20,9 @@
       "Bash(jobs)",
       "Bash(cp /tmp/news.json.bak news.json)",
       "Read(//private/tmp/**)",
-      "Bash(rm -f /tmp/news.json.bak /tmp/news_test.json)"
+      "Bash(rm -f /tmp/news.json.bak /tmp/news_test.json)",
+      "WebSearch",
+      "Bash(open *)"
     ]
   },
   "skillOverrides": {}

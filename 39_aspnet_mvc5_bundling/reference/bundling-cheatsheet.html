@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Bundling &amp; Minification 速查表</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  body { max-width: 46rem; }
+  @media print { body { font-size: 13px; padding: 0.5rem; } h2 { break-before: auto; } }
+</style>
+</head>
+<body>
+
+<div class="lesson-kicker">Reference &middot; 速查表</div>
+<h1>ASP.NET MVC 5 Bundling &amp; Minification</h1>
+<p class="subtitle">System.Web.Optimization 的壓縮essence — 供之後隨時查閱，不是教學文。</p>
+
+<h2 id="hash">雜湊版號怎麼來的</h2>
+<p><code>@@Scripts.Render("~/bundles/xxx")</code> 產生的網址帶一個 <code>?v=...</code> query string，這個 token 是<strong>依 bundle 內所有檔案的內容算出來的雜湊值</strong>，不是時間戳、不是檔案的 Last-Modified。</p>
+<ul>
+  <li>bundle 內容不變 → token 不變 → 瀏覽器吃快取（不重新下載）</li>
+  <li>bundle 內任一檔案改了 → token 換一個 → 網址整個不同 → 瀏覽器一定重新下載</li>
+  <li>token 在<strong>伺服器端 render HTML 當下</strong>就算好、內嵌進 HTML 了 — 前端不用發任何額外 request 去判斷要不要吃快取</li>
+</ul>
+
+<h2 id="enable">Bundling 生不生效，兩個開關</h2>
+<table>
+  <thead><tr><th>設定</th><th>值</th><th>結果</th></tr></thead>
+  <tbody>
+    <tr><td><code>web.config</code><br><code>&lt;compilation debug="..."&gt;</code></td><td><code>true</code></td><td>不合併、不壓縮、不產生雜湊版號（除非 EnableOptimizations 蓋過它）</td></tr>
+    <tr><td>同上</td><td><code>false</code></td><td>合併＋壓縮＋雜湊版號，全部生效</td></tr>
+    <tr><td><code>BundleTable.EnableOptimizations</code>（C# 程式碼）</td><td><code>true</code></td><td><strong>強制生效</strong>，蓋過 web.config 的 debug 設定</td></tr>
+  </tbody>
+</table>
+<p class="source-link">來源：<a href="https://learn.microsoft.com/en-us/aspnet/mvc/overview/performance/bundling-and-minification">Bundling and Minification — Microsoft Learn</a> §Controlling Bundling and Minification</p>
+<div class="callout">
+  <div class="callout-title">地雷</div>
+  <p>正式環境如果 Publish Profile 沒切到 Release、或 <code>web.config</code> 還留著 <code>debug="true"</code>，這個方案<strong>完全不會生效</strong> — 版號問題會原封不動地回來，而且不會有任何錯誤訊息提示你。發佈後務必實際看一次頁面原始碼，確認 <code>&lt;script&gt;</code> 網址上真的帶了 <code>?v=</code>。</p>
+</div>
+
+<h2 id="bundleconfig">BundleConfig.cs 骨架（共用 + 各頁專屬）</h2>
+<pre><code>// App_Start/BundleConfig.cs
+public class BundleConfig
+{
+    public static void RegisterBundles(BundleCollection bundles)
+    {
+        // 所有頁面都會用到的
+        bundles.Add(new ScriptBundle("~/bundles/common").Include(
+            "~/Scripts/jquery-{version}.js",
+            "~/Scripts/site.js"));
+
+        // 只有商品頁用到的
+        bundles.Add(new ScriptBundle("~/bundles/productPage").Include(
+            "~/Scripts/product-detail.js"));
+
+        // 只有結帳頁用到的
+        bundles.Add(new ScriptBundle("~/bundles/checkoutPage").Include(
+            "~/Scripts/checkout.js"));
+
+        BundleTable.EnableOptimizations = true; // 正式環境強制生效，不依賴 web.config
+    }
+}</code></pre>
+<p>頁面上用 <code>@@Scripts.Render("~/bundles/common")</code> 引用；各頁 View 再各自加對應的專屬 bundle。</p>
+
+<h2 id="clientcache">IIS 靜態檔案長效快取（非 bundle 的檔案）</h2>
+<p>Bundle 的 HTTP 回應框架已經自動帶了<strong>一年後過期</strong>的 Expires header，不用另外設定。但圖片、字型等「沒有走 bundling」的靜態檔案，預設不一定有長效快取 header，要在 <code>web.config</code> 補：</p>
+<pre><code>&lt;system.webServer&gt;
+  &lt;staticContent&gt;
+    &lt;clientCache cacheControlMode="UseMaxAge" cacheControlMaxAge="365.00:00:00" /&gt;
+  &lt;/staticContent&gt;
+&lt;/system.webServer&gt;</code></pre>
+<table>
+  <thead><tr><th>屬性</th><th>作用</th></tr></thead>
+  <tbody>
+    <tr><td><code>cacheControlMode</code></td><td><code>NoControl</code>（預設，不加 header）／<code>DisableCache</code>／<code>UseMaxAge</code>／<code>UseExpires</code></td></tr>
+    <tr><td><code>cacheControlMaxAge</code></td><td>搭配 <code>UseMaxAge</code>，格式 <code>天.時:分:秒</code>，範例中 <code>365.00:00:00</code> = 一年</td></tr>
+    <tr><td><code>httpExpires</code></td><td>搭配 <code>UseExpires</code>，指定絕對日期時間（RFC 1123 格式）</td></tr>
+  </tbody>
+</table>
+<p class="source-link">來源：<a href="https://learn.microsoft.com/en-us/iis/configuration/system.webserver/staticcontent/clientcache">Client Cache &lt;clientCache&gt; — Microsoft Learn (IIS docs)</a></p>
+
+<h2 id="checklist">下週一查證 checklist（對應 handoff 的 Q5 / Q8）</h2>
+<ul>
+  <li>☐ <code>App_Start/BundleConfig.cs</code> 存不存在？有沒有已經在用？</li>
+  <li>☐ 正式環境 <code>.pubxml</code> 對應的組態確實是 Release，且 <code>web.config</code> 中 <code>debug="false"</code></li>
+  <li>☐ 圖片等非 bundle 靜態檔案的 <code>clientCache</code> 有沒有設定</li>
+  <li>☐ 盤點所有手動 <code>?v=...</code> 的頁面，準備改成 <code>@@Scripts.Render(...)</code></li>
+  <li>☐ 找到並移除現有 fetch HEAD 比對 Last-Modified 的 JS（白屏根源）</li>
+</ul>
+
+<footer class="lesson-footer">
+  <a href="../lessons/0001-bundle-hash-versioning.html">&larr; Lesson 0001</a>
+  <a href="../MISSION.md">Mission</a>
+  <a href="../RESOURCES.md">Resources</a>
+</footer>
+
+</body>
+</html>

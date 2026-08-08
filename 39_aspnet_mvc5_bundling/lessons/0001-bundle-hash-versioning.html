@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 0001 &middot; Bundle 雜湊版號</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div class="lesson-kicker">Lesson 0001 &middot; ASP.NET MVC 5 Bundling and Minification</div>
+<h1>Bundle 雜湊版號：為什麼它同時解決快取命中與破快取</h1>
+<p class="subtitle">上次諮詢已經決定方向了 — 這堂課只做一件事：把「為什麼」講到你能自己跟同事解釋清楚，並抓出唯一一個會讓整個方案失效的地雷。</p>
+
+<h2 id="recap">先回顧一下卡住的地方</h2>
+<p>你試過兩個方案，都有明確的失敗原因：</p>
+<ul>
+  <li><strong>方案一：</strong> <code>?v=</code> 接 <code>Date()</code> 時間戳 — 每次都不同，快取<strong>永遠</strong> miss，等於沒有快取。</li>
+  <li><strong>方案二：</strong> 前端 <code>fetch HEAD</code> 打 IIS 拿 <code>Last-Modified</code> 比對 — 首頁要同步等這次 request 跑完才敢渲染，造成白屏約 3 秒。</li>
+</ul>
+<p>兩者的共同病根其實是同一個：<strong>版號的決定時機不對</strong>。時間戳是「每次都重新決定」，fetch HEAD 是「瀏覽器端在 render 之後才決定」。Bundling 解決這兩個問題的方式，是把版號的決定時機挪到<strong>伺服器產生 HTML 的當下</strong>，而且只在內容真的變了才變。</p>
+
+<h2 id="hash">雜湊版號怎麼運作</h2>
+<p>當你在 View 裡寫 <code>@@Scripts.Render("~/bundles/common")</code>，MVC 會把它展開成類似這樣的 HTML：</p>
+<pre><code>&lt;script src="/bundles/common?v=r0sLDicvP58AIXN_mc3QdyVvVj5euZNzdsa2N1PKvb81"&gt;&lt;/script&gt;</code></pre>
+<p>官方文件是這樣描述這個 <code>v</code> 的：</p>
+<blockquote>
+  The query string <strong>v</strong> has a value token that is a unique identifier used for caching. As long as the bundle doesn't change, the ASP.NET application will request the bundle using this token. If any file in the bundle changes, the ASP.NET optimization framework will generate a new token, guaranteeing that browser requests for the bundle will get the latest bundle.
+  <cite>— <a href="https://learn.microsoft.com/en-us/aspnet/mvc/overview/performance/bundling-and-minification#bundle-caching">Bundling and Minification, §Bundle Caching — Microsoft Learn</a></cite>
+</blockquote>
+<p>關鍵在於這個 token 是<strong>依 bundle 內所有檔案的內容算出來的雜湊值</strong>，不是時間、不是 <code>Last-Modified</code>：</p>
+<ul>
+  <li>內容沒變 → 雜湊一樣 → 網址一樣 → 瀏覽器直接吃本地快取，<strong>連 request 都不會發</strong></li>
+  <li>內容變了（哪怕只改一個字元）→ 雜湊不同 → 網址整個不同 → 瀏覽器一定會發新 request 抓最新版</li>
+</ul>
+<p>而且這個雜湊是<strong>伺服器 render HTML 的當下就算好、直接寫進 HTML 屬性裡</strong>的。沒有額外的 runtime 判斷、沒有 fetch、沒有等待 — 這就是為什麼方案二的白屏問題在這裡完全不存在。</p>
+
+<div class="callout">
+  <div class="callout-title">意外的附帶好處</div>
+  <p>Bundling 同時把多個檔案合併成一個 request，官方文件的範例數據是 request 數從 34 降到 9、載入時間減少 53%。對你提到「伺服器效能吃緊」的疑慮，這是直接的緩解，不是額外負擔。</p>
+</div>
+
+<h2 id="gotcha">唯一的地雷：Debug 模式會讓這一切失效</h2>
+<p>雜湊版號機制<strong>不是永遠開著的</strong>。它由兩個設定共同決定：</p>
+<table>
+  <thead><tr><th>設定</th><th>值</th><th>結果</th></tr></thead>
+  <tbody>
+    <tr><td><code>web.config</code> 的 <code>&lt;compilation debug="..."&gt;</code></td><td><code>true</code></td><td>不合併、不壓縮、<strong>不產生雜湊版號</strong></td></tr>
+    <tr><td>同上</td><td><code>false</code></td><td>合併＋壓縮＋雜湊版號，全部生效</td></tr>
+    <tr><td><code>BundleTable.EnableOptimizations</code>（C# 程式碼）</td><td><code>true</code></td><td>強制生效，<strong>蓋過</strong> web.config 的 debug 設定</td></tr>
+  </tbody>
+</table>
+<p>官方文件原文：</p>
+<blockquote>
+  Unless <code>EnableOptimizations</code> is <code>true</code> or the debug attribute in the compilation Element in the Web.config file is set to <code>false</code>, files will not be bundled or minified.
+  <cite>— <a href="https://learn.microsoft.com/en-us/aspnet/mvc/overview/performance/bundling-and-minification#controlling-bundling-and-minification">同上, §Controlling Bundling and Minification</a></cite>
+</blockquote>
+<p>套回你的情境：測試環境用 Debug 沒關係（開發方便除錯，本來就不需要這個機制）。但如果正式環境的 Publish Profile 沒有確實切到 Release、或 <code>web.config</code> 忘了把 <code>debug</code> 改回 <code>false</code>，這個方案會<strong>完全不生效</strong> — 而且不會跳出任何錯誤，你只會發現版號問題原封不動地回來了。這就是 handoff 文件裡標記為「關鍵地雷」的原因，也是下週一 checklist 的第一項要查證的事。</p>
+
+<h2 id="bonus">附帶答案：Q8 的一部分已經解決了</h2>
+<p>官方文件另外提到一件事，直接回答了 handoff 裡 Q8 的一半：</p>
+<blockquote>
+  Bundles set the HTTP Expires Header one year from when the bundle is created.
+  <cite>— <a href="https://learn.microsoft.com/en-us/aspnet/mvc/overview/performance/bundling-and-minification#bundle-caching">同上, §Bundle Caching</a></cite>
+</blockquote>
+<p>也就是說，<strong>bundle 本身的回應</strong>（那個 <code>?v=...</code> 網址背後的 handler）已經自動帶了一年後過期的 <code>Expires</code> header，不需要你在 IIS 另外設定。IIS <code>web.config</code> 的 <code>&lt;staticContent&gt;&lt;clientCache&gt;</code> 設定，只對<strong>沒有走 bundling 的靜態檔案</strong>（例如圖片、字型）有意義 — 這部分下週一還是要查證有沒有設，但 JS/CSS 的長效快取本身已經不用你操心。細節整理在<a href="../reference/bundling-cheatsheet.html#clientcache">速查表</a>。</p>
+
+<div class="callout">
+  <div class="callout-title">推薦精讀</div>
+  <p>這堂課引用的兩段文字都出自同一篇官方文件，值得整篇讀一次（大約 10 分鐘）：<br>
+  <a href="https://learn.microsoft.com/en-us/aspnet/mvc/overview/performance/bundling-and-minification">Bundling and Minification — Microsoft Learn</a>（作者 Rick Anderson，ASP.NET 官方文件）。</p>
+</div>
+
+<h2 id="quiz">練習：不看上面的內容，回答這三題</h2>
+<div id="quiz-root"></div>
+
+<div class="ask-agent">
+  卡住了、或想追問某個細節（例如「那 CSS bundle 呢」「Web Deploy 怎麼確保組態對」）？隨時問你的 agent（我） — 我是你的教學夥伴，這個 workspace 就是為了持續追問設計的。
+</div>
+
+<footer class="lesson-footer">
+  <a href="../reference/bundling-cheatsheet.html">速查表 →</a>
+  <a href="../MISSION.md">Mission</a>
+  <a href="../RESOURCES.md">Resources</a>
+</footer>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "情境：正式環境（Release + debug=\"false\"）只改了 site.js 的內容，其他 bundle 內檔案都沒變，重新發佈後，瀏覽器會不會抓到新版 site.js？",
+    options: [
+      { text: "會，因為雜湊值改變了", correct: true },
+      { text: "不會，因為快取沒過期", correct: false }
+    ],
+    explain: "對。雜湊值是依內容算的，site.js 內容一變，token 就變，網址整個不同，瀏覽器必定重新抓。"
+  },
+  {
+    q: "測試環境 web.config 設定 debug=\"true\"，且程式碼裡沒有另外設定 EnableOptimizations。這種情況下，bundle 會不會真的合併壓縮並產生雜湊版號？",
+    options: [
+      { text: "不會，這樣會停用最佳化", correct: true },
+      { text: "會，因為預設一律會啟用", correct: false }
+    ],
+    explain: "對。debug=\"true\" 且沒有 EnableOptimizations=true 蓋過它，bundling/minification 完全不生效 — 這是測試環境的正常狀態，但正式環境絕對不能是這樣。"
+  },
+  {
+    q: "Bundle 本身回應的 HTTP header，框架會不會自動加上長效的 Expires？",
+    options: [
+      { text: "會，框架自動加一年份", correct: true },
+      { text: "不會，要自己設定才有", correct: false }
+    ],
+    explain: "對。這是 bundling 框架內建行為，不需要額外在 IIS 設定 clientCache — 那個設定是給非 bundle 的靜態檔案用的。"
+  }
+];
+
+const root = document.getElementById('quiz-root');
+QUESTIONS.forEach((item, qi) => {
+  const box = document.createElement('div');
+  box.className = 'quiz';
+  const order = item.options.map((o, i) => i).sort(() => Math.random() - 0.5);
+  box.innerHTML = `
+    <div class="quiz-q">Q${qi + 1}. ${item.q}</div>
+    <div class="quiz-options">
+      ${order.map(i => `
+        <label class="quiz-option" data-correct="${item.options[i].correct}">
+          <input type="radio" name="q${qi}">
+          <span>${item.options[i].text}</span>
+        </label>
+      `).join('')}
+    </div>
+    <button class="quiz-check">對答案</button>
+    <div class="quiz-feedback"></div>
+  `;
+  root.appendChild(box);
+
+  const btn = box.querySelector('.quiz-check');
+  const feedback = box.querySelector('.quiz-feedback');
+  btn.addEventListener('click', () => {
+    const chosen = box.querySelector(`input[name="q${qi}"]:checked`);
+    if (!chosen) {
+      feedback.textContent = '先選一個答案。';
+      feedback.className = 'quiz-feedback bad';
+      return;
+    }
+    box.querySelectorAll('.quiz-option').forEach(opt => {
+      const isCorrect = opt.dataset.correct === 'true';
+      if (isCorrect) opt.classList.add('correct');
+      if (opt.querySelector('input') === chosen && !isCorrect) opt.classList.add('incorrect');
+    });
+    const chosenLabel = chosen.closest('.quiz-option');
+    const gotItRight = chosenLabel.dataset.correct === 'true';
+    feedback.textContent = (gotItRight ? '對了。' : '不對。') + item.explain;
+    feedback.className = 'quiz-feedback ' + (gotItRight ? 'ok' : 'bad');
+    box.querySelectorAll('input').forEach(i => i.disabled = true);
+    btn.disabled = true;
+  });
+});
+</script>
+
+</body>
+</html>
