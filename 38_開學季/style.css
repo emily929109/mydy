@@ -1,0 +1,237 @@
+:root {
+  --brand-blue: #1c8ce8;
+  --brand-mint: #58f0c6;
+  --brand-yellow: #f2ef6b;
+  --brand-coral: #ff5b45;
+  --brand-pink: #ff4fa3;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+
+/* ---------- Banner ---------- */
+
+.banner {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1550 / 700;
+  overflow: hidden;
+  background: var(--brand-blue);
+}
+
+.banner-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+
+.banner-inner {
+  position: absolute;
+  inset: 0;
+}
+
+.decor,
+.star,
+.banner-text {
+  position: absolute;
+}
+
+.decor {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.star {
+  z-index: 5;
+  will-change: opacity;
+}
+
+/* Text block: CSS keyframes pop-in (non-GSAP) */
+.banner-text {
+  left: 50%;
+  top: 51%;
+  width: 42%;
+  z-index: 3;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  animation: textPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
+}
+
+@keyframes textPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  60% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  80% {
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Hand (bottom layer) */
+.item-hand {
+  left: 34%;
+  top: 28%;
+  width: 8%;
+  z-index: 2;
+}
+
+/* Small items (top layer) */
+.item-watch {
+  left: 69%;
+  top: 24%;
+  width: 5%;
+  z-index: 4;
+}
+.item-notebook {
+  left: 71%;
+  top: 40%;
+  width: 16%;
+  z-index: 4;
+}
+.item-headphone {
+  left: 31%;
+  top: 48%;
+  width: 8.5%;
+  z-index: 4;
+}
+.item-helmet {
+  left: 74%;
+  top: 65%;
+  width: 8%;
+  z-index: 4;
+}
+.item-gloves {
+  left: 27%;
+  top: 70%;
+  width: 9%;
+  z-index: 4;
+}
+.item-airpod {
+  left: 72%;
+  top: 85%;
+  width: 5%;
+  z-index: 4;
+}
+
+/* Decorative doodles (background texture layer) */
+.item-circle1 {
+  left: 89%;
+  top: 60%;
+  width: 5%;
+  z-index: 1;
+}
+.item-circle2 {
+  left: 12%;
+  top: 25%;
+  width: 3.5%;
+  z-index: 1;
+}
+.item-circle3 {
+  left: 40%;
+  top: 8%;
+  width: 18%;
+  opacity: 0;
+  z-index: 1;
+}
+.item-line1 {
+  left: 23%;
+  top: 15%;
+  width: 5%;
+  z-index: 1;
+}
+.item-line2 {
+  left: 19%;
+  top: 72%;
+  width: 3.5%;
+  z-index: 1;
+}
+.item-line3 {
+  left: 85%;
+  top: 74%;
+  width: 4.5%;
+  z-index: 1;
+}
+.item-line4 {
+  left: 78%;
+  top: 26%;
+  width: 4.2%;
+  z-index: 1;
+}
+
+/* Stars */
+.item-star1 {
+  left: 24%;
+  top: 36%;
+  width: 2.8%;
+}
+.item-star2 {
+  left: 80%;
+  top: 74%;
+  width: 2%;
+}
+
+/* ---------- Product grid ---------- */
+
+.content {
+  max-width: 1000px;
+  margin: 60px auto;
+}
+@media (min-width: 1281px) {
+  .content {
+    max-width: 1200px;
+  }
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2vw;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-image {
+  aspect-ratio: 1 / 1;
+  background: #c4c4c4;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+
+.product-name {
+  font-size: 1rem;
+  color: #1a1a1a;
+  margin-bottom: 0.25rem;
+}
+
+.product-store {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.25rem;
+}
+
+.product-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
