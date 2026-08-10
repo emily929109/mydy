@@ -1,6 +1,6 @@
 gsap.registerPlugin(ScrollTrigger);
 
-// Centering baseline for every absolutely-positioned decor/star image.
+// 絕對定位每個裝飾元素
 gsap.set(".decor, .star", {
   xPercent: -50,
   yPercent: -50,
@@ -33,8 +33,7 @@ function startStarIdle() {
 }
 
 function initParallax() {
-  // Background texture (circles/lines) and Hand stay static — only the
-  // top-layer small items (product icons) get the scroll parallax.
+  // 等同於 const items = Array.from(document.querySelectorAll(".decor")).filter(...).map(...);
   const items = gsap.utils
     .toArray(".decor")
     .filter(
@@ -48,9 +47,9 @@ function initParallax() {
       speed: parseFloat(el.dataset.speed) || 0,
     }));
 
-  // start: "top top" keeps scroll progress at 0 on page load (banner sits
-  // at the very top of the page), matching the intro's resting y:0 so
-  // parallax doesn't snap items to a new position once it takes over.
+  // items 會是一個陣列，每個元素長得像：  { setY: fn, speed: 1.5 }
+  // map 的目的 : 把「DOM 查詢」和「每次 scroll 更新的運算」分開
+  // DOM 相關的東西（找元素、讀屬性、建立 setter）只在初始化時做一次，之後滾動時的 onUpdate 只做純數字運算＋呼叫 setter，效能較好。
   ScrollTrigger.create({
     trigger: "#banner",
     start: "top top",
