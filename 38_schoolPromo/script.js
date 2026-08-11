@@ -57,7 +57,7 @@ function initParallax() {
     scrub: true,
     onUpdate: (self) => {
       // Negative y: scrolling down moves items up, scrolling up moves items down.
-      items.forEach(({ setY, speed }) => setY(-speed * 1.5 * self.progress));
+      items.forEach(({ setY, speed }) => setY(-speed * 3 * self.progress));
     },
   });
 }
