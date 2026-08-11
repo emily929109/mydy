@@ -14,3 +14,7 @@ _Avoid_: 上下架時間、活動期間（未在程式中定義為正式詞彙�
 
 **已結束活動 (Ended-promotions tab)**:
 分類頁籤之一，顯示所有 `promoEnd` 已過期的文章（與 `category` 分類值無關），做為促銷文章的歸檔檢視。
+
+**導向連結 (ctaLinks)**:
+文章內頁 `content` 下方、待 `ctaStart` 日期到達後才整批顯示的一組 CTA 連結。`ctaStart` 與控制文章本身可見性的 `promoStart`/`promoEnd`（促銷時段）是互不相關的日期；`ctaStart` 只有開始、沒有結束，一旦顯示便不會再收回。以獨立的結構化欄位存放並由樣板渲染，不寫在 `content` 的 HTML 字串裡。
+_Avoid_: 三個導向、CTA按鈕（口語說法，非程式中定義的正式詞彙）

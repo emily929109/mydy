@@ -9,6 +9,12 @@
     "banner": "/img/news/schoolPrePromo/banner_1550x600.jpg",
     "contentTitle": "你的開學裝備清單，熱門好物等你帶回家",
     "promoStart": "2026/08/11",
+    "ctaStart": "2026/08/19",
+    "ctaLinks": [
+      { "href": "/Home/Register", "label": "立即註冊搶優惠" },
+      { "href": "/Home/News?id=schoolPrePromo", "label": "查看活動辦法" },
+      { "href": "/Home/Register", "label": "加碼好禮領取" }
+    ],
     "isHomeBanner": true,
     "isNewsBanner": true,
     "homeBannerSeq": 1,

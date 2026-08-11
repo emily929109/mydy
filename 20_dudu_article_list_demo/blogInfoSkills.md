@@ -24,8 +24,10 @@
 | `txt`         | String | 內頁內容主體，使用簡化 Markdown 與基礎 HTML 標籤。                       |
 | `promoStart`  | String | （選填）促銷可見時段起始日，格式 `YYYY/MM/DD`。未到此日期前，文章完全不顯示、也無法透過連結存取。 |
 | `promoEnd`    | String | （選填）促銷可見時段結束日，格式 `YYYY/MM/DD`，含當天整天有效（到 23:59:59）。過此日期後，文章會從「全部」與一般分類頁籤移除，但仍會出現在「已結束活動」頁籤下，並可透過原連結存取。 |
+| `ctaStart`    | String | （選填）內頁「導向連結」(`ctaLinks`) 的顯示起始日，格式 `YYYY/MM/DD`。與 `promoStart`/`promoEnd` 無關的獨立日期，只有開始、沒有結束——一旦到達即整批顯示，不會再收回。 |
+| `ctaLinks`    | Array  | （選填）需搭配 `ctaStart` 使用。`ctaStart` 到達前完全不顯示（無佔位提示）；到達後固定整批顯示在內頁 `txt` 內容下方。每筆為 `{ "href": String, "label": String }`。 |
 
-`promoStart`/`promoEnd` 只在需要限時顯示的文章上加註；一般文章不需要這兩個欄位。
+`promoStart`/`promoEnd` 只在需要限時顯示的文章上加註；一般文章不需要這兩個欄位。`ctaStart`/`ctaLinks` 只在文章內頁需要「延後於另一個時間點顯示額外導向連結」時才加註，且兩者須同時提供。
 
 ## `txt` 內容規範
 

@@ -511,6 +511,20 @@
         <!-- 直接使用 currentArticle.txt 進行渲染 -->
         <div class="blog-info-content" v-html="currentArticle.txt"></div>
 
+        <!-- 導向連結 (ctaLinks)：ctaStart 到達後才整批顯示，與 promoStart/promoEnd 無關 -->
+        <div
+          v-if="currentArticle.ctaLinks && ctaStartReached(currentArticle)"
+          class="cta-links mt-4 text-center"
+        >
+          <a
+            v-for="(link, idx) in currentArticle.ctaLinks"
+            :key="idx"
+            :href="link.href"
+            class="button d-block mb-3"
+            >{{ link.label }}</a
+          >
+        </div>
+
         <div class="mt-5 text-center">
           <div class="button" @click="goBack">回文章列表</div>
         </div>
@@ -583,6 +597,12 @@
             const end = parseDateStr(news.promoEnd);
             end.setHours(23, 59, 59, 999);
             return new Date() > end;
+          };
+
+          // 導向連結 (ctaLinks) 是否該顯示：與 promoStart/promoEnd 無關的獨立日期，只有開始、沒有結束
+          const ctaStartReached = (news) => {
+            if (!news.ctaStart) return false;
+            return new Date() >= parseDateStr(news.ctaStart);
           };
 
           const filteredNews = computed(() => {
@@ -766,6 +786,7 @@
             viewArticle,
             goBack,
             isEnded,
+            ctaStartReached,
           };
         },
       });
