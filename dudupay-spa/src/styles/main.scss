@@ -1,0 +1,8 @@
+// 1. 先載入 Bootstrap functions，才能在下面覆寫變數時用到 color/SVG 相關函式
+@import 'bootstrap/scss/functions';
+
+// 2. 變數覆寫（見 _variables.scss），要放在 functions 之後、bootstrap 主檔之前才會生效
+@import './variables';
+
+// 3. 其餘 Bootstrap（variables/mixins/所有元件），會用到上面覆寫過的變數
+@import 'bootstrap/scss/bootstrap';
