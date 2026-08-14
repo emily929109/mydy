@@ -28,23 +28,33 @@ function goToPrevious() {
 
 <template>
   <div class="container py-4">
-    <RegisterWizardNav class="mb-4" />
-    <h2 class="mb-4">{{ currentStep?.title }}</h2>
+    <div class="row justify-content-center">
+      <div class="col-lg-7 col-sm-10 col-xxl-5 px-0 px-md-3">
+        <div class="card mb-4">
+          <div class="card-header bg-light pt-3 pb-2">
+            <RegisterWizardNav />
+          </div>
+          <div class="card-body py-4">
+            <h3 class="fw-bold text-primary mb-4">{{ currentStep?.title }}</h3>
 
-    <slot />
+            <slot />
 
-    <div class="mt-4 d-flex justify-content-between">
-      <button
-        class="btn btn-outline-secondary"
-        type="button"
-        :disabled="!previousStep"
-        @click="goToPrevious"
-      >
-        上一步
-      </button>
-      <button class="btn btn-primary" type="button" :disabled="nextDisabled" @click="emit('next')">
-        {{ nextLabel }}
-      </button>
+            <div class="mt-4 d-flex justify-content-between">
+              <button
+                class="btn btn-outline-secondary"
+                type="button"
+                :disabled="!previousStep"
+                @click="goToPrevious"
+              >
+                上一步
+              </button>
+              <button class="btn btn-primary" type="button" :disabled="nextDisabled" @click="emit('next')">
+                {{ nextLabel }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>

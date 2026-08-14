@@ -6,3 +6,14 @@
 
 // 3. 其餘 Bootstrap（variables/mixins/所有元件），會用到上面覆寫過的變數
 @import 'bootstrap/scss/bootstrap';
+
+// Element Plus 的顏色是獨立一套 CSS 變數（--el-color-*），不會吃 Bootstrap 的 $primary，
+// 這裡另外覆寫成同一個品牌綠，讓 el-steps（RegisterWizardNav）跟 Bootstrap 元件視覺一致。
+// RegisterWizardNav 用 finish-status="success" + 逐步 status="success"，實際會吃到的是
+// --el-color-success，一併覆寫，「進行中」跟「已完成」步驟才會是同一個綠色（比照原站 nav-wizard.css）。
+:root {
+  --el-color-primary: #{$primary};
+  --el-color-primary-dark-2: #028b7a;
+  --el-color-success: #{$primary};
+  --el-color-success-dark-2: #028b7a;
+}
