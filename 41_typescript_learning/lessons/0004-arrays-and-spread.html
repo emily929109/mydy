@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>陣列型別與展開運算子</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+
+<div class="lesson-kicker">TypeScript · Lesson 4 of N</div>
+<h1>陣列型別與展開運算子：組出 routes 陣列</h1>
+<p class="subtitle">目標：看懂 <code>src/router/index.ts</code> 第 23~30 行，<code>routes</code> 陣列怎麼被組出來的。</p>
+
+<div class="callout">
+  <div class="callout-title">上次學到哪</div>
+  Lesson 3 拆完了第 13 行的 <code>Record&lt;StepKey, RouteRecordRaw['component']&gt;</code>。
+  今天往下看第 23~30 行——這段沒有新的型別語法密集出現，但有幾個容易看漏的細節。看不熟可以先回顧
+  <a href="0003-generics-and-indexed-access.html">Lesson 3</a>。
+</div>
+
+<h2>陣列型別：<code>Type[]</code></h2>
+<div class="annotated-code">
+  <div class="ln">23</div>
+  <div class="code-line">const routes: <span class="highlight">RouteRecordRaw[]</span> = [</div>
+</div>
+<p>
+  型別名稱後面加一對方括號 <code>[]</code>，代表「一個陣列，每一個元素都要符合這個型別」。
+  <code>RouteRecordRaw[]</code> 就是「一個陣列，裡面每一個元素都要是 <code>RouteRecordRaw</code> 形狀的物件」。
+  這跟 <code>string[]</code>（字串陣列）、<code>number[]</code>（數字陣列）是同一種寫法，只是這裡的元素型別
+  是 Lesson 3 提過的那個 <code>interface</code>。
+</p>
+<p class="source-link">
+  主要參考：<a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" target="_blank" rel="noopener">TypeScript Handbook: Everyday Types — Arrays</a>
+</p>
+
+<div class="quiz" data-correct="c">
+  <div class="quiz-q">Q1. <code>step2: RouteRecordRaw[]</code> 代表 <code>step2</code> 是什麼？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q1" value="a">單一個 RouteRecordRaw 物件</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="b">一個字串陣列</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="c">一個 RouteRecordRaw 物件的陣列</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="d">一個布林值</label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>展開運算子 <code>...</code>：這不是 TypeScript，是 JavaScript</h2>
+<div class="annotated-code">
+  <div class="ln">23</div>
+  <div class="code-line">const routes: RouteRecordRaw[] = [</div>
+  <div class="ln">24</div>
+  <div class="code-line">  { path: '/', redirect: registrationSteps[0].path },</div>
+  <div class="ln">25</div>
+  <div class="code-line">  <span class="highlight">...</span>registrationSteps.map((step) => (<span class="highlight">{</span></div>
+  <div class="ln">26</div>
+  <div class="code-line">    path: step.path,</div>
+  <div class="ln">27</div>
+  <div class="code-line">    name: step.key,</div>
+  <div class="ln">28</div>
+  <div class="code-line">    component: stepComponents[step.key],</div>
+  <div class="ln">29</div>
+  <div class="code-line">  <span class="highlight">}</span>)),</div>
+  <div class="ln">30</div>
+  <div class="code-line">]</div>
+</div>
+<p>
+  先講清楚一件事：這一段裡真正跟型別有關的只有第 23 行的 <code>RouteRecordRaw[]</code>。
+  第 25 行開頭的 <code>...</code>（展開運算子，spread syntax）跟後面的 <code>.map()</code>
+  都是純 JavaScript 語法，跟 TypeScript 無關——之所以放進這一課，是因為它們跟型別語法混在同一段程式碼裡，
+  不順便講清楚很容易誤以為「這也是什麼特殊的型別寫法」。
+</p>
+<p>
+  <code>...</code> 放在陣列字面值 <code>[...]</code> 裡面時，意思是「把後面這個陣列的每一個元素<strong>各自攤開</strong>放進來，
+  不是把整個陣列當成一個元素塞進去」。對照著看：
+</p>
+<pre><code>const a = [1, 2, 3]
+[0, a]     // 結果：[0, [1, 2, 3]] —— a 整包被當成一個元素
+[0, ...a]  // 結果：[0, 1, 2, 3]  —— a 的每個元素被攤開</code></pre>
+<p>
+  所以第 25 行 <code>...registrationSteps.map(...)</code> 的意思是：先用 <code>.map()</code>
+  把 <code>registrationSteps</code>（每個步驟的設定陣列）轉換成一個新陣列，每個元素長成
+  <code>{ path, name, component }</code> 的形狀，再用 <code>...</code> 把這個新陣列的每個元素攤開，
+  接在第 24 行那個手寫的路由物件後面，一起變成 <code>routes</code> 陣列的元素——不是巢狀塞進去變成
+  <code>routes</code> 裡的第二個元素是「另一個陣列」。
+</p>
+<p>
+  另外第 25 行結尾和第 29 行的括號 <code>(&#123; ... &#125;)</code> 也有個容易忽略的細節：箭頭函式如果要直接回傳一個物件字面值，
+  外面一定要包一層小括號 <code>( )</code>。原因是 <code>=&gt; &#123;</code> 這個 <code>&#123;</code>
+  預設會被讀成「函式本體的開始」，而不是「物件字面值的開始」；包一層括號後，JavaScript 才知道裡面是要回傳的物件。
+</p>
+<p class="source-link">
+  主要參考：<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax" target="_blank" rel="noopener">MDN: Spread syntax (...)</a>
+</p>
+
+<div class="quiz" data-correct="b">
+  <div class="quiz-q">Q2. <code>const b = [9, ...[1, 2]]</code> 執行後，<code>b</code> 會是什麼？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q2" value="a"><code>[9, [1, 2]]</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="b"><code>[9, 1, 2]</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="c"><code>[9, '1, 2']</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="d"><code>[[9], 1, 2]</code></label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>順便一提：這裡沒寫型別，TypeScript 怎麼知道對不對</h2>
+<p>
+  你可能注意到 <code>.map((step) => ({ ... }))</code> 這段完全沒寫任何 <code>: 型別</code>——
+  沒人告訴 TypeScript <code>step</code> 是什麼型別，也沒人說回傳的物件要符合什麼形狀。這是因為 TypeScript
+  會做<strong>型別推斷（inference）</strong>：它從 <code>registrationSteps</code> 這個陣列本身的型別，
+  推出 <code>.map()</code> 裡的 <code>step</code> 是什麼形狀；又因為整個 <code>routes</code> 被標成
+  <code>RouteRecordRaw[]</code>，它會反過來檢查 <code>.map()</code> 吐出來的每個物件符不符合
+  <code>RouteRecordRaw</code>。不是所有地方都要手寫型別，很多時候 TypeScript 能自己從上下文推出來。
+</p>
+
+<h2>往前看一眼：下一課</h2>
+<p>
+  <code>router/index.ts</code> 只剩第 38~50 行的 <code>router.beforeEach</code> 還沒讀過。
+  裡面的 <code>return</code> 有時候回傳 <code>true</code>，有時候回傳一個路徑字串——這是聯集型別
+  （Lesson 1 學過）用在<strong>函式回傳值</strong>上的樣子，而且一樣是靠型別推斷自動算出來的，不是手寫的。
+  那是下一課的內容，讀完就等於整份 <code>router/index.ts</code> 都讀懂了。
+</p>
+
+<div class="callout">
+  <div class="callout-title">今天的收穫</div>
+  看到 <code>Type[]</code> 陣列型別、<code>...</code> 展開運算子、還有「這段沒寫型別但 TypeScript 會自己推斷」，
+  你現在應該能唸出它們在講什麼了。第 23~30 行今天整段讀完。
+</div>
+
+<div class="ask-agent">
+  卡住的地方隨時問我——尤其是「為什麼要這樣寫」而不只是「這是什麼」。這是持續好幾次課程的學習，
+  你可以隨時回來繼續，我會記得你學到哪裡。
+</div>
+
+<footer class="lesson-footer">
+  <a href="../reference/ts-syntax-cheatsheet.html">速查表</a>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax" target="_blank" rel="noopener">MDN: Spread Syntax</a>
+  <a href="0003-generics-and-indexed-access.html">← Lesson 3</a>
+  <a href="../MISSION.md">Mission</a>
+</footer>
+
+</body>
+</html>

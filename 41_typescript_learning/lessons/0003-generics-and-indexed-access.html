@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Record 泛型與 Indexed Access Type</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+
+<div class="lesson-kicker">TypeScript · Lesson 3 of N</div>
+<h1>Record 泛型與 Indexed Access Type：讀懂查表型別</h1>
+<p class="subtitle">目標：看懂 <code>src/router/index.ts</code> 第 13 行——整份檔案裡型別語法最密集的一行。</p>
+
+<div class="callout">
+  <div class="callout-title">上次學到哪</div>
+  Lesson 2 學了 <code>StepKey</code>（七個固定字串之一的 <code>type</code> 別名）和 <code>import type</code>。
+  今天要看這兩個東西被實際用在哪：<code>router/index.ts</code> 第 13 行。看不熟可以先回顧
+  <a href="0002-type-alias-and-import-type.html">Lesson 2</a>。
+</div>
+
+<h2>先看完整的一行</h2>
+<div class="annotated-code">
+  <div class="ln">13</div>
+  <div class="code-line">const stepComponents: <span class="highlight">Record&lt;StepKey, RouteRecordRaw['component']&gt;</span> = {</div>
+  <div class="ln">14</div>
+  <div class="code-line">  step1Account: RegisterAccountView,</div>
+  <div class="ln">15</div>
+  <div class="code-line">  step2Upload: RegisterUploadView,</div>
+  <div class="ln">16</div>
+  <div class="code-line">  // ...（step3Info ~ step6TwcaVerify 略）</div>
+  <div class="ln">20</div>
+  <div class="code-line">  step7Sign: RegisterSignView,</div>
+  <div class="ln">21</div>
+  <div class="code-line">}</div>
+</div>
+<p>
+  這行在說：<code>stepComponents</code> 是一個物件，它的型別是 <code>Record&lt;StepKey, RouteRecordRaw['component']&gt;</code>。
+  拆成兩塊來看——<code>Record&lt;...&gt;</code> 是什麼，還有裡面那兩個東西 <code>StepKey</code> 和
+  <code>RouteRecordRaw['component']</code> 各自在幹嘛。
+</p>
+
+<h2>泛型：<code>Record&lt;K, V&gt;</code></h2>
+<p>
+  <code>Record</code> 是 TypeScript 內建的型別，用來描述「一個物件，鍵是某個型別，值是另一個型別」。
+  尖括號 <code>&lt;K, V&gt;</code> 裡填的兩個型別就是「鍵的型別」和「值的型別」——這種可以填入不同型別、
+  讓同一個型別定義重複使用的寫法叫<strong>泛型（generic）</strong>。<code>Record&lt;StepKey, RouteRecordRaw['component']&gt;</code>
+  意思就是：一個物件，鍵必須是 <code>StepKey</code>（七個固定字串之一），值必須是 <code>RouteRecordRaw['component']</code> 型別。
+</p>
+<p>
+  這裡有個關鍵效果：因為 <code>StepKey</code> 是「剛好七個字串」的聯集（不是隨便字串），
+  <code>Record&lt;StepKey, ...&gt;</code> 會要求物件<strong>剛好有這七個鍵，一個不多一個不少</strong>。
+  如果第 14~20 行漏寫了一個 <code>step3Info</code>，TypeScript 會直接報錯說少了這個屬性——
+  這就是 Lesson 2 說「用固定聯集取代隨便字串」的好處在這裡兌現了：每加一個新步驟到 <code>StepKey</code>，
+  這個物件沒補上對應元件就會編譯失敗，不會不小心漏掉。
+</p>
+<p class="source-link">
+  主要參考：<a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type" target="_blank" rel="noopener">TypeScript Handbook: Utility Types — Record</a>
+</p>
+
+<div class="quiz" data-correct="c">
+  <div class="quiz-q">Q1. 如果把第 20 行 <code>step7Sign: RegisterSignView,</code> 整行刪掉，會發生什麼事？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q1" value="a"> 沒事，執行時該路由不會顯示元件</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="b"> 沒事，因為 component 欄位本來就可以留空</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="c"> TypeScript 編譯錯誤，說少了 step7Sign 屬性</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="d"> TypeScript 編譯錯誤，說 StepKey 定義錯誤</label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>Indexed Access Type：<code>RouteRecordRaw['component']</code></h2>
+<p>
+  再看值的型別：<code>RouteRecordRaw['component']</code>。<code>RouteRecordRaw</code> 是 vue-router 提供的一個
+  <code>interface</code>（Lesson 1 學過的那種），描述一條路由設定長什麼樣子，裡面有一個 <code>component</code> 欄位。
+  <code>RouteRecordRaw['component']</code> 這種方括號寫法，意思是「去 <code>RouteRecordRaw</code> 這個型別裡，
+  把 <code>component</code> 這個欄位<strong>本身的型別</strong>挖出來用」——語法長得很像執行期在物件上用
+  <code>obj['component']</code> 取值，但這裡是在型別的世界做同樣的事，取出來的不是值，是型別。
+</p>
+<p>
+  為什麼要繞這一圈，不直接手寫 <code>component</code> 應該是什麼型別？因為 <code>RouteRecordRaw</code>
+  是 vue-router 套件定義的，它的 <code>component</code> 欄位型別可能很複雜（要能接受好幾種元件寫法）。
+  與其自己重寫一份容易寫錯、也容易在套件更新後過期的型別，不如直接跟套件本身的定義「借」，保證永遠同步。
+</p>
+<p class="source-link">
+  主要參考：<a href="https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html" target="_blank" rel="noopener">TypeScript Handbook: Indexed Access Types</a>
+</p>
+
+<div class="quiz" data-correct="a">
+  <div class="quiz-q">Q2. <code>RouteRecordRaw['component']</code> 這個寫法在做什麼？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q2" value="a">取出 component 欄位的型別</label>
+    <label class="quiz-option"><input type="radio" name="q2" value="b">取出 component 欄位的目前值</label>
+    <label class="quiz-option"><input type="radio" name="q2" value="c">建立一個新的 component 欄位</label>
+    <label class="quiz-option"><input type="radio" name="q2" value="d">刪除 component 這個欄位</label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>往前看一眼：下一課</h2>
+<p>
+  第 13 行拆完了。<code>router/index.ts</code> 剩下沒讀過的是第 23~30 行（用 <code>...</code> 展開陣列、
+  <code>.map()</code> 組出 routes 陣列）跟第 38~50 行的 <code>router.beforeEach</code>——裡面的
+  <code>return</code> 有時候回傳 <code>true</code>，有時候回傳一個路徑字串，這其實就是 Lesson 1 學過的
+  聯集型別，只是這次用在函式的回傳值上。那是下一課的內容。
+</p>
+
+<div class="callout">
+  <div class="callout-title">今天的收穫</div>
+  看到 <code>Record&lt;K, V&gt;</code> 這種尖括號泛型、以及 <code>Type['key']</code> 這種挖欄位型別的寫法，
+  你現在應該能唸出它們在講什麼了。<code>router/index.ts</code> 第 13 行——全檔案型別語法最密集的一行——
+  今天已經整行讀完。
+</div>
+
+<div class="ask-agent">
+  卡住的地方隨時問我——尤其是「為什麼要這樣寫」而不只是「這是什麼」。這是持續好幾次課程的學習，
+  你可以隨時回來繼續，我會記得你學到哪裡。
+</div>
+
+<footer class="lesson-footer">
+  <a href="../reference/ts-syntax-cheatsheet.html">速查表</a>
+  <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type" target="_blank" rel="noopener">TypeScript Handbook: Record</a>
+  <a href="0002-type-alias-and-import-type.html">← Lesson 2</a>
+  <a href="../MISSION.md">Mission</a>
+</footer>
+
+</body>
+</html>

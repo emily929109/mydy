@@ -22,7 +22,9 @@
       "Read(//private/tmp/**)",
       "Bash(rm -f /tmp/news.json.bak /tmp/news_test.json)",
       "WebSearch",
-      "Bash(open *)"
+      "Bash(open *)",
+      "Read(//Users/yiyinglin/Desktop/personal/02_project/07_mydy/.claude/**)",
+      "Read(//Users/yiyinglin/Desktop/personal/02_project/07_mydy/**)"
     ]
   },
   "skillOverrides": {}

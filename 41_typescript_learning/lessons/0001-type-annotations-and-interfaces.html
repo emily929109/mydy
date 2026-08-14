@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>型別標註與 interface</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+
+<div class="lesson-kicker">TypeScript · Lesson 1 of N</div>
+<h1>型別標註與 interface：讀懂資料的形狀</h1>
+<p class="subtitle">目標：看懂 <code>dudupay-spa</code> 專案裡最基本的型別寫法，為讀懂 <code>router/index.ts</code> 打地基。</p>
+
+<h2>TypeScript 到底是什麼</h2>
+<p>
+  TypeScript 是 JavaScript 加上「型別標註」。你寫的每一個 <code>: string</code>、<code>: boolean</code>
+  都只在你寫程式、編譯的當下有用——瀏覽器實際執行時，這些標註會被整個拿掉，剩下純 JavaScript。
+  它的用途是讓編輯器和編譯器提早告訴你：「這裡塞錯型別的值了」，而不是等到執行期才炸掉。
+</p>
+<p class="source-link">
+  主要參考：<a href="https://www.typescriptlang.org/docs/handbook/typescript-in-5-minutes.html" target="_blank" rel="noopener">TypeScript Handbook: TypeScript for JavaScript Programmers</a>
+</p>
+
+<h2>基本型別標註</h2>
+<p>
+  來看專案裡真實的程式碼。這是 <code>src/types/registration.ts</code> 裡的一段：
+</p>
+
+<pre><code>export interface Step1Account {
+  password: string
+  confirmPassword: string
+  email: string
+  mobile: string
+  agreedTerms: boolean
+}</code></pre>
+
+<p>
+  規則很單純：<code>欄位名稱: 型別</code>。<code>password</code> 這個欄位的值必須是 <code>string</code>（字串），
+  <code>agreedTerms</code> 必須是 <code>boolean</code>（<code>true</code> 或 <code>false</code>）。
+  如果哪裡塞了一個數字給 <code>password</code>，編輯器會立刻標紅色底線警告你。
+</p>
+
+<h3>聯集型別：這欄位可能是好幾種型別之一</h3>
+<p>
+  同一份檔案裡，<code>Step2Upload</code> 長這樣：
+</p>
+
+<pre><code>export interface Step2Upload {
+  idFront: string | null
+  idBack: string | null
+  selfie: string | null
+}</code></pre>
+
+<p>
+  <code>string | null</code> 中間這個直線 <code>|</code> 唸作「或」，叫做<strong>聯集型別（union type）</strong>。
+  意思是：<code>idFront</code> 這個欄位的值，可能是一個字串（例如上傳後的圖片網址），也可能是 <code>null</code>
+  （代表「使用者還沒上傳」）。這是 TypeScript 用來表達「這個值現在可能還沒有」的標準寫法，比起隨便塞一個空字串
+  <code>""</code> 更精確——因為「空字串」和「還沒有值」的語意其實不一樣。
+</p>
+
+<div class="quiz" data-correct="a">
+  <div class="quiz-q">Q1. <code>idFront: string | null</code> 這一行裡，<code>string | null</code> 是什麼型別？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q1" value="a"> 字串或空值的聯集型別</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="b"> 數字或空值的聯集型別</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="c"> 字串或物件的聯集型別</label>
+    <label class="quiz-option"><input type="radio" name="q1" value="d"> 布林或空值的聯集型別</label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>interface 在做什麼</h2>
+<p>
+  <code>Step1Account</code>、<code>Step2Upload</code> 前面都有一個 <code>export interface</code>。
+  <code>interface</code> 是在幫一整包「物件應該長什麼樣子」取一個名字——這個物件有哪些欄位、每個欄位是什麼型別。
+  取完名字之後，別的地方就能直接寫 <code>: Step1Account</code> 來標註「這個東西的形狀要符合 Step1Account」，
+  不用每次都把六、七個欄位重寫一遍。<code>export</code> 則是讓其他檔案可以 <code>import</code> 這個名字來用——
+  這部分你在 Vue Router 裡應該已經很熟悉了，是同一套模組系統。
+</p>
+
+<div class="quiz" data-correct="a">
+  <div class="quiz-q">Q2. <code>Step1Account</code> 前面的 <code>interface</code> 關鍵字，是在做什麼？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q2" value="a"> 定義物件形狀的名稱</label>
+    <label class="quiz-option"><input type="radio" name="q2" value="b"> 定義函式邏輯的名稱</label>
+    <label class="quiz-option"><input type="radio" name="q2" value="c"> 定義陣列長度的名稱</label>
+    <label class="quiz-option"><input type="radio" name="q2" value="d"> 定義迴圈範圍的名稱</label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>往前看一眼：這在 router/index.ts 裡會怎麼用</h2>
+<p>
+  你的目標檔案 <code>src/router/index.ts</code> 第 4 行有這一句：
+</p>
+<pre><code>import type { StepKey } from '../types/registration'</code></pre>
+<p>
+  <code>StepKey</code> 就是 <code>types/registration.ts</code> 裡另一個型別——它跟今天學的 <code>interface</code>
+  是親戚，但用的是 <code>type</code> 加上字串聯集（下一課會講）。<code>import type</code> 這個寫法本身也是新語法：
+  它明確告訴 TypeScript「我只是要借用這個型別的定義來檢查程式碼，不需要真的把它打包進最後執行的 JS」。
+  這兩個語法，加上 <code>router/index.ts</code> 第 13 行的 <code>Record&lt;StepKey, ...&gt;</code>，
+  就是下一課要拆解的東西。今天先把「型別標註」和「interface 是什麼」這兩件事練熟，是後面所有語法的地基。
+</p>
+
+<div class="callout">
+  <div class="callout-title">今天的收穫</div>
+  看到 <code>欄位: 型別</code>、<code>A | B</code>、<code>interface Xxx { ... }</code> 這三種寫法，
+  你現在應該能唸出它們在講什麼了。可以翻開 <code>src/types/registration.ts</code> 整份檔案，
+  試著逐行讀讀看——裡面幾乎全是今天學的這幾種語法的重複組合。
+</div>
+
+<div class="ask-agent">
+  卡住的地方隨時問我——尤其是「為什麼要這樣寫」而不只是「這是什麼」。這是持續好幾次課程的學習，
+  你可以隨時回來繼續，我會記得你學到哪裡。
+</div>
+
+<footer class="lesson-footer">
+  <a href="../reference/ts-syntax-cheatsheet.html">速查表</a>
+  <a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" target="_blank" rel="noopener">TypeScript Handbook: Everyday Types</a>
+  <a href="../MISSION.md">Mission</a>
+</footer>
+
+</body>
+</html>

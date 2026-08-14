@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>TypeScript 語法速查表</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  body { max-width: 46rem; }
+  .term { margin: 1.6rem 0; padding-bottom: 1.4rem; border-bottom: 1px solid var(--rule); }
+  .term:last-child { border-bottom: none; }
+  .term h3 { margin-top: 0; font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 1rem; }
+  .term .from { font-size: 0.82rem; color: var(--ink-soft); font-family: -apple-system, "Segoe UI", sans-serif; margin-top: 0.6rem; }
+</style>
+</head>
+<body>
+
+<div class="lesson-kicker">TypeScript · 速查表</div>
+<h1>語法速查表</h1>
+<p class="subtitle">每學會一個語法就補一條到這裡。條目按出現順序排列，越後面越進階。</p>
+
+<div class="callout">
+  <div class="callout-title">怎麼用這份文件</div>
+  這不是用來從頭讀的教材，是用來查的。忘記某個語法在幹嘛，就回來這裡找對應條目；每條都附著它在
+  <code>dudupay-spa</code> 專案裡實際出現的地方。
+</div>
+
+<h2>基本型別</h2>
+
+<div class="term">
+  <h3>string / number / boolean</h3>
+  <p>最基本的三種型別標註，寫在變數或欄位名稱後面，用冒號分隔：<code>名稱: 型別</code>。</p>
+  <pre><code>password: string
+agreedTerms: boolean</code></pre>
+  <div class="from">出現於：<code>src/types/registration.ts</code>（<code>Step1Account</code>）</div>
+</div>
+
+<div class="term">
+  <h3>聯集型別（Union Type）：<code>A | B</code></h3>
+  <p>用直線 <code>|</code> 連接多個型別，代表「這個值可能是 A，也可能是 B」。最常見的組合是「某個型別或 <code>null</code>」，用來表示「這欄位可能還沒有值」。</p>
+  <pre><code>idFront: string | null</code></pre>
+  <div class="from">出現於：<code>src/types/registration.ts</code>（<code>Step2Upload</code>）</div>
+</div>
+
+<div class="term">
+  <h3>字串字面值聯集（String Literal Union）</h3>
+  <p>聯集型別的每一項不一定是型別名稱，也可以是具體的字串值本身。這種寫法常用來取代「只能是這幾種固定值之一」的情境。</p>
+  <pre><code>export type StepKey =
+  | 'step1Account'
+  | 'step2Upload'
+  | 'step3Info'
+  // ...</code></pre>
+  <div class="from">出現於：<code>src/types/registration.ts</code></div>
+</div>
+
+<h2>宣告型別</h2>
+
+<div class="term">
+  <h3>interface</h3>
+  <p>宣告一個「物件形狀」的名稱：這個物件應該有哪些欄位、每個欄位是什麼型別。宣告之後，別的地方就能用這個名稱來標註型別，不用每次都重寫一整包欄位定義。</p>
+  <pre><code>export interface Step1Account {
+  password: string
+  email: string
+  agreedTerms: boolean
+}</code></pre>
+  <div class="from">出現於：<code>src/types/registration.ts</code></div>
+</div>
+
+<div class="term">
+  <h3>type 別名</h3>
+  <p><code>interface</code> 只能命名物件形狀，<code>type</code> 什麼型別都能命名——包括一串字串字面值的聯集，用來表示「只能是這幾種固定值之一」。</p>
+  <pre><code>export type StepKey =
+  | 'step1Account'
+  | 'step2Upload'
+  | 'step3Info'
+  // ...</code></pre>
+  <div class="from">出現於：<code>src/types/registration.ts</code></div>
+</div>
+
+<h2>匯入型別</h2>
+
+<div class="term">
+  <h3>import type</h3>
+  <p>只匯入型別、不匯入可執行的程式碼。編譯成 JS 時整行會被刪掉。有兩種寫法：整行開頭加 <code>import type</code>，或在同一行 import 裡對單一名字加 <code>type</code> 修飾。</p>
+  <pre><code>import type { StepKey } from '../types/registration'
+import { createRouter, type RouteRecordRaw } from 'vue-router'</code></pre>
+  <div class="from">出現於：<code>src/router/index.ts</code></div>
+</div>
+
+<p class="source-link">主要參考：<a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html" target="_blank" rel="noopener">TypeScript Handbook: Everyday Types</a> ／ <a href="https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export" target="_blank" rel="noopener">Type-Only Imports and Export</a></p>
+
+<h2>查表與挖取型別</h2>
+
+<div class="term">
+  <h3>泛型（Generic）：<code>Record&lt;K, V&gt;</code></h3>
+  <p>尖括號 <code>&lt;...&gt;</code> 讓同一個型別定義可以填入不同型別重複使用。<code>Record&lt;K, V&gt;</code> 是內建泛型，代表「鍵是 K 型別、值是 V 型別的物件」。如果 K 是固定聯集（像 <code>StepKey</code>），物件會被要求剛好有這些鍵，一個不多一個不少。</p>
+  <p><strong>注意：</strong>同一個聯集用在「值的位置」（例如 <code>idFront: string | null</code>）代表「這個位置只能是其中一個」；但用在 <code>Record&lt;K, V&gt;</code> 的鍵位置，代表 K 的<strong>每一個成員都各自展開成一個欄位</strong>，效果完全不同，不要用同一種直覺類推。</p>
+  <pre><code>const stepComponents: Record&lt;StepKey, RouteRecordRaw['component']&gt; = { ... }</code></pre>
+  <div class="from">出現於：<code>src/router/index.ts</code></div>
+</div>
+
+<div class="term">
+  <h3>Indexed Access Type：<code>Type['key']</code></h3>
+  <p>從既有型別裡「挖」出某個欄位本身的型別，語法長得像執行期取值，但作用在型別層級。常用來跟第三方套件的型別定義保持同步，不用手動重寫一份容易過期的型別。</p>
+  <pre><code>RouteRecordRaw['component']</code></pre>
+  <div class="from">出現於：<code>src/router/index.ts</code></div>
+</div>
+
+<p class="source-link">主要參考：<a href="https://www.typescriptlang.org/docs/handbook/utility-types.html#recordkeys-type" target="_blank" rel="noopener">Utility Types — Record</a> ／ <a href="https://www.typescriptlang.org/docs/handbook/2/indexed-access-types.html" target="_blank" rel="noopener">Indexed Access Types</a></p>
+
+<h2>陣列與型別推斷</h2>
+
+<div class="term">
+  <h3>陣列型別：<code>Type[]</code></h3>
+  <p>型別名稱後面加 <code>[]</code>，代表「一個陣列，每個元素都要符合這個型別」。</p>
+  <pre><code>const routes: RouteRecordRaw[] = [ ... ]</code></pre>
+  <div class="from">出現於：<code>src/router/index.ts</code></div>
+</div>
+
+<div class="term">
+  <h3>展開運算子 <code>...</code>（純 JavaScript，非 TS 專屬）</h3>
+  <p>在陣列字面值 <code>[...]</code> 裡把後面陣列的每個元素各自攤開放進來，不是把整個陣列當成一個元素塞進去。</p>
+  <pre><code>[0, ...[1, 2, 3]]  // [0, 1, 2, 3]</code></pre>
+  <div class="from">出現於：<code>src/router/index.ts</code></div>
+</div>
+
+<div class="term">
+  <h3>型別推斷（Inference）</h3>
+  <p>不是每個地方都要手寫 <code>: 型別</code>。TypeScript 會從上下文（例如陣列本身的型別、賦值目標的型別）自動推出型別，並在對不上的時候報錯。</p>
+  <div class="from">出現於：<code>src/router/index.ts</code>（<code>.map()</code> 回呼裡沒寫任何型別標註）</div>
+</div>
+
+<p class="source-link">主要參考：<a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#arrays" target="_blank" rel="noopener">Everyday Types — Arrays</a> ／ <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax" target="_blank" rel="noopener">MDN: Spread Syntax</a></p>
+
+<footer class="lesson-footer">
+  <a href="../lessons/0001-type-annotations-and-interfaces.html">Lesson 1</a>
+  <a href="../lessons/0002-type-alias-and-import-type.html">Lesson 2</a>
+  <a href="../lessons/0003-generics-and-indexed-access.html">Lesson 3</a>
+  <a href="../lessons/0004-arrays-and-spread.html">Lesson 4</a>
+  <a href="../MISSION.md">Mission</a>
+</footer>
+
+</body>
+</html>

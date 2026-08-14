@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>type 別名與 import type</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+
+<div class="lesson-kicker">TypeScript · Lesson 2 of N</div>
+<h1>type 別名與 import type：宣告與匯入型別的語法</h1>
+<p class="subtitle">目標：看懂 <code>src/router/index.ts</code> 第 1 行和第 4 行的 import，以及 <code>StepKey</code> 這個型別怎麼定義出來的。</p>
+
+<div class="callout">
+  <div class="callout-title">上次學到哪</div>
+  Lesson 1 學了 <code>interface</code>：幫一整包物件的形狀取名字。今天要學的 <code>type</code> 是它的親戚，
+  但用途更廣——不只物件，任何型別都能取名字。看不熟的話可以先回顧
+  <a href="0001-type-annotations-and-interfaces.html">Lesson 1</a>。
+</div>
+
+<h2>type 別名：不只是物件形狀</h2>
+<p>
+  <code>src/types/registration.ts</code> 裡有這一段：
+</p>
+<pre><code>export type StepKey =
+  | 'step1Account'
+  | 'step2Upload'
+  | 'step3Info'
+  | 'step4TwcaConsent'
+  | 'step5TwcaClause'
+  | 'step6TwcaVerify'
+  | 'step7Sign'</code></pre>
+<p>
+  <code>type StepKey = ...</code> 是在幫等號右邊的型別取一個名字，叫 <code>StepKey</code>。跟 <code>interface</code>
+  不一樣的地方是：<code>interface</code> 只能拿來命名「物件的形狀」，<code>type</code> 什麼型別都能命名——這裡命名的
+  是一串<strong>字串字面值的聯集</strong>：<code>StepKey</code> 這個型別的值，只能是
+  <code>'step1Account'</code>、<code>'step2Upload'</code> ⋯ 這七個字串當中的<em>其中一個</em>，不能是任何其他字串。
+</p>
+<p>
+  這跟 Lesson 1 學的 <code>string</code> 差很多：<code>string</code> 允許「任何字串」，
+  而 <code>StepKey</code> 只允許「這七個字串之一」。如果程式裡哪裡塞了一個 <code>'step8Whatever'</code>
+  給要求 <code>StepKey</code> 的地方，編輯器會直接標紅——這是 TypeScript 用來表達「這欄位只能是固定幾種值之一」
+  的標準寫法，比起用註解寫「請只填這幾種值」再靠人肉檢查可靠得多。
+</p>
+<p class="source-link">
+  主要參考：<a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases" target="_blank" rel="noopener">TypeScript Handbook: Everyday Types — Type Aliases</a>
+</p>
+
+<div class="quiz" data-correct="b">
+  <div class="quiz-q">Q1. 如果某個函式參數型別是 <code>StepKey</code>，下面哪個呼叫方式會被 TypeScript 標紅色錯誤？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q1" value="a"> 傳入 <code>'step3Info'</code></label>
+    <label class="quiz-option"><input type="radio" name="q1" value="b"> 傳入 <code>'step9Extra'</code></label>
+    <label class="quiz-option"><input type="radio" name="q1" value="c"> 傳入 <code>'step1Account'</code></label>
+    <label class="quiz-option"><input type="radio" name="q1" value="d"> 傳入 <code>'step7Sign'</code></label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>import type：只借型別，不借程式碼</h2>
+<p>
+  來看 <code>src/router/index.ts</code> 開頭兩行 import：
+</p>
+<div class="annotated-code">
+  <div class="ln">1</div>
+  <div class="code-line">import { createRouter, createWebHistory, <span class="highlight">type RouteRecordRaw</span> } from 'vue-router'</div>
+  <div class="ln">4</div>
+  <div class="code-line"><span class="highlight">import type</span> { StepKey } from '../types/registration'</div>
+</div>
+<p>
+  這兩行都在匯入東西，但意義不一樣。第 1 行裡，<code>createRouter</code> 和 <code>createWebHistory</code>
+  是<strong>真正的函式</strong>——執行的時候會被呼叫，會被打包進最後的 JS。但同一行裡的
+  <code>type RouteRecordRaw</code> 前面多了 <code>type</code> 這個字，代表「這個名字只是型別，不是可以執行的東西」。
+  第 4 行的 <code>import type { StepKey } from ...</code> 是同一件事的另一種寫法：整行 import 進來的東西
+  全部都只是型別，所以把 <code>type</code> 放在最前面，一次講清楚。
+</p>
+<p>
+  這兩種寫法（行內 <code>type</code> 修飾單一個名字 / 整行開頭 <code>import type</code>）效果相同：
+  編譯成瀏覽器能跑的 JS 時，這些型別 import 會被<strong>整行刪掉</strong>，因為型別本來就只在寫程式、編譯的當下有用，
+  跟 Lesson 1 提過的「型別標註在執行期會被拿掉」是同一個道理——只是這次拿掉的是整條 import 敘述，不是欄位後面的
+  <code>: string</code>。
+</p>
+<p class="source-link">
+  主要參考：<a href="https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-8.html#type-only-imports-and-export" target="_blank" rel="noopener">TypeScript Handbook: Type-Only Imports and Export</a>
+</p>
+
+<div class="quiz" data-correct="c">
+  <div class="quiz-q">Q2. <code>router/index.ts</code> 第 1 行裡，哪一個名字在編譯成 JS 之後<strong>不會</strong>被拿掉？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q2" value="a"> <code>RouteRecordRaw</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="b"> <code>type RouteRecordRaw</code> 整組寫法</label>
+    <label class="quiz-option"><input type="radio" name="q2" value="c"> <code>createRouter</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="d"> 這三個都會被拿掉</label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>往前看一眼：下一課</h2>
+<p>
+  <code>router/index.ts</code> 第 13 行還有這個：
+</p>
+<pre><code>const stepComponents: Record&lt;StepKey, RouteRecordRaw['component']&gt; = { ... }</code></pre>
+<p>
+  今天學的 <code>StepKey</code> 會在這裡被拿來當「查表用的鍵」。<code>Record&lt;...&gt;</code> 這種尖括號寫法叫
+  <strong>泛型（generic）</strong>，加上 <code>RouteRecordRaw['component']</code> 這種從型別裡「挖」出某個欄位型別的寫法，
+  是下一課要拆的東西。今天先把 <code>type</code> 別名和 <code>import type</code> 練熟——這兩個是讀懂下一課的地基。
+</p>
+
+<div class="callout">
+  <div class="callout-title">今天的收穫</div>
+  看到 <code>type Xxx = ...</code>、<code>'a' | 'b' | 'c'</code> 這種字串聯集、以及
+  <code>import type</code> / 行內 <code>type</code> 修飾，你現在應該能唸出它們在講什麼了。
+  可以翻開 <code>src/router/index.ts</code>，把第 1 行和第 4 行逐字念一遍——這兩行今天全講完了。
+</div>
+
+<div class="ask-agent">
+  卡住的地方隨時問我——尤其是「為什麼要這樣寫」而不只是「這是什麼」。這是持續好幾次課程的學習，
+  你可以隨時回來繼續，我會記得你學到哪裡。
+</div>
+
+<footer class="lesson-footer">
+  <a href="../reference/ts-syntax-cheatsheet.html">速查表</a>
+  <a href="https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-aliases" target="_blank" rel="noopener">TypeScript Handbook: Type Aliases</a>
+  <a href="0001-type-annotations-and-interfaces.html">← Lesson 1</a>
+  <a href="../MISSION.md">Mission</a>
+</footer>
+
+</body>
+</html>
