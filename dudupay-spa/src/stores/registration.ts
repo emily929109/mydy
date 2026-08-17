@@ -1,4 +1,3 @@
-//
 import { reactive, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import type {

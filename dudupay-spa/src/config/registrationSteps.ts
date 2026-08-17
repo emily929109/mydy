@@ -1,8 +1,7 @@
-// config 需要知道哪些是合法的註冊步驟藉此定義順序
-
+// config 拿StepKey作key，確保哪些是合法的註冊步驟
 import type { StepKey } from "../types/registration";
 
-export interface RegistrationStepMeta {
+interface RegistrationStepMeta {
   key: StepKey;
   path: string;
   title: string;

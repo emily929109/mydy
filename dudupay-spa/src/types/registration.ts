@@ -1,5 +1,4 @@
 // 純粹定義每一步資料長什麼樣子，零依賴，沒有任何業務邏輯
-// StepKey 會用來當作 store、router、config 的 key，這裡定義一次就好
 export interface Step1Account {
   password: string;
   confirmPassword: string;
@@ -45,6 +44,7 @@ export interface Step7Sign {
   signed: boolean;
 }
 
+// StepKey 會用來當作 store、router、config 的 key
 export type StepKey =
   | "step1Account"
   | "step2Upload"
@@ -53,14 +53,3 @@ export type StepKey =
   | "step5TwcaClause"
   | "step6TwcaVerify"
   | "step7Sign";
-
-export interface RegistrationState {
-  step1Account: Step1Account;
-  step2Upload: Step2Upload;
-  step3Info: Step3Info;
-  step4TwcaConsent: Step4TwcaConsent;
-  step5TwcaClause: Step5TwcaClause;
-  step6TwcaVerify: Step6TwcaVerify;
-  step7Sign: Step7Sign;
-  completedSteps: StepKey[];
-}
