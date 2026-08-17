@@ -1,0 +1,114 @@
+<title>Pinia 是記憶體，localStorage 是硬碟</title>
+<link rel="stylesheet" href="../assets/style.css">
+<main>
+  <p class="eyebrow">Lesson 0001 · Pinia Store 與 localStorage 持久化</p>
+  <h1>Pinia 是記憶體，localStorage 是硬碟</h1>
+
+  <p>你對 Pinia 的認知——「可以存全域變數」——是對的，但只對了一半。這一課要補的是：Pinia 的「全域變數」到底存在哪裡、為什麼光有 Pinia 還不夠，讓 <code>src/stores/registration.ts</code> 裡的 <code>localStorage.getItem</code> / <code>setItem</code> 變得合理，而不是一段看起來多餘的程式碼。</p>
+
+  <div class="callout">
+    <p><strong>這一課結束時，你會得到什麼：</strong> 能對著 <code>registration.ts</code> 的真實程式碼，講出「拿掉 localStorage 那幾段會壞在哪」，以及新增一個欄位時要同步改哪幾個地方。</p>
+  </div>
+
+  <h2>先做一個思想實驗</h2>
+  <p>如果把 <code>registration.ts</code> 裡所有跟 <code>localStorage</code> 有關的程式碼都刪掉，只留下最單純的 Pinia store：</p>
+  <pre><code>export const useRegistrationStore = defineStore("registration", () => {
+  const step1Account = reactive(defaultStep1Account())
+  // ...
+  return { step1Account, /* ... */ }
+})</code></pre>
+  <p>使用者填了 Step1、Step2，填到 Step3 時不小心按到瀏覽器重新整理鍵。會發生什麼事？</p>
+  <p>答案是：<strong>全部清空，回到 Step1 空白狀態。</strong>原因不是 Pinia 壞掉了，而是重新整理會把整個網頁的 JavaScript 執行環境整個丟掉、重新載入一次——Pinia store 本來就只是活在這個執行環境裡的一個 JS 物件（<a href="https://pinia.vuejs.org/core-concepts/state.html">官方文件</a>把 state 定義為「回傳初始值的函式」，本質上就是包成響應式的一般物件）。JS 執行環境被丟掉，這個物件當然也跟著消失。</p>
+
+  <h2>Pinia 的「全域」，指的是「這次執行環境裡的全域」</h2>
+  <p>你原本的認知——Pinia 能存全域變數——完全正確，但要補上一個限定詞：<strong>它是「這次頁面載入」範圍內的全域，不是「跨越重新整理」的全域。</strong>不管幾十個元件同時 <code>useRegistrationStore()</code>，拿到的都是同一個 singleton 物件，這是 Pinia 的核心價值；但這個 singleton 本身就是一坨活在瀏覽器分頁記憶體裡的 JS 資料，跟你電腦硬碟上的檔案系統是兩個完全不相干的地方。<a href="https://vuejs.org/guide/essentials/reactivity-fundamentals.html">Vue 的 <code>reactive()</code></a> 只負責讓這坨資料「改了會自動觸發畫面更新」，一樣不負責讓它撐過重新整理。</p>
+  <p>要撐過重新整理，資料必須被寫進瀏覽器記憶體以外的地方——這正是 <code>localStorage</code> 的角色：它是瀏覽器提供的一塊硬碟等級的 key-value 儲存空間，跟這次頁面的 JS 執行環境完全獨立，重新整理、關分頁、甚至關瀏覽器再打開，裡面的資料都還在。</p>
+
+  <h2>逐段拆解 <code>registration.ts</code></h2>
+  <p>把這份檔案看成一個四段的循環，每段對應一個問題：</p>
+
+  <h3>1. <code>loadPersisted()</code> — 硬碟上有沒有留東西？</h3>
+  <pre><code>function loadPersisted(): Partial&lt;PersistedShape&gt; {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) as Partial&lt;PersistedShape&gt;;
+  } catch {
+    return {};
+  }
+}</code></pre>
+  <p>store 一啟動就先去 <code>localStorage</code> 問一次：「上次有沒有存過東西？」<code>localStorage</code> 只能存字串，所以存進去的是 <code>JSON.stringify</code> 過的字串，讀出來要 <code>JSON.parse</code> 解回物件——<code>try/catch</code> 是防資料格式壞掉（比如你手動改過 schema）時整頁噴錯。</p>
+
+  <h3>2. <code>reactive({ ...default, ...persisted })</code> — 拿硬碟資料墊出這次的記憶體資料</h3>
+  <pre><code>const step1Account = reactive&lt;Step1Account&gt;({
+  ...defaultStep1Account(),
+  ...persisted.step1Account,
+});</code></pre>
+  <p>這就是 Pinia state 真正誕生的地方。邏輯是「先用預設值墊底，如果 <code>localStorage</code> 裡有上次填過的資料就蓋過去」——所以使用者上次填到一半的 email、手機號碼，重新整理後看起來像是「還在」，其實是重新從 <code>localStorage</code> 讀出來、重新蓋出一個新的 reactive 物件，不是原本那個記憶體物件真的活下來了。</p>
+
+  <h3>3. <code>watch([...], persist, { deep: true })</code> — 記憶體資料一變，就準備寫回硬碟</h3>
+  <pre><code>watch(
+  [step1Account, step2Upload, /* ...其餘欄位 */, completedSteps],
+  persist,
+  { deep: true },
+);</code></pre>
+  <p>這裡的 <code>{ deep: true }</code> 不能省。<a href="https://vuejs.org/guide/essentials/watchers">Vue 官方文件</a>說明 <code>watch</code> 預設只在「整個來源被換成另一個物件」時才觸發；但這裡改的是 <code>step1Account.email = "..."</code> 這種巢狀屬性賦值，物件本身的參考位址沒變，不加 <code>deep: true</code> 的話這個 <code>watch</code> 根本不會被觸發，欄位改了也不會存檔。</p>
+
+  <h3>4. <code>persist()</code> — 真的把資料寫回硬碟</h3>
+  <pre><code>function persist() {
+  const snapshot: PersistedShape = { step1Account, step2Upload, /* ... */ };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+}</code></pre>
+  <p>把目前 Pinia state 打包成一個純物件、序列化成字串，寫回 <code>localStorage</code>。下次使用者重新整理，回到步驟 1 <code>loadPersisted()</code>，循環重新開始。</p>
+
+  <div class="callout">
+    <p><strong>一句話總結分工：</strong> Pinia + <code>reactive</code> 負責「這次頁面開著的時候，資料怎麼在元件之間共享、怎麼讓畫面跟著資料變」；<code>localStorage</code> 負責「資料怎麼撐過重新整理」。兩者互不知道對方存在——是 <code>registration.ts</code> 這份程式碼手動把它們接在一起的。<a href="https://prazdevs.github.io/pinia-plugin-persistedstate/guide/">Pinia 官方生態圈裡最常見的做法</a>其實是裝一個外掛（<code>pinia-plugin-persistedstate</code>）自動做這件事；這個專案選擇手寫，所以你才會在 store 裡直接看到 <code>localStorage</code> 的呼叫。</p>
+  </div>
+
+  <h2>小測驗</h2>
+
+  <div class="quiz-question" data-question-id="q1">
+    <p class="quiz-prompt">Q1. 如果把 <code>registration.ts</code> 裡 <code>loadPersisted()</code> 和 <code>watch(...persist...)</code> 都刪掉，只留 <code>reactive(defaultStep1Account())</code>，會發生什麼事？</p>
+    <div class="quiz-options">
+      <label><input type="radio" name="q1" value="a"> 完全沒差，Pinia 本來就會自動存檔</label>
+      <label data-correct="true" data-explain="Pinia state 只活在這次的 JS 記憶體裡，重新整理會整個歸零，回到預設值。"><input type="radio" name="q1" value="b"> 使用者填到一半重新整理，資料會全部消失、回到預設值</label>
+      <label><input type="radio" name="q1" value="c"> 資料還在，但畫面不會更新</label>
+      <label><input type="radio" name="q1" value="d"> 瀏覽器會跳出錯誤視窗</label>
+    </div>
+    <button class="quiz-check" type="button">檢查答案</button>
+    <p class="quiz-feedback empty" hidden></p>
+  </div>
+
+  <div class="quiz-question" data-question-id="q2">
+    <p class="quiz-prompt">Q2. <code>watch([...], persist, { deep: true })</code> 裡的 <code>{ deep: true }</code> 拿掉會怎樣？</p>
+    <div class="quiz-options">
+      <label><input type="radio" name="q2" value="a"> 完全沒差，deep 只是效能優化選項</label>
+      <label data-correct="true" data-explain="不加 deep，watch 只在整個物件被換掉時才觸發；改巢狀屬性（如 step1Account.email）不會被偵測到，也就不會呼叫 persist()。"><input type="radio" name="q2" value="b"> 改欄位（如打字改 email）不會觸發 persist()，資料不會被存進 localStorage</label>
+      <label><input type="radio" name="q2" value="c"> localStorage 會被寫入速度變慢</label>
+      <label><input type="radio" name="q2" value="d"> reactive 物件會變成唯讀</label>
+    </div>
+    <button class="quiz-check" type="button">檢查答案</button>
+    <p class="quiz-feedback empty" hidden></p>
+  </div>
+
+  <div class="reflect">
+    <h3>帶回去問我：新增一個欄位</h3>
+    <p>如果要幫 Step3（<code>step3Info</code>）新增一個「生日」欄位，讓它也能撐過重新整理，你覺得要碰 <code>registration.ts</code> 裡哪幾個地方？（提示：想想看資料要先流過哪些關卡，才會真正被 <code>persist()</code> 寫進 <code>localStorage</code>）把你的答案帶回對話裡跟我對一下——這題沒有寫在這頁裡自動判分，因為值得討論、不只是選選項。</p>
+  </div>
+
+  <h2>延伸閱讀</h2>
+  <ul>
+    <li><a href="https://pinia.vuejs.org/core-concepts/state.html">State | Pinia</a>（官方文件，state 本質上就是包成響應式的一般資料）</li>
+    <li><a href="https://vuejs.org/guide/essentials/watchers">Watchers | Vue.js</a>（本課主要參考來源，說明 <code>deep</code> 選項為什麼在這裡是必要的）</li>
+    <li><a href="https://prazdevs.github.io/pinia-plugin-persistedstate/guide/">pinia-plugin-persistedstate</a>（如果之後想比較「手寫 vs 用外掛」，這是主流外掛）</li>
+  </ul>
+
+  <nav class="lesson-links">
+    <a href="0002-why-not-just-localstorage.html">下一課：為什麼不乾脆全部存 localStorage 就好</a>
+  </nav>
+
+  <footer class="lesson-footer">
+    <p>看不懂、覺得哪裡怪怪的、或想挑戰這個設計，隨時回到對話裡問我——這裡的目標是你能講得出「為什麼」，不是背下這頁的內容。</p>
+  </footer>
+</main>
+<script src="../assets/quiz.js"></script>

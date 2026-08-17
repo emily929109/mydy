@@ -1,0 +1,101 @@
+<title>為什麼不乾脆全部存 localStorage 就好</title>
+<link rel="stylesheet" href="../assets/style.css">
+<main>
+  <p class="eyebrow">Lesson 0002 · Pinia Store 與 localStorage 持久化</p>
+  <h1>為什麼不乾脆全部存 localStorage 就好</h1>
+
+  <p>上一課的結尾你問了一個很自然的問題：反正資料最後都要寫進 <code>localStorage</code>，那乾脆讓 <code>localStorage</code> 當唯一的家、每次要讀寫欄位就直接 <code>getItem</code>/<code>setItem</code>，不就省了 Pinia 這一層？這一課要拆穿一個藏在問題背後的假設：<strong>持久化（撐過重新整理）跟反應性（畫面自動更新）是兩個完全不同的需求</strong>，<code>localStorage</code> 只解決第一個，完全不解決第二個。</p>
+
+  <div class="callout">
+    <p><strong>這一課結束時，你會得到什麼：</strong> 能講出「如果 v-model 直接綁 localStorage，畫面會壞在哪」，並且能用一個類比向別人解釋 Pinia 跟 localStorage 為什麼是兩層、不是二選一。</p>
+  </div>
+
+  <h2>先做另一個思想實驗</h2>
+  <p>假設 <code>Step1Account.vue</code> 的 email 欄位長這樣，直接讀寫 <code>localStorage</code>、完全跳過 Pinia：</p>
+  <pre><code>&lt;input
+  :value="JSON.parse(localStorage.getItem(KEY)).step1Account.email"
+  @input="e => {
+    const data = JSON.parse(localStorage.getItem(KEY))
+    data.step1Account.email = e.target.value
+    localStorage.setItem(KEY, JSON.stringify(data))
+  }"
+/&gt;</code></pre>
+  <p>你在輸入框打字，<code>@input</code> 有觸發，<code>setItem</code> 也真的把新值寫進硬碟了。但畫面上的文字會不會跟著你打的字更新？</p>
+  <p><strong>不會。</strong>因為這個 <code>:value</code> 綁定的來源——那次 <code>JSON.parse</code> 出來的物件——只在元件第一次渲染時執行過一次。Vue 沒有任何機制知道「你剛剛改了 localStorage，要重新跑一次這段程式碼」。</p>
+
+  <h2>為什麼 Vue「不知道」localStorage 變了</h2>
+  <p>這不是 Vue 的疏忽，是 <code>localStorage</code> 本身設計上就沒有「這一分頁內」的變更通知機制。<a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event">MDN 官方文件</a>寫得很白：<code>storage</code> 事件只會在「其他」分享同一個 origin storage 的分頁觸發，<strong>不會在做出改變的那個分頁本身觸發</strong>——瀏覽器的假設是「你自己改的，你自己當然知道」，沒必要通知自己。</p>
+  <p>Vue 的畫面更新靠的是完全不同的機制：<a href="https://vuejs.org/guide/essentials/reactivity-fundamentals.html"><code>reactive()</code></a> 把物件包成一個 Proxy，每次讀取屬性它會偷偷記下「這個地方依賴這個屬性」，每次賦值它會偷偷通知「這個屬性變了，訂閱的地方請重新算」。這一整套依賴追蹤，只對活在記憶體裡、被 <code>reactive()</code>/<code>ref()</code> 包過的物件有效——字串形式躺在 <code>localStorage</code> 裡的資料，Vue 完全無從追蹤起。</p>
+
+  <h2>回頭看 <code>registration.ts</code> 的設計：不是二選一，是兩層</h2>
+  <ul>
+    <li><strong>反應層（Pinia + <code>reactive</code>）</strong>：滿足「使用者現在打字，畫面現在要更新」——這是 Vue app 能動起來的最基本需求，跟要不要持久化完全無關，就算這個表單完全不需要撐過重新整理，這一層也一樣要存在。</li>
+    <li><strong>持久層（<code>localStorage</code>）</strong>：滿足「重新整理後資料還在」——這是額外加上去的需求，跟 Vue 怎麼渲染畫面無關。</li>
+  </ul>
+  <p><code>registration.ts</code> 做的事，是讓反應層透過 <code>watch(..., { deep: true })</code> <strong>單向廣播</strong>給持久層（改了記憶體 → 順便存一份到硬碟），而不是反過來讓 <code>localStorage</code> 當唯一事實來源、每次要用資料就去問它。方向很重要：記憶體永遠是「現在」最準的那份，<code>localStorage</code> 只是它的備份。</p>
+
+  <h2>一個類比：工作台 vs 保險箱</h2>
+  <p>Pinia state 像攤在工作台上的文件——伸手就能改，改了立刻看得到效果。<code>localStorage</code> 像下班前鎖進保險箱的備份——安全、扛得住停電（重新整理），但每次要用都得走去開保險箱、拿出來、鎖回去，慢很多。<a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API">MDN 也指出</a> <code>localStorage</code> 的讀寫是同步、會卡住主執行緒的操作——如果讓它變成「每個按鍵都要開一次保險箱」，畫面會明顯頓。現在的設計是「工作台上隨便動，下班前（資料變動時）才鎖一次保險箱」，讀保險箱更只在開店開門（store 初始化）那一刻做一次。</p>
+
+  <h2>那把 <code>:value</code>/<code>@input</code> 換成 <code>v-model</code> 呢？</h2>
+  <p>不會有差別，因為兩者根本是同一件事。<a href="https://vuejs.org/guide/essentials/forms">Vue 官方文件</a>寫得很明確：在原生 <code>&lt;input&gt;</code> 上，<code>v-model="x"</code> 就是 <code>:value="x" @input="x = $event.target.value"</code> 的縮寫，編譯器會把它展開成一模一樣的東西。上面那段例子故意寫成長版，就是要把 <code>v-model</code> 這層糖衣拆開給你看——換回 <code>v-model</code> 語法不會多長出任何反應性，賦值的目標還是同一個 <code>JSON.parse</code> 出來、用完即丟的普通物件，問題原封不動。</p>
+
+  <h2>那如果先把讀出來的資料包成 <code>reactive()</code> 呢？</h2>
+  <p>這個提案就對了——而且這正是 <code>registration.ts</code> 實際在做的事。差別只在一個關鍵字：</p>
+  <pre><code>// 壞掉的版本：普通物件，Vue 沒有追蹤能力
+const data = JSON.parse(localStorage.getItem(KEY))
+
+// registration.ts 實際的版本：包成 reactive，Vue 才追蹤得到
+const step1Account = reactive({
+  ...defaultStep1Account(),
+  ...persisted.step1Account,   // persisted 就是從 loadPersisted() 讀出來的 JSON.parse 結果
+})</code></pre>
+  <p>兩段程式碼都「從 localStorage 讀一次資料出來」，差別在於後者多包了一層 <code>reactive()</code>。就是這一層，讓 Vue 能對這個物件做依賴追蹤，<code>v-model</code>（或 <code>:value</code>/<code>@input</code>）綁在它身上才會真的動起來——而且這時候 <code>v-model</code> 綁的對象其實是 Pinia state，不是 <code>localStorage</code> 本身，<code>localStorage</code> 只在 store 剛啟動那一刻被讀了一次，之後就退場，換 <code>watch(..., persist)</code> 單方面把最新的 state 寫回去而已。你的直覺是對的，只是少了「要包成 <code>reactive()</code>」這一步——而這一步做完，其實就是把 Pinia 重新發明了一遍。</p>
+
+  <h2>小測驗</h2>
+
+  <div class="quiz-question" data-question-id="q1">
+    <p class="quiz-prompt">Q1. 為什麼 v-model 直接綁 <code>localStorage.getItem(...)</code> 讀出來的物件，打字時畫面不會即時更新？</p>
+    <div class="quiz-options">
+      <label><input type="radio" name="q1" value="a"> 因為 localStorage 容量太小，資料寫不進去</label>
+      <label data-correct="true" data-explain="localStorage 沒有同分頁內的變更通知機制，Vue 的 reactive 依賴追蹤只對記憶體裡的 Proxy 物件有效。"><input type="radio" name="q1" value="b"> 因為 localStorage 沒有機制通知同一分頁「資料變了」，Vue 無從追蹤起</label>
+      <label><input type="radio" name="q1" value="c"> 因為 JSON.stringify 會把資料弄壞</label>
+      <label><input type="radio" name="q1" value="d"> 因為 input 元素預設是唯讀的</label>
+    </div>
+    <button class="quiz-check" type="button">檢查答案</button>
+    <p class="quiz-feedback empty" hidden></p>
+  </div>
+
+  <div class="quiz-question" data-question-id="q2">
+    <p class="quiz-prompt">Q2. 下列何者最準確描述 Pinia state 跟 localStorage 在 <code>registration.ts</code> 裡的關係？</p>
+    <div class="quiz-options">
+      <label><input type="radio" name="q2" value="a"> 兩者是互斥的替代方案，選一個就好</label>
+      <label><input type="radio" name="q2" value="b"> localStorage 是唯一事實來源，Pinia state 只是它的暫存快取</label>
+      <label data-correct="true" data-explain="Pinia state（記憶體）永遠是現在最準的那份，負責畫面反應；localStorage 是它的備份，靠 watch 單向同步過去，負責撐過重新整理。"><input type="radio" name="q2" value="c"> Pinia state 是現在最準的那份、負責畫面反應，localStorage 是它的備份、靠 watch 單向同步</label>
+      <label><input type="radio" name="q2" value="d"> 兩者各自獨立運作，彼此完全沒有關聯</label>
+    </div>
+    <button class="quiz-check" type="button">檢查答案</button>
+    <p class="quiz-feedback empty" hidden></p>
+  </div>
+
+  <div class="reflect">
+    <h3>帶回去問我：兩個分頁同時開著會怎樣</h3>
+    <p>如果使用者同時開兩個分頁都在填這個註冊表單，在分頁 A 填了 email，分頁 B 的畫面會不會自動更新？如果不會，你覺得可以用這一課提到的哪個 API 補上（提示：<code>storage</code> 事件的觸發規則裡有個關鍵字，剛好是這一課的重點）？目前的 <code>registration.ts</code> 完全沒做這件事——先想想看要補在哪裡、為什麼，再回來跟我對答案。</p>
+  </div>
+
+  <h2>延伸閱讀</h2>
+  <ul>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event">Window: storage event | MDN</a>（本課主要參考來源：解釋同分頁不會收到通知的規則）</li>
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API">Web Storage API | MDN</a>（localStorage 同步阻塞特性）</li>
+    <li><a href="https://vuejs.org/guide/essentials/reactivity-fundamentals.html">Reactivity Fundamentals | Vue.js</a>（<code>reactive()</code> 的依賴追蹤機制）</li>
+  </ul>
+
+  <nav class="lesson-links">
+    <a href="0001-pinia-vs-localstorage.html">上一課：Pinia 是記憶體，localStorage 是硬碟</a>
+  </nav>
+
+  <footer class="lesson-footer">
+    <p>看不懂、覺得哪裡怪怪的、或想挑戰這個設計，隨時回到對話裡問我——這裡的目標是你能講得出「為什麼」，不是背下這頁的內容。</p>
+  </footer>
+</main>
+<script src="../assets/quiz.js"></script>

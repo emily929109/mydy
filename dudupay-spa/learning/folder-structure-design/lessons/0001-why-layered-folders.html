@@ -1,0 +1,120 @@
+<title>為什麼是 type → config → store → router</title>
+<link rel="stylesheet" href="../assets/style.css">
+<main>
+  <p class="eyebrow">Lesson 0001 · 資料夾結構設計</p>
+  <h1>為什麼是 type → config → store → router？</h1>
+
+  <p>你已經看出來了：<code>type</code> 定義各步驟表單型別、整合成 <code>StepKey</code>；<code>config</code> 依賴 <code>type</code> 定義步驟順序；<code>store</code> 依賴 <code>type</code> + <code>config</code> 控制表單狀態；<code>router</code> 依賴前三者控制路由。這個觀察是對的。這一課要補的是「為什麼非得照這個方向不可」。</p>
+
+  <div class="callout">
+    <p><strong>這一課結束時，你會得到什麼：</strong> 能對著 dudupay-spa 的真實程式碼，說出四層各自「唯一」的職責是什麼，並且能推理出「如果依賴方向反過來會壞在哪」。</p>
+  </div>
+
+  <h2>先看規則本身</h2>
+  <p>這個模式有個名字，叫<strong>單向依賴（unidirectional dependency）</strong>：</p>
+  <blockquote>上層可以 import 下層，下層永遠不能 import 上層。</blockquote>
+  <p>這不是 dudupay-spa 自己發明的規矩。<a href="https://feature-sliced.design/docs/reference/layers">Feature-Sliced Design</a>（一套前端分層架構方法論）把它寫成明文規則：一層只能 import 「嚴格在它下面」的層。這是這一課要你帶走的主要外部參考來源，值得花五分鐘讀一下它的 Layers 頁面。</p>
+
+  <h2>四層各自唯一的職責</h2>
+
+  <h3>1. <code>types/registration.ts</code> — 資料長什麼樣子</h3>
+  <pre><code>export interface Step1Account {
+  password: string
+  confirmPassword: string
+  email: string
+  ...
+}
+
+export type StepKey =
+  | 'step1Account'
+  | 'step2Upload'
+  | ...</code></pre>
+  <p>這一層零依賴，什麼都不 import。它只回答一個問題：「Step1 的資料長什麼樣子？」「總共有哪些步驟名字？」它是純詞彙表，沒有任何邏輯、沒有任何順序資訊、沒有任何「現在填到哪」的概念。</p>
+
+  <h3>2. <code>config/registrationSteps.ts</code> — 步驟的順序長什麼樣子</h3>
+  <pre><code>// 7 步驟的順序/路徑/標題單一事實來源。RegisterWizardNav、router 都讀這份，
+// 不在別處寫死步驟名稱或順序。
+export const registrationSteps: RegistrationStepMeta[] = [
+  { key: 'step1Account', path: '/register', title: '帳號註冊', order: 1 },
+  ...
+]</code></pre>
+  <p>注意它 import 了 <code>StepKey</code>（來自 type），但沒有 import store 或 router。它只回答：「這些步驟該用什麼順序排、對應哪個網址、標題叫什麼？」這是這個檔案裡的原始碼註解自己講的重點：<strong>單一事實來源</strong>。之後你會看到這句話為什麼是整個分層設計的關鍵。</p>
+
+  <h3>3. <code>stores/registration.ts</code> — 現在的即時狀態是什麼</h3>
+  <pre><code>function firstIncompleteStepPath(): string {
+  const next = registrationSteps.find(
+    (step) => !completedSteps.value.includes(step.key),
+  )
+  return next ? next.path : registrationSteps[0].path
+}</code></pre>
+  <p>Store 依賴 type（知道每個 step 資料長怎樣）+ config（<code>firstIncompleteStepPath</code> 要照 config 的順序去找「第一個沒完成的步驟」）。它回答的是：「使用者現在填到哪、填了什麼、存到 localStorage 了沒。」它不知道網址怎麼設計、不知道哪個 component 對應哪個步驟——那是 router 的事。</p>
+
+  <h3>4. <code>router/index.ts</code> — 現在准不准去某個網址</h3>
+  <pre><code>router.beforeEach((to) => {
+  const targetStep = registrationSteps.find((step) => step.path === to.path)
+  if (!targetStep) return true
+
+  const store = useRegistrationStore()
+  const precedingSteps = registrationSteps.filter((step) => step.order < targetStep.order)
+  const allPrecedingDone = precedingSteps.every((step) => store.isStepCompleted(step.key))
+  ...</code></pre>
+  <p>Router 是唯一同時依賴 type、config、store 三者的層。它把「步驟順序」（config）跟「目前完成到哪」（store）兜在一起，回答最後一個問題：「使用者現在能不能進這個網址？」這是這個功能裡跟瀏覽器網址列直接打交道的地方，也是離「使用者實際點了什麼」最近的一層——所以它站在最上面，可以看到下面所有人。</p>
+
+  <h2>如果方向反過來，會壞在哪？</h2>
+  <p>假設你想在 <code>types/registration.ts</code> 裡順手加一個工具函式，判斷某個 step 的網址是不是目前這頁，於是你打算 <code>import router from '../router'</code>。這樣做會壞在兩個地方：</p>
+  <ul>
+    <li><strong>循環依賴</strong>：router 已經 import 了 type（透過 <code>StepKey</code>）。如果 type 又反過來 import router，兩個檔案互相依賴，形成一個環。少數情況下打包工具能勉強跑起來，但沒有人說得清「先初始化哪一個」，任何小改動都可能踩到意料外的執行順序。</li>
+    <li><strong>職責混在一起</strong>：type 的存在理由是「純資料形狀」，一旦它需要知道網址、需要知道路由怎麼運作，它就不再是穩定的詞彙表了——以後改路由設計，連帶要改 type，而 type 被幾乎每個檔案 import，牽一髮動全身。</li>
+  </ul>
+  <p>這就是為什麼<strong>穩定、沒有副作用的東西（資料形狀）放最底層，會變動、有副作用的東西（瀏覽器網址、導航）放最上層</strong>：底層被很多人依賴，所以要盡量少變、盡量不知道別人的存在；上層依賴很多人，但只有它自己依賴自己，改動的影響範圍反而最小。</p>
+
+  <h2>Single source of truth 的回報在哪裡</h2>
+  <p>回頭看 <code>config/registrationSteps.ts</code> 那句註解：「不在別處寫死步驟名稱或順序」。因為 store 的 <code>firstIncompleteStepPath</code> 和 router 的路由表 + 導航守門邏輯，全部都是從 <code>registrationSteps</code> 這一份陣列讀出來的，你要調整步驟順序、改某步驟的網址，<strong>只需要改 config 這一個檔案</strong>，store 和 router 會自動保持同步。</p>
+  <p>如果沒有這層分工，store 和 router 很可能各自寫一份「步驟清單」，改一次順序要記得改兩個地方——忘了改其中一個，就是那種「明明測過為什麼還是壞」的 bug。</p>
+
+  <h2>小測驗</h2>
+
+  <div class="quiz-question" data-question-id="q1">
+    <p class="quiz-prompt">Q1. <code>types/registration.ts</code> 這一層的職責是什麼？</p>
+    <div class="quiz-options">
+      <label data-correct="true" data-explain="type 只定義資料形狀，零依賴、零邏輯。"><input type="radio" name="q1" value="a"> 定義每步驟的資料形狀</label>
+      <label><input type="radio" name="q1" value="b"> 決定各步驟的先後順序</label>
+      <label><input type="radio" name="q1" value="c"> 保存目前填寫中的資料</label>
+      <label><input type="radio" name="q1" value="d"> 判斷目前能不能去某頁</label>
+    </div>
+    <button class="quiz-check" type="button">檢查答案</button>
+    <p class="quiz-feedback empty" hidden></p>
+  </div>
+
+  <div class="quiz-question" data-question-id="q2">
+    <p class="quiz-prompt">Q2. 為什麼 <code>types/registration.ts</code> 不該 import <code>router/index.ts</code>？</p>
+    <div class="quiz-options">
+      <label data-correct="true" data-explain="router 已經依賴 type，反過來 import 會形成循環依賴。"><input type="radio" name="q2" value="a"> 因為那樣會形成雙向循環依賴</label>
+      <label><input type="radio" name="q2" value="b"> 因為型別語法不支援匯入路由</label>
+      <label><input type="radio" name="q2" value="c"> 因為那個檔案目前還沒被建立</label>
+      <label><input type="radio" name="q2" value="d"> 因為型別檔案禁止被其他引用</label>
+    </div>
+    <button class="quiz-check" type="button">檢查答案</button>
+    <p class="quiz-feedback empty" hidden></p>
+  </div>
+
+  <div class="reflect">
+    <h3>帶回去問我：新增第 8 個步驟</h3>
+    <p>如果要幫 dudupay-spa 的註冊流程加上第 8 個步驟，你會照什麼順序修改 <code>types</code> → <code>config</code> → <code>store</code> → <code>router</code> 這四個檔案？每一步「為什麼非得先做完上一步不可」？把你的答案帶回對話裡跟我對一下——這題沒有寫在這頁裡自動判分，因為值得討論、不只是選選項。</p>
+  </div>
+
+  <h2>延伸閱讀</h2>
+  <ul>
+    <li><a href="https://feature-sliced.design/docs/reference/layers">Feature-Sliced Design — Layers</a>（本課主要參考來源，定義了單向依賴的 Import Rule）</li>
+    <li><a href="https://en.wikipedia.org/wiki/Dependency_inversion_principle">Dependency Inversion Principle</a>（更廣的原則：穩定的東西放底層）</li>
+  </ul>
+
+  <nav class="lesson-links">
+    <a href="../reference/layered-architecture-cheatsheet.html">速查表：分層架構</a>
+  </nav>
+
+  <footer class="lesson-footer">
+    <p>看不懂、覺得哪裡怪怪的、或想挑戰這個設計，隨時回到對話裡問我——這裡的目標是你能講得出「為什麼」，不是背下這頁的內容。</p>
+  </footer>
+</main>
+<script src="../assets/quiz.js"></script>

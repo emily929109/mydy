@@ -1,0 +1,42 @@
+<title>分層架構速查表</title>
+<link rel="stylesheet" href="../assets/style.css">
+<main>
+  <p class="eyebrow">Reference · 資料夾結構設計</p>
+  <h1>分層架構速查表</h1>
+
+  <p>對應 <a href="../lessons/0001-why-layered-folders.html">Lesson 0001</a>，以 dudupay-spa 的註冊流程為例。</p>
+
+  <h2>四層 & 各自唯一的職責</h2>
+  <ul class="layer-stack">
+    <li><span class="layer-name">type</span><code>src/types/registration.ts</code> — 定義資料「長什麼樣子」。零依賴，純詞彙表。</li>
+    <li class="arrow-down">↓ 只能被下面的層 import，自己誰都不 import</li>
+    <li><span class="layer-name">config</span><code>src/config/registrationSteps.ts</code> — 定義步驟「順序、路徑、標題」。依賴 type。唯一事實來源（single source of truth）。</li>
+    <li class="arrow-down">↓ 依賴 type + config</li>
+    <li><span class="layer-name">store</span><code>src/stores/registration.ts</code> — 管理「當下的即時狀態」+ 持久化。依賴 type + config。</li>
+    <li class="arrow-down">↓ 依賴 type + config + store</li>
+    <li><span class="layer-name">router</span><code>src/router/index.ts</code> — 根據 store 的狀態 + config 的順序，決定「現在准不准進某個路徑」。</li>
+  </ul>
+
+  <h2>唯一規則</h2>
+  <blockquote>依賴只能往下看，不能往上看。上層可以認識下層，下層永遠不知道上層存在。</blockquote>
+  <p>來源：<a href="https://feature-sliced.design/docs/reference/layers">Feature-Sliced Design — Layers</a> 的 Import Rule。</p>
+
+  <h2>加新步驟時，照這個順序改</h2>
+  <ol>
+    <li><code>types/registration.ts</code> — 先定義新步驟的資料形狀 + 加進 <code>StepKey</code></li>
+    <li><code>config/registrationSteps.ts</code> — 補上這個步驟的 order / path / title</li>
+    <li><code>stores/registration.ts</code> — 補上這個步驟的預設值 + 持久化欄位</li>
+    <li><code>router/index.ts</code> — 補上這個步驟對應的 component</li>
+  </ol>
+
+  <h2>聞到壞味道的訊號</h2>
+  <ul>
+    <li><strong>循環 import</strong>：下層的檔案（例如 type）import 了上層的檔案（例如 router）。</li>
+    <li><strong>順序被寫兩份</strong>：store 或 router 裡自己又寫了一份步驟順序，沒有從 config 讀。代表 single source of truth 被打破了，兩份清單遲早會不同步。</li>
+    <li><strong>硬編碼字串</strong>：路徑字串（如 <code>'/register/upload'</code>）在 config 以外的地方又出現一次。</li>
+  </ul>
+
+  <footer class="lesson-footer">
+    <p>回 <a href="../lessons/0001-why-layered-folders.html">Lesson 0001</a>。</p>
+  </footer>
+</main>
