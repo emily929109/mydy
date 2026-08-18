@@ -6,8 +6,9 @@ withDefaults(
     id?: string
     type?: string
     error?: string
+    disabled?: boolean
   }>(),
-  { type: 'text' },
+  { type: 'text', disabled: false },
 )
 
 defineEmits<{ 'update:modelValue': [value: string] }>()
@@ -22,6 +23,7 @@ defineEmits<{ 'update:modelValue': [value: string] }>()
       :class="{ 'is-invalid': error }"
       :type="type"
       :value="modelValue"
+      :disabled="disabled"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
     <div v-if="error" class="invalid-feedback d-block">{{ error }}</div>

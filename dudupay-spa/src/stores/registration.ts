@@ -21,8 +21,8 @@ function defaultStep1Account(): Step1Account {
     email: "",
     mobile: "",
     smsOtp: "",
-    emailOtp: "",
     referralCode: "",
+    referralCodeIsStoreCode: false,
     agreedTerms: false,
   };
 }

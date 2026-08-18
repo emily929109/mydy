@@ -1,7 +1,7 @@
 const App = {
   setup() {
     const ru = ref({
-      // v : 值，error : ng || ok，msg : 錯誤訊息
+      // 格式  v : 值，error : ng || ok，msg : 錯誤訊息
       mobile: { v: "", error: "0", msg: "" },
       mail: { v: "", error: "0", msg: "" },
       pw_register: { v: "", error: "0", msg: "" },
@@ -9,8 +9,6 @@ const App = {
       otpNum: { v: "", error: "0", msg: "" },
       agree: { v: false, error: "0", msg: "" },
       recommend_code: { v: "", error: "0", msg: "" },
-      check_mail: { v: "", error: "0", msg: "" },
-      mailNum: { v: "", error: "0", msg: "" },
     });
 
     const time_msg = ref("");
@@ -21,11 +19,9 @@ const App = {
     const otp_code = ref("");
     const showBar = ref(false);
     const sendCoded = ref(false);
-    const pdf_title = ref("");
     const disabled = ref(false);
     const mail_disabled = ref(false);
     const member = ref(JSON.parse(localStorage.getItem("member")));
-    //const show = ref(false);
     const showSecond = ref("0");
     const html_data = ref("");
     const dudu_order = JSON.parse(localStorage.getItem("dudu_order"));
@@ -33,41 +29,29 @@ const App = {
     const previousUrl = ref("");
 
     onMounted(() => {
-      //已經在登入狀態
+      // 已登入且已完成註冊流程
       if (member.value !== null && member.value.login_ok_msg == "*") {
         alert("您已經有帳號登入了,如要申請新帳號請先登出！");
         window.location.href = "../Home/Index";
         return;
       }
 
+      // 尚未走完註冊流程且已離開過頁面，登入後由menutop.js決定要導去哪一步
       if (member.value !== null && member.value.login_ok_msg != "*") {
         alert("您已經有註冊帳號,請「會員登入」後繼續完成註冊流程！");
         window.location.href = "../Home/Index";
         return;
       }
 
-      //有推薦碼
+      // 推薦碼入口 : 會員中心我的推薦
       var _push = getUrlParameter("push");
       if (_push != "null") {
         ru.value.recommend_code.v = _push.trim();
         disabled.value = true;
       }
 
-      //get mobile code token
-      //_getMobileCodeToken();
-
-      $("#pdf_msg").on("shown.bs.modal", function (e) {
-        if (pdf_title.value == "1") {
-          LoadPdfFromUrl("/img/DUDUPAY隱私權政策條款1131101.pdf");
-          //$("#pdf-frame").attr('src', dudu_url + 'img/個人資料保護法_20231006.pdf');
-        } else {
-          LoadPdfFromUrl(
-            "/img/行動身分識別服務使用者約定條款及隱私權告知條款_20231006.pdf",
-          );
-          //$("#pdf-frame").attr('src', dudu_url + 'img/行動身分識別服務使用者約定條款及隱私權告知條款_20231006.pdf');
-        }
-      });
-
+      // 按上一頁跳提示
+      window.addEventListener("popstate", onBack);
       previousUrl.value = document.referrer;
       history.pushState(null, null, location.href);
     });
@@ -166,8 +150,11 @@ const App = {
       }
       //------------------------------------
       //check mail
-      var mail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // 使用「正規表達式」檢驗格式
-      if (ru.value.mail.v.match(mail)) {
+      var mail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/; // 使用「正規表達式」檢驗格式
+      if (!ru.value.mail.v) {
+        ru.value.mail.error = "ng";
+        ru.value.mail.msg = "電子信箱不可為空";
+      } else if (ru.value.mail.v.match(mail)) {
         ru.value.mail.error = "ok";
         ru.value.mail.msg = "";
       } else {
@@ -355,144 +342,12 @@ const App = {
       otp_code.value = "";
     };
 
-    showPdf = (_titleValue) => {
-      pdf_title.value = _titleValue;
-      $("#pdf_msg").modal("show");
-    };
-
-    // 發送驗證信 E-mail
-    const getApiMessage = (data, defaultMessage) => {
-      return (
-        (data && (data.message || data.msg || data.Message)) || defaultMessage
-      );
-    };
-
-    // ------------ mail 驗證流程 ------------
-    const isSubmitting = ref(false);
-    const countdown = ref(0);
-    const hasSentMailCode = ref(false); // 是否已成功發送過一次驗證碼，之後皆視為重新發送
-
-    const mailBtnText = computed(() => {
-      if (isSubmitting.value) {
-        return "發送中...";
-      }
-      if (countdown.value > 0) {
-        return `重新發送 (${countdown.value}s)`;
-      }
-      return "發送驗證信";
-    });
-
-    SendMailCode = (check_mail) => {
-      //check mail
-      var mail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/; // 使用「正規表達式」檢驗格式
-      if (!check_mail.match(mail)) {
-        alert("E-mail 格式不正確");
-        return;
-      }
-
-      sendMailCodeRequest(check_mail, hasSentMailCode.value)
-        .then((response) => {
-          if (response.data.success) {
-            // 請求成功，開始倒數，並標記之後皆為重新發送
-            hasSentMailCode.value = true;
-            startCountdown();
-          } else {
-            console.log(response.data);
-            const message = getApiMessage(response.data, "驗證碼發送失敗");
-            console.log(message);
-            if (message == "此Email已經註冊過了,可能您已經有帳號,請直接登入") {
-              alert(message);
-              $("#mail-modal").modal("hide");
-              $("#authentication-modal").modal("show");
-              $("#authentication-modal").on("hidden.bs.modal", function () {
-                window.location.href = "../Home/Index";
-              });
-              return;
-            }
-
-            alert(message);
-          }
+    const showPdf = () => {
+      $("#pdf_msg")
+        .one("shown.bs.modal", function (e) {
+          LoadPdfFromUrl("/img/DUDUPAY隱私權政策條款1131101.pdf");
         })
-        .catch(function (error) {
-          console.log(error);
-          alert(
-            getApiMessage(
-              error.response && error.response.data,
-              "驗證碼發送失敗",
-            ),
-          );
-        })
-        .finally(() => {
-          isSubmitting.value = false;
-          console.log("完成");
-        });
-    };
-
-    // 發送驗證信
-    const sendMailCodeRequest = (check_mail, isResend) => {
-      isSubmitting.value = true;
-
-      return axios({
-        method: "post",
-        url: "/api/AnonymousOTP/SendMailCode",
-        headers: { "Content-Type": "application/json" },
-        params: { mail: check_mail, IsResend: isResend },
-      });
-    };
-
-    // 倒數計時器
-    let mailCountdownTimer = null;
-    const startCountdown = () => {
-      countdown.value = 30;
-      mailCountdownTimer = setInterval(() => {
-        if (countdown.value > 0) {
-          countdown.value--;
-        } else {
-          clearInterval(mailCountdownTimer);
-        }
-      }, 1000);
-    };
-
-    const verifyMailCode = (code, mail) => {
-      return axios({
-        method: "post",
-        url: "/api/AnonymousOTP/VerifyMailCode",
-        headers: { "Content-Type": "application/json" },
-        params: {
-          code: code,
-          mail: mail,
-        },
-      });
-    };
-
-    //確認mail驗證碼
-    confirmMailCode = (code) => {
-      if (!code) {
-        alert("請輸入驗證碼");
-        return;
-      }
-
-      blockUI();
-      verifyMailCode(code, ru.value.check_mail.v)
-        .then((response) => {
-          $.unblockUI();
-          if (response.data.success) {
-            ru.value.mail.v = ru.value.check_mail.v; // 複製驗證過的mail
-            $("#mail-modal").modal("hide");
-            window.addEventListener("popstate", onBack);
-          } else {
-            alert(response.data.msg || "驗證碼錯誤或已過期！");
-          }
-        })
-        .catch(function (error) {
-          $.unblockUI();
-          console.log(error);
-          if (error.response && error.response.status == 401)
-            alert(error.response.data.Message);
-        })
-        .finally(() => {
-          console.log("完成");
-        });
+        .modal("show");
     };
 
     showHtml = () => {
@@ -541,9 +396,6 @@ const App = {
     // 組件銷毀時
     onUnmounted(() => {
       window.removeEventListener("popstate", onBack);
-
-      // 清除計時器，防止記憶體洩漏
-      if (mailCountdownTimer) clearInterval(mailCountdownTimer);
     });
 
     return {
@@ -563,54 +415,21 @@ const App = {
       sendCoded,
       close,
       showPdf,
-      pdf_title,
       disabled,
-      SendMailCode,
       showSecond,
-      confirmMailCode,
+      // 推薦碼
       max: 11,
+
       showHtml,
       html_data,
       mail_disabled,
       leavePage,
       keepPage,
-      mailBtnText,
-      isSubmitting,
-      countdown,
     };
   },
 };
 
 const vml = Vue.createApp(App).mount("#app");
-
-function showMailModal() {
-  $("#mail-modal").modal("show");
-}
-
-// register.js 是透過 loadVersionedScripts 非同步載入,手機網路較慢時
-// window 的 load 事件可能在這支 script 掛上監聽器之前就已經觸發過了,
-// 導致驗證信提示彈窗沒有跳出來。若 load 已經發生過就直接執行。
-if (document.readyState === "complete") {
-  showMailModal();
-} else {
-  $(window).on("load", showMailModal);
-}
-
-window.mobilecheck = function () {
-  var check = false;
-  (function (a) {
-    if (
-      /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(
-        a,
-      ) ||
-      /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(
-        a.substr(0, 4),
-      )
-    )
-      check = true;
-  })(navigator.userAgent || navigator.vendor || window.opera);
-  return check;
-};
 
 //-----------------------------------
 // Timer Bar
@@ -687,12 +506,18 @@ function textRenderer(seconds) {
   $(".text").text(min + ":" + sec);
 }
 
+//============PDF=======================
+// pdf.js套件的原理 : 把 pdf 每一頁個別 render 在 canvas
+// 用到的 API :
+// 1. pdfjsLib.getDocument(url) : 下載 pdf 並解析成一個promise物件 PDFDocumentProxy
+// 2. pdf.getPage(pageNum) :  針對某一頁，拿到該頁的繪圖資訊
+// 3. page.render({ canvasContext, viewport })
+
 var pdfjsLib = window["pdfjs-dist/build/pdf"];
-//pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js';
 pdfjsLib.GlobalWorkerOptions.workerSrc = "/js/pdf.worker.min.js";
 var pdfDoc = null;
-var scale = 1; //Set Scale for Zoom 大小
-var resolution = IsMobile() ? 1.5 : 1; //Set Resolution as per Desktop and Mobile.
+var scale = 1;
+
 function LoadPdfFromUrl(url) {
   //Read PDF from URL.
   pdfjsLib.getDocument(url).promise.then(function (pdfDoc_) {
@@ -702,9 +527,7 @@ function LoadPdfFromUrl(url) {
     var pdf_container = document.getElementById("pdf_container");
     pdf_container.innerText = ""; //init
     pdf_container.style.display = "block";
-    pdf_container.style.height = IsMobile() ? "500px" : "820px";
 
-    //Loop and render all pages.
     for (var i = 1; i <= pdfDoc.numPages; i++) {
       RenderPage(pdf_container, i);
     }
@@ -714,7 +537,6 @@ function RenderPage(pdf_container, num) {
   pdfDoc.getPage(num).then(function (page) {
     //Create Canvas element and append to the Container DIV.
     var canvas = document.createElement("canvas");
-
     canvas.id = "pdf-" + num;
     ctx = canvas.getContext("2d");
     pdf_container.appendChild(canvas);
@@ -727,25 +549,17 @@ function RenderPage(pdf_container, num) {
 
     //Set the Canvas dimensions using ViewPort and Scale.
     var viewport = page.getViewport({ scale: scale });
-    canvas.height = resolution * viewport.height;
-    canvas.width = resolution * viewport.width;
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
 
     //Render the PDF page.
     var renderContext = {
       canvasContext: ctx,
       viewport: viewport,
-      transform: [resolution, 0, 0, resolution, 0, 0],
     };
 
     page.render(renderContext);
   });
-}
-
-function IsMobile() {
-  var r = new RegExp(
-    "Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini",
-  );
-  return r.test(navigator.userAgent);
 }
 
 function onBack() {

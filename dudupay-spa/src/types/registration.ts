@@ -5,8 +5,9 @@ export interface Step1Account {
   email: string;
   mobile: string;
   smsOtp: string;
-  emailOtp: string;
   referralCode: string;
+  // true 表示 referralCode 是 4 碼英數混合的店家代號（非會員/員工推薦碼），供未來步驟分流參考
+  referralCodeIsStoreCode: boolean;
   agreedTerms: boolean;
 }
 
