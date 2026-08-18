@@ -305,6 +305,7 @@ const App = {
         });
     };
 
+    // 會問一個要不要繼續註冊的ｍｏｄａｌ
     close = () => {
       if (purchase_item !== null) {
         // 1. 商城帶購物車註冊
