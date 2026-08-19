@@ -5,7 +5,11 @@ import { useRegistrationStore } from "../../stores/registration";
 import { registrationSteps } from "../../config/registrationSteps";
 import RegisterStepLayout from "../../components/register/RegisterStepLayout.vue";
 import FormField from "../../components/register/FormField.vue";
-import { isFakeOtpValid, FAKE_OTP_HINT } from "../../fixtures/registration";
+import {
+  isFakeOtpValid,
+  FAKE_OTP_HINT,
+  FAKE_MID_CLAUSE_HTML,
+} from "../../fixtures/registration";
 
 const STEP_KEY = "step1Account";
 const route = useRoute();
@@ -19,6 +23,11 @@ const form = store.step1Account;
 
 // URL 帶 ?push= 推薦碼時預填且不可手動修改
 const referralCodeLocked = ref(false);
+
+// 比照舊系統 Register.cshtml 的 showPdf() / showHtml()：純顯示條款內容用的 modal 開關
+const showPrivacyModal = ref(false);
+const showClauseModal = ref(false);
+const privacyPdfUrl = `${import.meta.env.BASE_URL}docs/DUDUPAY隱私權政策條款1131101.pdf`;
 
 // 比照 register.js 的 close()：4 碼英數混合（同時含字母與數字）視為店家代號，否則為會員/員工推薦碼
 function isStoreCode(code: string): boolean {
@@ -46,27 +55,40 @@ const errors = reactive<Record<string, string>>({
   agreedTerms: "",
 });
 
-// 比照現有系統 js/register.js 的手刻 regex 規則（含允許的 32 個 ASCII 符號）
+// 密碼規則 : 1. 長度需 8~18 字   2. 需含至少一個英文大寫字母   3. 需含至少一個英文小寫字母   4. 需含至少一個數字 5. 只可包含ASCII鍵盤符號
 const PASSWORD_RULE =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z0-9!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~]{8,18}$/;
 const MOBILE_RULE = /^09\d{8}$/;
-const EMAIL_RULE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_RULE = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/;
 
+// 條件1 ? 結果A : (條件2 ? 結果B : 結果C)（巢狀三元運算子）
 function validate(): boolean {
-  errors.password = PASSWORD_RULE.test(form.password)
-    ? ""
-    : "密碼須為 8-18 碼，同時包含大小寫英文字母與數字，可包含常見符號";
-  errors.confirmPassword =
-    form.confirmPassword !== "" && form.confirmPassword === form.password
+  errors.email = !form.email
+    ? "Email 不可為空"
+    : EMAIL_RULE.test(form.email)
+      ? ""
+      : "Email 格式不正確";
+  errors.password = !form.password
+    ? "密碼不可為空"
+    : PASSWORD_RULE.test(form.password)
+      ? ""
+      : "密碼須為 8-18 碼，同時包含大小寫英文字母與數字，可包含常見符號";
+  errors.confirmPassword = !form.confirmPassword
+    ? "確認密碼不可為空"
+    : form.confirmPassword === form.password
       ? ""
       : "確認密碼與密碼不一致";
-  errors.email = EMAIL_RULE.test(form.email) ? "" : "Email 格式不正確";
-  errors.mobile = MOBILE_RULE.test(form.mobile)
-    ? ""
-    : "手機格式須為 09 開頭、共 10 碼數字";
-  errors.smsOtp = isFakeOtpValid(form.smsOtp)
-    ? ""
-    : `簡訊 OTP 錯誤（${FAKE_OTP_HINT}）`;
+
+  errors.mobile = !form.mobile
+    ? "手機號碼不可為空"
+    : MOBILE_RULE.test(form.mobile)
+      ? ""
+      : "手機格式須為 09 開頭、共 10 碼數字";
+  errors.smsOtp = !form.smsOtp
+    ? "簡訊 OTP 不可為空"
+    : isFakeOtpValid(form.smsOtp)
+      ? ""
+      : `簡訊 OTP 錯誤（${FAKE_OTP_HINT}）`;
   errors.agreedTerms = form.agreedTerms ? "" : "請先閱讀並同意服務條款";
 
   return Object.values(errors).every((message) => message === "");
@@ -82,6 +104,13 @@ function handleNext() {
 <template>
   <RegisterStepLayout next-label="下一步" @next="handleNext">
     <FormField
+      id="email"
+      v-model="form.email"
+      type="email"
+      label="Email"
+      :error="errors.email"
+    />
+    <FormField
       id="password"
       v-model="form.password"
       type="password"
@@ -95,13 +124,7 @@ function handleNext() {
       label="確認密碼"
       :error="errors.confirmPassword"
     />
-    <FormField
-      id="email"
-      v-model="form.email"
-      type="email"
-      label="Email"
-      :error="errors.email"
-    />
+
     <FormField
       id="mobile"
       v-model="form.mobile"
@@ -132,12 +155,41 @@ function handleNext() {
         class="form-check-input"
         type="checkbox"
       />
-      <label class="form-check-label" for="agreedTerms"
-        >我已閱讀並同意服務條款</label
-      >
+      <label class="form-check-label" for="agreedTerms">
+        我已詳細閱讀並充分了解，同意「<span
+          class="terms-link"
+          @click="showPrivacyModal = true"
+          >隱私政策</span
+        >」及「<span class="terms-link" @click="showClauseModal = true"
+          >行動身分識別服務使用者約定條款及隱私權告知條款</span
+        >」。
+      </label>
       <div v-if="errors.agreedTerms" class="text-danger small">
         {{ errors.agreedTerms }}
       </div>
     </div>
+
+    <el-dialog v-model="showPrivacyModal" title="隱私政策" width="90%">
+      <iframe
+        :src="privacyPdfUrl"
+        title="隱私政策"
+        style="width: 100%; height: 70vh; border: none"
+      ></iframe>
+    </el-dialog>
+
+    <el-dialog
+      v-model="showClauseModal"
+      title="行動身分識別服務使用者約定條款及隱私權告知條款"
+      width="90%"
+    >
+      <div v-html="FAKE_MID_CLAUSE_HTML"></div>
+    </el-dialog>
   </RegisterStepLayout>
 </template>
+
+<style scoped>
+.terms-link {
+  text-decoration: underline;
+  cursor: pointer;
+}
+</style>
