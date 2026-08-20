@@ -10,6 +10,7 @@ import {
   FAKE_OTP_HINT,
   FAKE_MID_CLAUSE_HTML,
 } from "../../fixtures/registration";
+import { PRIVACY_POLICY_HTML } from "../../content/privacyPolicy";
 
 const STEP_KEY = "step1Account";
 const route = useRoute();
@@ -27,7 +28,6 @@ const referralCodeLocked = ref(false);
 // 比照舊系統 Register.cshtml 的 showPdf() / showHtml()：純顯示條款內容用的 modal 開關
 const showPrivacyModal = ref(false);
 const showClauseModal = ref(false);
-const privacyPdfUrl = `${import.meta.env.BASE_URL}docs/DUDUPAY隱私權政策條款1131101.pdf`;
 
 // 比照 register.js 的 close()：4 碼英數混合（同時含字母與數字）視為店家代號，否則為會員/員工推薦碼
 function isStoreCode(code: string): boolean {
@@ -169,20 +169,15 @@ function handleNext() {
       </div>
     </div>
 
-    <el-dialog v-model="showPrivacyModal" title="隱私政策" width="90%">
-      <iframe
-        :src="privacyPdfUrl"
-        title="隱私政策"
-        style="width: 100%; height: 70vh; border: none"
-      ></iframe>
+    <el-dialog v-model="showPrivacyModal">
+      <div class="legal-content" v-html="PRIVACY_POLICY_HTML"></div>
     </el-dialog>
 
     <el-dialog
       v-model="showClauseModal"
       title="行動身分識別服務使用者約定條款及隱私權告知條款"
-      width="90%"
     >
-      <div v-html="FAKE_MID_CLAUSE_HTML"></div>
+      <div class="legal-content" v-html="FAKE_MID_CLAUSE_HTML"></div>
     </el-dialog>
   </RegisterStepLayout>
 </template>
@@ -191,5 +186,18 @@ function handleNext() {
 .terms-link {
   text-decoration: underline;
   cursor: pointer;
+}
+
+.legal-content {
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.legal-content :deep(.privacy-item) {
+  margin-bottom: 1.5rem;
+}
+
+.legal-content :deep(.privacy-item ol) {
+  line-height: 180%;
 }
 </style>
