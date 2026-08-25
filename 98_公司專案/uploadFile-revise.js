@@ -14,7 +14,6 @@ const App = {
     const file_3 = ref(null);
     const file_4 = ref(null);
     const file_5 = ref(null);
-    const tmpFile = ref("");
     const isDisabled = ref(true);
     const showEasyButton = ref(true);
     const uploadCheck = ref({
@@ -67,32 +66,7 @@ const App = {
       }
 
       blockUI();
-      // 對應到五個不同欄位，存到tmpFile
-      switch (item) {
-        case "ID0A":
-          tmpFile.value = file_1.value.files[0];
-          break;
-        case "ID0B":
-          tmpFile.value = file_2.value.files[0];
-          break;
-        case "ID0Q":
-          tmpFile.value = file_3.value.files[0];
-          break;
-        case "ID0L":
-          tmpFile.value = file_4.value.files[0];
-          break;
-        case "ID0C":
-          tmpFile.value = file_5.value.files[0];
-          break;
-        default:
-      }
-
-      var files = e.target.files || e.dataTransfer.files;
-      if (!files.length) {
-        $.unblockUI();
-        return;
-      }
-      createImage(item, files[0]);
+      createImage(item, file);
     };
 
     //  產生預覽圖並上傳
@@ -133,7 +107,7 @@ const App = {
           }
 
           // 1. 瀏覽器先讀到這一行，把 Base64 塞給 img.src
-          submitFile(item, width, Math.ceil(per * img.height));
+          submitFile(item, file, width, Math.ceil(per * img.height));
 
           // 2. 瀏覽器看到 src 有東西了，開始在背景解碼這張圖片（非同步消耗時間）
         };
@@ -141,13 +115,13 @@ const App = {
       };
     };
 
-    submitFile = (item, _width, _height) => {
+    submitFile = (item, file, _width, _height) => {
       var member = JSON.parse(localStorage.getItem("member"));
       if (member == null) return;
 
       let formData = new FormData();
 
-      formData.append("file", tmpFile.value);
+      formData.append("file", file);
       formData.append(
         "data",
         JSON.stringify({ img: item, width: _width, height: _height }),
