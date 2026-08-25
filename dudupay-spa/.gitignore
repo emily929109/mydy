@@ -1,4 +1,4 @@
-# Logs
+# 套件管理工具日誌
 logs
 *.log
 npm-debug.log*
@@ -12,13 +12,11 @@ dist
 dist-ssr
 *.local
 
-# Editor directories and files
+
 .vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.claude/*
+.scratch/*
+docs/*
+learning/*
+CLAUDE.md
+CONTEXT.md
