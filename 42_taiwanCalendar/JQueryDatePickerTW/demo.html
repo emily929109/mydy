@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>JQueryDatepickerTW Demo</title>
+    <link rel="stylesheet" href="Lib/jquery-ui-1.10.3.custom.css">
+    <script src="Lib/jquery-1.9.1.js"></script>
+    <script src="Lib/jquery-ui-1.10.3.custom.js"></script>
+    <script src="JQueryDatePickerTW.js"></script>
+</head>
+<body>
+    <label>
+        <input type="text" class="datepickerTW">
+    </label>
+    <label>
+        <input type="text" class="datepicker">
+    </label>
+
+    <script type="text/javascript">
+        var currentYear = new Date().getFullYear();
+        $('.datepickerTW').datepickerTW({
+            changeYear: true,
+            changeMonth: true,
+            yearRange: '80:' + currentYear,
+            dateFormat: 'yy-mm-dd',
+            defaultDate: '+1w'
+        });
+        $('.datepicker').datepicker({
+            changeYear: true,
+            changeMonth: true,
+            dateFormat: 'yy-mm-dd',
+            yearRange: '1911:2000',
+            defaultDate: '1995-01-01'
+        });
+    </script>
+</body>
+</html>
