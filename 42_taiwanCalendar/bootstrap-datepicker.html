@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <title>民國月曆選擇器</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css"
+    />
+    <style>
+      .datepicker-input {
+        width: 260px;
+        cursor: pointer;
+        background-color: #fff !important;
+      }
+    </style>
+  </head>
+  <body class="p-5">
+    <div class="container">
+      <h3>民國日期選擇器</h3>
+      <div class="mb-3">
+        <label for="roc-datepicker" class="form-label"
+          >選擇日期 (民國年)：</label
+        >
+        <input
+          type="text"
+          id="roc-datepicker"
+          class="form-control datepicker-input"
+          placeholder="例：115/08/28"
+          readonly
+        />
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/locales/bootstrap-datepicker.zh-TW.min.js"></script>
+
+    <script>
+      // 來源 : 三百億政府補助專案官方網站申請第二步
+      $(document).ready(function () {
+        // 民國年轉換核心函數
+        function convertToROC(container) {
+          // 1. 轉換頂部導航標題 (例如 "2026年8月" -> "民國 115 年 8 月" 或 "2020-2029" -> "民國 109-118 年")
+          $(container)
+            .find(".datepicker-switch")
+            .each(function () {
+              let text = $(this).text();
+              // 區間年份 (如: 2020-2029)
+              if (text.match(/(\d{4})\s*-\s*(\d{4})/)) {
+                let replaced = text.replace(
+                  /(\d{4})\s*-\s*(\d{4})/,
+                  function (_, y1, y2) {
+                    return (
+                      "民國 " +
+                      (parseInt(y1) - 1911) +
+                      " - " +
+                      (parseInt(y2) - 1911) +
+                      " 年"
+                    );
+                  },
+                );
+                $(this).text(replaced);
+              }
+              // 單一年份 (如: 2026年 8月)
+              else if (text.match(/(\d{4})/)) {
+                let replaced = text.replace(/(\d{4})/, function (_, y) {
+                  return "民國 " + (parseInt(y) - 1911) + " 年";
+                });
+                $(this).text(replaced);
+              }
+            });
+
+          // 2. 轉換年份視圖列表 (Years View: 2020 -> 109)
+          $(container)
+            .find(
+              ".datepicker-years .year, .datepicker-decades .decade, .datepicker-centuries .century",
+            )
+            .each(function () {
+              let text = $(this).text().trim();
+              if (/^\d{4}$/.test(text)) {
+                let rocYear = parseInt(text) - 1911;
+                $(this).text(
+                  rocYear > 0 ? rocYear : "前" + Math.abs(rocYear - 1),
+                );
+              }
+            });
+        }
+
+        // 初始化 Datepicker
+        let $dp = $("#roc-datepicker").datepicker({
+          format: "yyyy/mm/dd",
+          autoclose: true,
+          language: "zh-TW",
+          todayHighlight: true,
+          forceParse: false,
+        });
+
+        // 監聽選取事件，輸出民國格式 (YYY/MM/DD)
+        $dp.on("changeDate", function (e) {
+          if (!e.date) return;
+          let y = e.date.getFullYear() - 1911;
+          let m = ("0" + (e.date.getMonth() + 1)).slice(-2);
+          let d = ("0" + e.date.getDate()).slice(-2);
+          $(this).val(y + "/" + m + "/" + d);
+        });
+
+        // 監聽彈出視窗變更，即時替換 DOM
+        $dp.on("show", function () {
+          let dpContainer = $(".datepicker");
+          convertToROC(dpContainer);
+
+          // 使用 MutationObserver 監聽視圖切換與月份翻頁
+          let observer = new MutationObserver(function () {
+            observer.disconnect(); // 避免自身修改引發遞迴觸發
+            convertToROC(dpContainer);
+            observer.observe(dpContainer[0], {
+              childList: true,
+              subtree: true,
+              characterData: true,
+            });
+          });
+
+          observer.observe(dpContainer[0], {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
