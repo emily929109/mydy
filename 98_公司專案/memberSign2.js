@@ -23,6 +23,8 @@ const App = {
     const msg = ref("");
     const error_msg = ref("");
     const checked = ref(false);
+    const noSelfieMode = ref(false); // 免自拍簽約：轉手機後仍無法取得相機時的備援
+    const deviceTab = ref("iphone"); // 相機權限重新檢查 modal 的 iPhone/Android 說明分頁
     //const contractImage = ref('/img/DUDUPAY享額度約定約定書_20231006.pdf');
     //const contractImage = ref('/img/聲明書.jpg');
 
@@ -260,17 +262,6 @@ const App = {
       }
     };
 
-    // 按簽名
-    signButton = () => {
-      var member = JSON.parse(localStorage.getItem("member"));
-      if (member == null) {
-        $("#authentication-modal").modal("show");
-        return;
-      }
-
-      VideoInit();
-    };
-
     //顯示簽名板
     var changeWidth = 0;
     showSignPad = () => {
@@ -298,8 +289,10 @@ const App = {
         return;
       }
 
-      video.pause();
-      video.currentTime = 0;
+      if (!noSelfieMode.value) {
+        video.pause();
+        video.currentTime = 0;
+      }
 
       var member = JSON.parse(localStorage.getItem("member"));
       //get url to page check 是否電腦轉手機簽
@@ -327,20 +320,24 @@ const App = {
       blockUI_txt();
       //去背
       removeImgBg(canvas_signature);
-      var ctx = canvas_video.getContext("2d");
 
       var img = new Image();
       img.src = "";
+      // canvas_signature.src在common.js裡已用toDataURL轉成png base64字串
+      // 此專案把canvas當物件自創src屬性存資料的概念
+      // 此專案先去背了 但後來卻沒用到 意義不明(?)
       img.src = canvas_signature.src;
       img.onload = function () {
-        //merge image
-        //ctx.drawImage(img, 0, 0);
-
         //send to web api
         //save base64
         var sign_image = signaturePad
           .toDataURL("image/jpeg")
-          .replace("data:image/jpeg;base64,", "");
+          .replace("data:image/jpeg;base64,", ""); // jpeg白底
+        // 免自拍簽約：沒有相機串流可擷取，video_base64 送空字串
+        // no_selfie 為前端佔位欄位，實際 API 規格由後端另行確認
+        var video_image = noSelfieMode.value
+          ? ""
+          : canvas_video.toDataURL().replace("data:image/png;base64,", "");
         axios({
           method: "post",
           url: "/api/Member/SaveImageMerge",
@@ -348,9 +345,8 @@ const App = {
           //id:
           data: {
             sign_base64: sign_image,
-            video_base64: canvas_video
-              .toDataURL()
-              .replace("data:image/png;base64,", ""),
+            video_base64: video_image,
+            no_selfie: noSelfieMode.value,
           },
         })
           .then((response) => {
@@ -406,6 +402,13 @@ const App = {
           });
         })
         .catch((err) => {
+          // 已經是電腦轉手機簽署後的嘗試，相機仍無法取得 → 免自拍簽約備援
+          // (不分錯誤原因，桌面端第一次失敗才用下方 alert + 轉手機的流程)
+          if (getUrlParameter("code") !== "null") {
+            showCameraPermissionModal();
+            throw err;
+          }
+
           switch (err.name) {
             case "NotAllowedError":
             case "PermissionDeniedError":
@@ -416,9 +419,6 @@ const App = {
             case "NotReadableError":
             case "TrackStartError":
               alert("找不到可用的攝影機裝置，請確認裝置已連接鏡頭");
-              break;
-            case "SecurityError":
-              alert("目前網頁非安全連線，無法使用相機");
               break;
             default:
               alert("相機發生未知錯誤");
@@ -438,6 +438,26 @@ const App = {
       if (typeof qrcode == "undefined" && member != null) {
         CreateQRCode(await GetEncrypt());
       }
+    };
+
+    //免自拍簽約：轉手機後仍無法取得相機時，顯示權限說明 + 免自拍備援
+    const showCameraPermissionModal = () => {
+      var ua = navigator.userAgent || "";
+      deviceTab.value = /android/i.test(ua) ? "android" : "iphone";
+      $("#camera_permission_modal").modal("show");
+    };
+
+    //重新檢查相機權限
+    const recheckCameraPermission = () => {
+      $("#camera_permission_modal").modal("hide");
+      VideoInit();
+    };
+
+    //進行免自拍簽約：略過相機，直接開簽名板
+    const startNoSelfieSign = () => {
+      $("#camera_permission_modal").modal("hide");
+      noSelfieMode.value = true;
+      showSignPad();
     };
     //加密
     const GetEncrypt = () => {
@@ -749,6 +769,62 @@ const App = {
       // window.location.href = '../Home/Index';
     };
 
+    // ---- 滑到底按鈕----
+    const signWrapper = ref(null);
+    const hasScrolledToBottom = ref(false);
+    const isDisabled = computed(() => {
+      return !hasScrolledToBottom.value;
+    });
+    const isShaking = ref(false);
+
+    const handleScroll = (event) => {
+      // 若已經滑到底過了則return
+      if (hasScrolledToBottom.value) return;
+
+      const el = event.target;
+      const isBottom =
+        Math.abs(el.scrollHeight - el.clientHeight - el.scrollTop) <= 1;
+
+      if (isBottom) {
+        hasScrolledToBottom.value = true;
+      }
+    };
+
+    const scrollToBottom = () => {
+      const el = signWrapper.value;
+      if (!el) return;
+      el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
+    };
+
+    // 按簽名
+    const signButton = () => {
+      if (isDisabled.value) {
+        triggerShake();
+        ElementPlus.ElMessage({
+          message: "請先閱讀約定書",
+          type: "warning",
+        });
+        return;
+      }
+
+      var member = JSON.parse(localStorage.getItem("member"));
+      if (member == null) {
+        $("#authentication-modal").modal("show");
+        return;
+      }
+
+      noSelfieMode.value = false; // 每次重新按下都重新嘗試相機，不沿用上次的免自拍選擇
+      VideoInit();
+    };
+
+    const triggerShake = () => {
+      if (isShaking.value) return; // 避免動畫還沒結束又被重複觸發、閃爍
+      isShaking.value = true;
+      setTimeout(() => {
+        isShaking.value = false;
+      }, 400); // 跟 CSS animation 時長一致
+    };
+
     showButton = () => {
       showSignButton.value = true;
     };
@@ -770,6 +846,19 @@ const App = {
       closeRegisterOK,
       showSignButton,
       test_order,
+
+      handleScroll,
+      scrollToBottom,
+      signWrapper,
+      hasScrolledToBottom,
+      hasScrolledToBottom,
+      isDisabled,
+      isShaking,
+
+      noSelfieMode,
+      deviceTab,
+      recheckCameraPermission,
+      startNoSelfieSign,
     };
   },
 };
