@@ -1,0 +1,445 @@
+
+<style>
+
+
+    .star_color {
+        color: #E4603C;
+    }
+
+    /* 驗證碼 */
+    .progessbar {
+        position: relative;
+        text-align: center;
+        border: 1px dashed blue;
+        height: 16px;
+        width: 100%;
+    }
+
+        .progessbar .text {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            line-height: 16px;
+            z-index: 10;
+            color: black;
+        }
+
+        .progessbar .bar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 16px;
+            background-color: DeepSkyBlue;
+        }
+
+    .snedCode_button {
+        background-color: #00af9a;
+        border-color: #00af9a;
+        color: white;
+    }
+
+    .disFunc {
+        pointer-events: none;
+    }
+</style>
+
+
+<div id="app" class="mt-3" style="min-height:600px">
+
+
+    <div class="row justify-content-center pt-4">
+        <div class="col-sm-10 col-lg-7 col-xxl-5">
+            <span>{{test_order}}</span>
+            <div class="d-flex justify-content-center mb-2">
+                <h3 class="fw-bold p-2" style="color:#00af9a">消費內容</h3>
+            </div>
+            <div class="card mb-3" style="border:solid 1px #00af9a;box-shadow:0 7px 14px 0 rgba(0, 175, 154, 0.1), 0 3px 6px 0 rgba(0, 0, 0, 0.07)">
+                <div class="overflow-hidden mb-3" style="min-width: 12rem">
+                    <div class="d-flex">
+                        <div class="p-2 flex-grow-1">商店名稱/代號<br><span class="fw-bold fs-1">{{json.store_name}}/{{json.store_no}}</span></div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="d-flex">
+                        <div class="p-2 flex-grow-1">商品名稱<br><span class="fw-bold fs-1">{{json.item}}</span></div>
+                        <div class="p-2">
+                            金額
+                            <a data-bs-toggle="tooltip" data-bs-placement="top" title="月付金額不可低於800元">
+                                <span class="fas fa-info-circle"></span>
+                            </a>
+                            <br>
+                            <input style="width:11rem;" class="form-control" type="number" placeholder="請輸入金額" @@input="cashChanged($event)" v-model.trim="json.price" />
+                        </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <div class="d-flex justify-content-center mb-2">
+                        <div class="">
+                            <button class="btn btn-primary m-0" @@click="tryPay(json.price)" style="background-color:#00af9a;border-color:#00af9a" type="button">試算</button>
+                        </div>
+                    </div>
+                    <div v-if="show_preiod_div" class="d-flex">
+                        <div class="p-2 flex-grow-1">分期期數及月付金</div>
+                        <div class="p-2">
+                            <select @@change="Change(selected)" v-model="selected" class="form-select js-choice" id="organizerSingle" size="1" name="organizerSingle" data-options='{"removeItemButton":true,"placeholder":true}'>
+                                <option value="">--選擇期數及金額--</option>
+                                <option v-for="v in periods" :value="v" v-text="v.n + '期 '+ v.cash +'元'"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div v-if="showPayDetail">
+                        <div class="dropdown-divider"></div>
+                        <div class="d-flex">
+                            <div class="p-2 flex-grow-1">毎月應繳</div>
+                            <div class="p-2 fs-2 fs-md-2 fs-lg-2" style="color:#00af9a;">NT${{parseInt(json.kc_perd_fee).toLocaleString() }}</div>
+                        </div>
+                        @*<div class="d-flex">
+                                <div class="p-2 flex-grow-1">手續費</div>
+                                <div class="p-2">${{json.exp.toLocaleString()}} </div>
+                            </div>
+                            <div class="d-flex">
+                                <div class="p-2 flex-grow-1">應付總金額</div>
+                                <div class="p-2">${{(parseInt(json.price) +  (json.kc_perd_fee * selected) - parseInt(json.price)).toLocaleString()}}</div>
+                            </div>*@
+                        <div class="dropdown-divider"></div>
+                        <div class="d-flex justify-content-center mb-2">
+                            <button class="btn btn-primary m-1" style="background-color:#00af9a;border-color:#00af9a" type="button" @@click="showOTP(parseInt(json.price))">確認訂單</button>
+                            @*<button class="btn btn-primary m-1" style="background-color:#00af9a;border-color:#00af9a" type="button" @@click="clearOrder()">取消訂單</button>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @* OTP訊息 *@
+    <div class="modal fade" id="otp_msg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1  fw-bold" style="color:#00af9a">確定結帳</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <form class="mb-3">
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">商店名稱/代號：{{json.store_name}}/{{json.store_no}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">商品名稱：{{json.item}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">分期期數：{{selected.n}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">毎月應繳：NT${{parseInt(json.kc_perd_fee).toLocaleString() }}</label>
+                                    </div>
+                                </form>
+
+                                @* --- *@
+                                <div v-show="showBar" class="progessbar">
+                                    <div class="text"></div>
+                                    <div class="bar"></div>
+                                </div>
+                                <div class="msg"></div>
+                                @* ---- *@
+                                <div class="mb-1"></div>
+                                <div class="col-12 mb-3">
+                                    <span>發送至&nbsp;{{mobile}}&nbsp;&nbsp;</span>
+                                    <div :class="[sendCoded ? 'btn-secondary disFunc' : 'snedCode_button','btn']" style="margin-left:10px;" @@click="sendOTP()">發送驗證碼</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <input class="form-control" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="\d{6}" placeholder="請輸入OTP驗證碼" v-model.trim="verify_code" />
+                                    </div>
+                                </div>
+                                <div v-show="showtxtMsg" class="col-12 mb-5">
+                                    <h6 class="text-danger">請於5分鐘內輸入簡訊驗證碼，按確認</h6>
+                                </div>
+                                <div class="d-flex justify-content-center mb-3">
+                                    <button style="background-color:#00af9a;border-color:#00af9a;width:80%;" class="btn btn-primary px-5" @@click="confirm(json,selected)" type="submit">確 認</button>
+                                </div>
+                                <h5 style="margin-bottom:2.25rem"></h5>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* 已完成訂單 *@
+    <div class="modal fade" id="orderConfirm_modal" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    @*<button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>*@
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1 fw-bold" style="color:#00af9a;">已完成訂單</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <form class="mb-3">
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">消費時間：{{confirmOrder.kc_updt_date}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">商店名稱：{{confirmOrder.store_name}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">商品名稱：{{confirmOrder.kc_car_model}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">共分幾期：{{confirmOrder.kc_loan_perd}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">毎期應繳：{{confirmOrder.kc_perd_fee}}</label>
+                                    </div>
+                                    @*<div class="mb-0">
+                                            <label class="form-label fw-bold fs-1 fs-lg-1">應繳總金額：{{confirmOrder.kc_give_amt}}</label>
+                                        </div>*@
+
+                                </form>
+                                @*<div class="d-flex justify-content-center mb-4">
+                                        <button style="background-color:#00af9a;border-color:#00af9a;width:70%;" data-bs-dismiss="modal" class="btn btn-primary px-5" type="submit">關 閉</button>
+                                    </div>*@
+                                <div class="d-flex justify-content-center mb-4">
+                                    <a href="~/Home/Index"><button style="background-color:#00af9a;border-color:#00af9a;" class="btn btn-primary me-3" type="submit">返回首頁</button></a>
+                                    <a href="~/Home/MemberOrder"><button style="background-color:#00af9a;border-color:#00af9a;" class="btn btn-primary" type="submit">查看訂單紀錄</button></a>
+                                </div>
+                                <p class="text-danger bg-light">請於下個月10號前繳款，維持自身良好信譽，可由「我的帳單」中查詢</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* 逾期不能消費 *@
+    <div class="modal fade" id="notCust_modal" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    @*<button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>*@
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1 fw-bold" style="color:#00af9a;">未繳帳單</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <form class="mb-3">
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">您有逾期未繳帳單。<br>請先完成繳納後，再進行消費。</label>
+                                    </div>
+
+                                </form>
+                                <div class="d-flex justify-content-center mb-4">
+                                    <a href="~/Home/Account">
+                                        <div style="background-color:#00af9a;border-color:#00af9a;" class="btn btn-primary px-5">立即繳款</div>
+                                    </a>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    @* 額度不足 *@
+    @*<div class="modal fade" id="change_cash_modal" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+            <div class="modal-dialog mt-6" role="document">
+                <div class="modal-content border-0">
+                    <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    </div>
+                    <div class="modal-body p-0">
+                        <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                            <h4 class="mb-1 fw-bold" style="color:#00af9a;">額度不足</h4>
+                        </div>
+                        <div class="p-4 pb-0">
+                            <div class="row">
+                                <div class="col">
+                                    <form class="mb-3">
+                                        <div class="mb-0">
+                                            <label class="form-label fw-bold fs-1 fs-lg-1">帳戶可用額度不足，<br>您可以申請提高額度後，完成此筆訂單。</label>
+                                        </div>
+                                    </form>
+                                    <div class="d-flex justify-content-center mb-4">
+                                        <a href="~/Home/AmountUp">
+                                            <div style="background-color:#00af9a;border-color:#00af9a;" class="btn btn-primary px-5">申請額度變更</div>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+    @* 註冊帶訂單及超額 *@
+    <div class="modal fade" id="nonMember_orderConfirm_modal" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    @*<button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>*@
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1 fw-bold" style="color:#00af9a;">確定結帳</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <form class="mb-3">
+                                    @*<div class="mb-0">
+                                            <label class="form-label fw-bold fs-1 fs-lg-1">消費時間：{{confirmOrder.kc_updt_date}}</label>
+                                        </div>*@
+
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">商店名稱：{{json.store_name}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">商品名稱：{{json.item}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">共分幾期：{{selected.n}}</label>
+                                    </div>
+                                    <div class="mb-0">
+                                        <label class="form-label fw-bold fs-1 fs-lg-1">毎期應繳：NT${{parseInt(json.kc_perd_fee).toLocaleString() }}</label>
+                                    </div>
+                                </form>
+                                <div class="d-flex justify-content-center mb-4">
+                                    <button @@click="nonMemberConfirm(json,selected)" style="background-color:#00af9a;border-color:#00af9a;" class="btn btn-primary" type="submit">確 認</button>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    @* 照會時間(註冊帶訂單及超額) *@
+    <div class="modal fade" id="finishmsg" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1 fw-bold" style="color:#00af9a" id="tooltippopoversLabel">申請完成</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                @*<h5 style="margin-bottom:1.15rem" v-text="msg"></h5>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+
+                            <div class="col">
+                                <h5 class="p-2">已收到您的申請資料，我們將盡快審核您的本次訂單，審查結果將以簡訊通知。</h5>
+                                <h5 class="p-2">方便聯絡您的時間：</h5>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio1" type="radio" name="inlineRadioOptions" value="10:00~13:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio1">10: 00~13: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio2" type="radio" name="inlineRadioOptions" value="13:00~16:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio2">13: 00~16: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio3" type="radio" name="inlineRadioOptions" value="16:00~18:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio3">16: 00~18: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio4" type="radio" name="inlineRadioOptions" value="18:00~21:00" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio4">18: 00~21: 00</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" id="inlineRadio5" type="radio" name="inlineRadioOptions" value="不限時間" v-model="checked" />
+                                    <label class="form-check-label fs-0 fs-lg-0" for="inlineRadio5">不限時間</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 pb-0">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-center mb-2">
+                                <button class="btn btn-primary" style="width:19rem;background-color:#00af9a;border-color:#00af9a;" @@click="Close(checked)">完 成</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @* 額度不足(超額) 提示申請額度 *@
+    <div class="modal fade" id="cash-ample-modal" tabindex="-1" data-bs-keyboard="false" data-bs-backdrop="static" aria-labelledby="tooltippopoversLabel" aria-hidden="true" style="z-index:10001">
+        <div class="modal-dialog mt-6" role="document">
+            <div class="modal-content border-0">
+                <div class="position-absolute top-0 end-0 mt-2 me-2 z-index-1">
+                    <button class="btn-close btn btn-sm btn-circle d-flex flex-center transition-base" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <div class="bg-light rounded-top-lg py-3 ps-4 pe-6">
+                        <h4 class="mb-1 fw-bold" style="color:#00af9a" id="tooltippopoversLabel">額度不足</h4>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                @*<h5 style="margin-bottom:1.15rem" v-text="msg"></h5>*@
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 pb-0">
+                        <div class="row">
+                            <div class="col">
+                                <h5 class="p-2">目前剩餘額度不足，無法完成訂單。</h5>
+                                <h5 class="p-2">您可以申請專人審核。</h5>
+                                <h5 class="p-2">審核通過後即自動完成訂單交易。</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-2 pb-0">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-center mb-2">
+                                <button class="btn btn-primary" style="width:19rem;background-color:#00af9a;border-color:#00af9a;" @@click="ApplyCash()">立即申請</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="~/js/common.js?v=1.1"></script>
+<script src="~/js/order_3.js?v=2.2"></script>
