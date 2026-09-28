@@ -106,21 +106,18 @@ const App = {
         sign_show = true;
         //if (count == 0) {
 
+        // 注意：<canvas> 的 width/height attribute 只能是純數字(內部解析度像素數)
         let canvas = $("#signature-pad");
         let parentWidth = $(canvas).parent().outerWidth();
         let parentHeight = $(canvas).parent().outerHeight();
-        canvas
-          .attr("width", parentWidth + "px")
-          .attr("height", parentHeight + "px");
+        canvas.attr("width", parentWidth).attr("height", parentHeight);
         signaturePad.clear(); //init
 
         //--
         let canvas_video = $("#video-pad");
         let parentWidth2 = $(canvas_video).parent().outerWidth();
         let parentHeight2 = $(canvas_video).parent().outerHeight();
-        canvas_video
-          .attr("width", parentWidth2 + "px")
-          .attr("height", parentHeight2 + "px");
+        canvas_video.attr("width", parentWidth2).attr("height", parentHeight2);
 
         //};
         // count = count + 1;
@@ -552,18 +549,89 @@ const App = {
     };
 
     // 此為無限遞迴 raF，關掉 modal 或下一次VideoInit時才會停
+    // 每一個 rAF tick 都會把 <video> 目前播放到的那一影格畫進 <canvas>，
+    // 效果就像「即時預覽」，一直重畫才會看起來像動態影像
     getFrameFromVideo = (video, canvas) => {
       const ctx = canvas.getContext("2d");
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // cw/ch = 畫布的「內部解析度」(canvas.width/height attribute 換算出來的像素數)，
+      // 不是 CSS 顯示大小。之後畫面就是要填滿這個 cw x ch 的畫布
+      const cw = canvas.width;
+      const ch = canvas.height;
+      ctx.clearRect(0, 0, cw, ch); // 清空上一影格殘留的畫面，避免疊影
       ctx.shadowColor = "rgb(255, 255, 255)";
       //SignaturePad.prototype.removeBlanks(ctx);
 
+      // vw/vh = 相機串流「原生」的影格解析度(例如常見的 640x480、1280x720)，
+      // 跟畫布的 cw/ch 幾乎不會是同一個比例(cw/ch 是照畫面容器大小決定的)。
+      // 若直接把整段原生影格硬塞進 cw x ch 的框(舊寫法 drawImage(video,0,0,video.width,video.height))，
+      // 等於 X 軸和 Y 軸用不同倍率縮放，比例對不上就會出現「人變寬/變扁」的變形。
+      // 這裡改用類似 CSS object-fit: cover 的做法：等比例縮放後，
+      // 置中裁掉超出畫布範圍的部分，維持原始長寬比、不變形。
+      const vw = video.videoWidth;
+      const vh = video.videoHeight;
+
+      // sx, sy, sw, sh = 要從「原生影格」裡截取的來源矩形(source rect)
+      // 預設(還沒算出裁切前) sw/sh 先等於整個原生尺寸，等於「不裁切」
+      let sx = 0,
+        sy = 0,
+        sw = vw,
+        sh = vh;
+
+      if (vw && vh) {
+        // scale：把原生影格放大/縮小到「至少能蓋滿畫布」所需要的倍率。
+        // 用 Math.max 而非 min，是因為 cover 的定義是「兩邊都要蓋滿，允許裁掉多出來的部分」，
+        // 若用 min 會變成 contain(整段完整顯示但畫布會留白)。
+        // 例如 cw=800,ch=400,vw=640,vh=480 → cw/vw=1.25, ch/vh=0.83 → scale取1.25(較大值)，
+        // 代表要把原生影格放大 1.25 倍，寬度才會剛好等於畫布寬 800，
+        // 但此時高度會變成 480*1.25=600，比畫布的 400 多出 200，這多出來的部分就要裁掉。
+        const scale = Math.max(cw / vw, ch / vh);
+
+        // sw, sh：反推「用這個倍率放大後，要能填滿 cw x ch」的話，
+        // 原生影格裡實際需要取用的寬高各是多少(還沒放大前的尺寸)
+        // sw = cw / scale, sh = ch / scale
+        // 接續上面例子：sw = 800/1.25 = 640 (剛好等於原生寬 640，寬度整個不裁)
+        //              sh = 400/1.25 = 320 (小於原生高 480，代表高度要裁掉一部分)
+        // 也就是原生 640x480 這張影格，這次只會取中間「640 x 320」這一塊，
+        // 寬度全取、高度只取一部分，放大 1.25 倍後畫出來就會剛好是 800x400，
+        // 跟目標畫布比例一致，不會變形。
+        sw = cw / scale;
+        sh = ch / scale;
+
+        // sx, sy：把要截取的 sw x sh 這塊區域置中(座標系是原生影格自己的左上角為0,0)，
+        // 所以左右(或上下)各裁掉 (原生尺寸 - 要取用的尺寸) 的一半
+        // 接續上面例子：sx = (640-640)/2 = 0   (寬度沒裁，起點就是最左邊 0)
+        //              sy = (480-320)/2 = 80  (高度裁掉了160px，上下各切80px，所以從 y=80 開始取)
+        // 也就是最終會從原生影格的 (0, 80) 這個點開始，往右取640px、往下取320px，
+        // 等於把原始畫面「上、下各切掉80px」(黑邊/多餘畫面)，取中間最可能有臉的那一段，
+        // 再放大填滿整個 800x400 的畫布 → sx/sy 決定「從哪個角落開始挖」，
+        // sw/sh 決定「挖多大一塊」，挖出來的比例保證跟畫布一致，所以不會變形。
+        sx = (vw - sw) / 2;
+        sy = (vh - sh) / 2;
+      }
+
       // 因串流取得的自拍畫面為類似監視器視角，故需反轉
+      // (前鏡頭自拍預覽習慣是「鏡像」，也就是我們平常照鏡子看到的方向，
+      //  但相機原始串流其實是「別人看你」的方向，左右是相反的，所以要左右翻轉)
       ctx.save();
-      ctx.translate(video.width - changeWidth, 0); //橫式 - changeWidth
+      // translate 把畫布座標系原點右移到 (cw - changeWidth, 0)，
+      // 配合下面的 scale(-1, 1) 做「水平鏡像」：
+      // scale(-1,1) 只是把 X 軸反過來畫(往左畫)，若不先 translate，
+      // 畫出來的東西會整個跑到畫布外面看不到，所以要先把原點移過去，
+      // 讓「反著畫」的結果剛好落回畫布可視範圍內。
+      // changeWidth 是橫式模式(landscape)時的位移修正值(見 showSignPad)，直式為 0。
+      ctx.translate(cw - changeWidth, 0); //橫式 - changeWidth
       ctx.scale(-1, 1);
       //ctx.scale(1, 1);
-      ctx.drawImage(video, 0, 0, video.width, video.height);
+      if (vw && vh) {
+        // drawImage 這裡用的是 9 個參數的版本：
+        // drawImage(來源影像, sx, sy, sw, sh,  dx, dy, dWidth, dHeight)
+        //           ─────────  來源矩形(裁切範圍)  ─  目的矩形(畫在canvas哪裡/多大)
+        // 前 5 個參數：從 video 的原生影格中，裁出「以 (sx,sy) 為左上角、大小 sw x sh」的區域
+        // 後 4 個參數：把裁出來的這塊區域，畫到 canvas 上「以 (0,0) 為左上角、大小 cw x ch」的區域，
+        //             因為 sw/sh 是照 cw/ch 的比例反推回來的，所以這一步是「等比例縮放」，不會變形
+        ctx.drawImage(video, sx, sy, sw, sh, 0, 0, cw, ch);
+      }
       ctx.restore();
 
       frameLoopHandle = requestAnimationFrame(() =>
