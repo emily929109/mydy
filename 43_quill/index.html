@@ -1,0 +1,170 @@
+<!-- Include stylesheet -->
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+
+<style>
+  /* 嵌入影片樣式（編輯器內與前台顯示頁都要引入） */
+  iframe.ql-video {
+    display: block;
+    border: 0;
+    margin: 12px auto;
+  }
+  iframe.ql-video.ql-video-youtube {
+    width: 100%;
+    max-width: 640px;
+    aspect-ratio: 16 / 9;
+    height: auto;
+  }
+  iframe.ql-video.ql-video-youtube-shorts {
+    width: 100%;
+    max-width: 360px;
+    aspect-ratio: 9 / 16;
+    height: auto;
+  }
+  iframe.ql-video.ql-video-instagram {
+    width: 100%;
+    max-width: 400px;
+    height: 720px;
+    background: #fff;
+  }
+</style>
+
+<!-- Create the editor container -->
+<div id="editor">
+  <p>Hello World!</p>
+  <p>Some initial <strong>bold</strong> text</p>
+  <p><br /></p>
+</div>
+
+<p><button id="show-html" type="button">輸出 HTML</button></p>
+<pre id="output" style="white-space: pre-wrap; word-break: break-all;"></pre>
+
+<!-- Include the Quill library -->
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+
+<!-- Initialize Quill editor -->
+<script>
+  // 把使用者貼上的網址轉成可嵌入的 iframe 網址，不支援則回傳 null
+  function toEmbedUrl(input) {
+    let url;
+    try {
+      url = new URL(input.trim());
+    } catch (e) {
+      return null;
+    }
+    const host = url.hostname.replace(/^(www\.|m\.)/, '');
+    const path = url.pathname.split('/').filter(Boolean);
+
+    // YouTube: watch?v=、youtu.be/、shorts/、embed/、live/
+    let ytId = null;
+    let isShorts = false;
+    if (host === 'youtu.be') {
+      ytId = path[0];
+    } else if (host === 'youtube.com' || host === 'youtube-nocookie.com') {
+      if (path[0] === 'watch') ytId = url.searchParams.get('v');
+      else if (['embed', 'shorts', 'live'].includes(path[0])) ytId = path[1];
+      isShorts = path[0] === 'shorts' || url.searchParams.get('shorts') === '1';
+    }
+    if (ytId && /^[\w-]{11}$/.test(ytId)) {
+      const embed = new URL(`https://www.youtube.com/embed/${ytId}`);
+      const t = url.searchParams.get('t') || url.searchParams.get('start');
+      const seconds = t ? parseTime(t) : 0;
+      if (seconds) embed.searchParams.set('start', seconds);
+      if (isShorts) embed.searchParams.set('shorts', '1'); // 用來判斷直式比例
+      return embed.toString();
+    }
+
+    // Instagram: /p/、/reel/、/reels/、/tv/（可能帶帳號前綴 /username/reel/xxx）
+    if (host === 'instagram.com') {
+      const i = path.findIndex((s) => ['p', 'reel', 'reels', 'tv'].includes(s));
+      const code = i >= 0 ? path[i + 1] : null;
+      if (code && /^[\w-]+$/.test(code)) {
+        const type = path[i] === 'reels' ? 'reel' : path[i];
+        return `https://www.instagram.com/${type}/${code}/embed/`;
+      }
+    }
+
+    return null;
+  }
+
+  // 支援 "90"、"90s"、"1m30s"、"1h2m3s"
+  function parseTime(t) {
+    if (/^\d+$/.test(t)) return Number(t);
+    const m = t.match(/^(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?$/);
+    if (!m) return 0;
+    return (Number(m[1]) || 0) * 3600 + (Number(m[2]) || 0) * 60 + (Number(m[3]) || 0);
+  }
+
+  function platformClass(src) {
+    if (src.startsWith('https://www.youtube.com/embed/')) {
+      return src.includes('shorts=1') ? 'ql-video-youtube-shorts' : 'ql-video-youtube';
+    }
+    if (src.startsWith('https://www.instagram.com/')) return 'ql-video-instagram';
+    return null;
+  }
+
+  // 覆寫 Quill 內建的 video blot，只允許白名單平台的 iframe
+  const BlockEmbed = Quill.import('blots/block/embed');
+
+  class VideoEmbed extends BlockEmbed {
+    static blotName = 'video';
+    static tagName = 'IFRAME';
+    static className = 'ql-video';
+
+    static create(value) {
+      const node = super.create(value);
+      const src = toEmbedUrl(value) || '';
+      const cls = platformClass(src);
+      node.setAttribute('src', cls ? src : 'about:blank');
+      if (cls) node.classList.add(cls);
+      node.setAttribute('frameborder', '0');
+      node.setAttribute('allowfullscreen', 'true');
+      node.setAttribute('scrolling', 'no');
+      node.setAttribute(
+        'allow',
+        'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+      );
+      return node;
+    }
+
+    static value(node) {
+      return node.getAttribute('src');
+    }
+  }
+
+  Quill.register(VideoEmbed, true);
+
+  const quill = new Quill('#editor', {
+    theme: 'snow',
+    modules: {
+      toolbar: {
+        container: [
+          [{ header: [1, 2, 3, false] }],
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ list: 'ordered' }, { list: 'bullet' }],
+          ['link', 'image', 'video'],
+          ['clean'],
+        ],
+        handlers: {
+          video: insertVideo,
+        },
+      },
+    },
+  });
+
+  function insertVideo() {
+    const input = prompt('請貼上 YouTube 或 Instagram 影片網址：');
+    if (!input) return;
+    const embedUrl = toEmbedUrl(input);
+    if (!embedUrl) {
+      alert('無法辨識的網址，目前支援 YouTube（含 Shorts）與 Instagram（貼文 / Reels）。');
+      return;
+    }
+    const range = quill.getSelection(true);
+    quill.insertEmbed(range.index, 'video', embedUrl, Quill.sources.USER);
+    quill.setSelection(range.index + 1, Quill.sources.SILENT);
+  }
+
+  document.getElementById('show-html').addEventListener('click', () => {
+    document.getElementById('output').textContent = quill.getSemanticHTML();
+  });
+</script>
