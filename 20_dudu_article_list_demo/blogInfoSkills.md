@@ -15,7 +15,7 @@
 | `id`            | String  | 文章唯一識別碼（建議使用原始檔名），列表 `href` 與內頁查找都以此為主鍵。                                                                                                  |
 | `href`          | String  | 卡片點擊連結。一般文章固定格式 `/Home/News?id={id}`；若此筆資料是導向站內其他頁面（見 `isNotNews`），則填該頁面實際路徑（例如 `/Home/Travel`）。                          |
 | `img`           | String  | 列表卡片縮圖路徑（統一使用 `/` 開頭）。                                                                                                                                   |
-| `listTitle`     | String  | 列表卡片顯示標題（同時作為卡片摘要文字，非文章全文）。                                                                                                                    |
+| `listTitle`     | String  | 列表頁標題。                                                                        |
 | `category`      | String  | 文章分類，實際可用值：`promotion`（活動訊息）、`announcement`（重要公告）、`pet-life`（萌寵生活）、`explore`（探索旅程）。                                                |
 | `releaseDate`   | String  | 顯示用發布日期，格式 `YYYY/MM/DD`。與 `promoStart`/`promoEnd` 無關。                                                                                                      |
 | `banner`        | String  | 文章內頁頂部橫幅圖片路徑（統一使用 `/` 開頭）。                                                                                                                           |
@@ -27,7 +27,7 @@
 | `homeBannerSeq` | Number  | （選填）`isHomeBanner` 為 `true` 時的輪播排序，數字越小越優先顯示。                                                                                                       |
 | `isNewsBanner`  | Boolean | （選填）是否顯示於「消息中心」頁頂輪播 banner。設為 `true` 時須同時提供 `newsBannerSeq`。                                                                                 |
 | `newsBannerSeq` | Number  | （選填）`isNewsBanner` 為 `true` 時的輪播排序，數字越小越優先顯示。                                                                                                       |
-| `isNotNews`     | Boolean | （選填）標記此筆資料並非站內文章，僅作為列表／首頁的導流入口（`href` 指向其他頁面）。設為 `true` 時可省略 `contentTitle` 與 `content`，且不會出現在文章列表與分類頁籤中。 |
+| `isNotNews`     | Boolean | （選填）此筆資料沒有文章，僅作為首頁的導流入口（`href` 指向其他頁面）。設為 `true` 時可省略 `contentTitle`  `content` `listTitle`，且不會出現在文章列表與分類頁籤中。 |
 
 `promoStart`/`promoEnd` 只在需要限時顯示的文章上加註；一般文章不需要這兩個欄位。`homeBannerSeq`/`newsBannerSeq` 僅在對應的 `isHomeBanner`/`isNewsBanner` 為 `true` 時才需要填寫。
 
