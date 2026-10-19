@@ -66,34 +66,7 @@ namespace DuDuPay.Models
         /// <returns></returns>
         public Object SendMobileCode(string mobile)
         {
-            Common c = new Common();
-            int otp_code = c.GetRandomMumber();//get random code           
-            return c.SendMobileWithChinese("1022", mobile, otp_code.ToString());
-
-            //CallApi.MobileApi mobileApi = new CallApi.MobileApi();
-            ////string one_time_code = ConfigurationManager.AppSettings["one_time_code"];
-            ////string body = string.Format("【DUDUPAY】您的驗證碼為：{0}，請於本公司系統驗證，將於5分鐘內失效，請於時間內輸入以完成認證，謝謝！ {1} #{0}", otp_code, one_time_code);
-            //string body = string.Format("【DUDUPAY】您的驗證碼為：{0}，請於本公司系統驗證，將於5分鐘內失效，請於時間內輸入以完成認證，謝謝！", otp_code);
-
-
-            //var result = mobileApi.SendSignMobile(mobile, body, "C");
-            //if (result.success)
-            //{
-            //    return new Layout.ReturnMsg()
-            //    {
-            //        success = true,
-            //        value = otp_code
-            //    };
-            //}
-            //else
-            //{
-            //    new Common().WriteErrorLog(1, "傳送簡訊碼", mobile + result.msg, null, null, null, null, null);
-            //    return new Layout.ReturnMsg()
-            //    {
-            //        success = false,
-            //        msg = result.msg
-            //    };
-            //}
+            return new AnonymousOtpDA().SendMobileCode(mobile);
         }
 
 
@@ -1300,6 +1273,8 @@ namespace DuDuPay.Models
                             if (m != null)
                             {
                                 m.cp_no = cp_no;
+                                //跟 kc_cpsignature 同一次 SaveChanges 標記已簽約，不受後面搬照片成敗影響；訂單頁依此顯示確認訂單
+                                m.isSigned = true;
                                 //m.member_source = "DUDU";//eantodo
                                 //m.email_verify = "*";
                                 //m.mobile_verify = "*";
@@ -1347,8 +1322,7 @@ namespace DuDuPay.Models
                         return new Layout.ReturnMsg() { success = false, msg = ex.Message, };
                     }
 
-                    Layout.ReturnMsg returnMsg = new Utilities().MoveImageFileToScan3CoverFinishDelete(cp_no, m.mobile, m.id, "超額-註冊完成");
-                    return returnMsg;
+                    return new Utilities().MoveImageFileToScan3CoverFinishDelete(cp_no, m.mobile, m.id, "超額-註冊完成");
                 default:
                     break;
             }
@@ -2437,7 +2411,7 @@ namespace DuDuPay.Models
                         return new
                         {
                             success = false,
-                            msg = "CheckIdNo"
+                            msg = "此身分證字號曾經註冊過"
                         };
                     }
 
@@ -2563,6 +2537,7 @@ namespace DuDuPay.Models
                         {
                             success = true,
                             order_type = "超額",
+                            isSigned = member.isSigned == true,//簽約頁 FinishRegister 完成才為 true
                             trade_info = member.trade_info,
                             trade_url = member.trade_url
                         };

@@ -1266,6 +1266,7 @@ namespace DuDuPay.Models
                     member.trade_type = trade_type;
                     member.trade_info = trade_info;
                     member.trade_url = trade_url;
+                    member.isSigned = false;//重寫交易資訊即為新的申請，須重新簽約(FinishRegister)
                     db.z_Member.Attach(member);
                     db.Entry(member).State = EntityState.Modified;
                     db.SaveChanges();
@@ -1279,6 +1280,18 @@ namespace DuDuPay.Models
         public void ClearMemberTradeType(int member_id)
         {
             WriteMemberTradeType(member_id, null, null, null);
+        }
+
+        //超額下單前確認已簽約，避免只按過確認訂單(未填資料/簽約)就成立訂單；非超額回 null
+        public Layout.ReturnMsg CheckOverOrderSigned(int member_id, string order_type)
+        {
+            if (order_type != "超額") return null;
+            using (var db = new kcsddb2Entities_new())
+            {
+                var isSigned = db.z_Member.Where(x => x.id == member_id).Select(x => x.isSigned).FirstOrDefault();
+                if (isSigned == true) return null;
+            }
+            return new Layout.ReturnMsg() { success = false, msg = "額度申請尚未完成簽約，請重新掃描 QR Code 申請" };
         }
 
         #region 是否已經核准交易
