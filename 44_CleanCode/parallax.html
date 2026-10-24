@@ -1,0 +1,740 @@
+<title>滑鼠視差方塊</title>
+<meta name="claude:viewport-fit-sides" content="cover" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Noto+Sans+TC:wght@400;500;700&display=swap"
+/>
+<style>
+  /* Layout: 全寬視差 hero（示範本體）→ 控制面板 + 倍率表 → 核心程式碼 */
+  :root {
+    --bg: #11121a;
+    --surface: #1a1c27;
+    --line: #2c2f40;
+    --fg: #e9e7f0;
+    --muted: #9a98ab;
+    --accent: #f2b45a;
+    --glow-a: #f2b45a;
+    --glow-b: #e0567a;
+    --tile: rgb(255 255 255 / 0.1);
+    --tile-bright: rgb(255 255 255 / 0.06);
+    --tile-dull: rgb(255 255 255 / 0.03);
+    --font-display:
+      "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    --font-body:
+      "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --range: 96px; /* 6rem，跟原站一樣 */
+    color-scheme: dark;
+  }
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    position: relative;
+    overflow: hidden;
+    min-height: 460px;
+    height: min(78vh, 680px);
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+    border-bottom: 1px solid var(--line);
+    touch-action: pan-y;
+  }
+  .hero-glow {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(
+        60% 55% at 50% 100%,
+        color-mix(in srgb, var(--glow-b) 45%, transparent),
+        transparent 70%
+      ),
+      radial-gradient(
+        40% 40% at 50% 85%,
+        color-mix(in srgb, var(--glow-a) 35%, transparent),
+        transparent 70%
+      );
+  }
+  .tiles {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    place-items: center;
+    perspective: var(--persp, 350px);
+    pointer-events: none;
+  }
+  .tiles.flat {
+    perspective: none;
+  }
+  .z {
+    transform-style: preserve-3d;
+  }
+  .z[data-d="2"] {
+    transform: translate3d(0, 0, 96px);
+  }
+  .z[data-d="1"] {
+    transform: translate3d(0, 0, 48px);
+  }
+  .z[data-d="-1"] {
+    transform: translate3d(0, 0, -48px);
+  }
+  .z[data-d="-2"] {
+    transform: translate3d(0, 0, -96px);
+  }
+  .z.faded {
+    opacity: 0.31;
+  }
+  .xy {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1rem;
+    background: var(--tile);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font: 600 0.8rem/1 var(--font-mono);
+    letter-spacing: 0.02em;
+    color: rgb(255 255 255 / 0.6);
+    transform: translate(var(--mx, 0px), var(--my, 0px));
+    will-change: transform;
+    position: relative;
+  }
+  .xy.bright {
+    background: var(--tile-bright);
+  }
+  .xy.dull {
+    background: var(--tile-dull);
+  }
+  .xy.outline {
+    background: transparent;
+    border: 1px solid var(--tile);
+  }
+  .xy.blank {
+    background: transparent;
+  }
+  .xy .tag {
+    position: absolute;
+    top: -0.55rem;
+    right: -0.55rem;
+    min-width: 1.5rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.4rem;
+    font: 600 0.65rem/1.2 var(--font-mono);
+    background: var(--accent);
+    color: var(--bg);
+    text-align: center;
+    display: none;
+  }
+  .show-tags .xy .tag {
+    display: block;
+  }
+  .show-tags .xy.blank {
+    outline: 1px dashed rgb(255 255 255 / 0.2);
+  }
+
+  .cells {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .cells span {
+    border: 1px dashed color-mix(in srgb, var(--accent) 40%, transparent);
+  }
+  .show-cells .cells {
+    opacity: 1;
+  }
+
+  .hero-copy {
+    text-align: center;
+    padding-inline: max(16px, env(safe-area-inset-left, 0px))
+      max(16px, env(safe-area-inset-right, 0px));
+    max-width: 44rem;
+  }
+  .eyebrow {
+    font: 600 0.75rem/1 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0.8rem 0 0.6rem;
+    text-wrap: balance;
+  }
+  h1 span {
+    background: linear-gradient(90deg, var(--glow-a), var(--glow-b));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-copy p {
+    color: var(--muted);
+    margin: 0 auto;
+    max-width: 34rem;
+    text-wrap: balance;
+  }
+  .status {
+    position: absolute;
+    left: max(16px, env(safe-area-inset-left, 0px));
+    bottom: 14px;
+    font: 0.75rem/1 var(--font-mono);
+    color: var(--muted);
+  }
+
+  /* ---------- Content ---------- */
+  .wrap {
+    max-width: 68rem;
+    margin: 0 auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 2.5rem 4rem;
+    display: grid;
+    gap: 2.5rem;
+  }
+  .panel-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1.5rem;
+  }
+  @media (max-width: 820px) {
+    .panel-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin: 0 0 1rem;
+    letter-spacing: 0.01em;
+  }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 1.4rem 1.4rem 1.5rem;
+    min-width: 0;
+  }
+  .controls {
+    display: grid;
+    gap: 1.1rem;
+  }
+  .check {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    cursor: pointer;
+  }
+  .check input {
+    margin-top: 0.35rem;
+    accent-color: var(--accent);
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+  }
+  .check small {
+    display: block;
+    color: var(--muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+  }
+  .slider label {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .slider output {
+    font-family: var(--font-mono);
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .slider input {
+    width: 100%;
+    accent-color: var(--accent);
+  }
+  .slider small {
+    color: var(--muted);
+    font-size: 0.82rem;
+  }
+  input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  th,
+  td {
+    text-align: right;
+    padding: 0.55rem 0.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+  th:first-child,
+  td:first-child {
+    text-align: left;
+  }
+  th {
+    font: 600 0.72rem/1.2 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  td {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+  }
+  td .bar {
+    display: inline-block;
+    height: 0.5rem;
+    border-radius: 1rem;
+    background: var(--accent);
+    vertical-align: middle;
+    margin-right: 0.5rem;
+    transition: width 0.2s;
+  }
+  .formula {
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .formula code {
+    color: var(--fg);
+  }
+
+  .notes {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.5rem;
+  }
+  @media (max-width: 820px) {
+    .notes {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .notes h3 {
+    font-size: 0.95rem;
+    margin: 0 0 0.35rem;
+  }
+  .notes p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .code-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  @media (max-width: 980px) {
+    .code-row {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  .code {
+    min-width: 0;
+  }
+  .code .label {
+    font: 600 0.72rem/1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+  pre {
+    margin: 0;
+    overflow-x: auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1rem;
+    font: 0.78rem/1.6 var(--font-mono);
+    color: var(--fg);
+  }
+  pre .c {
+    color: var(--muted);
+  }
+  pre .k {
+    color: var(--accent);
+  }
+
+  @media (max-width: 767px) {
+    .xy {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 0.6rem;
+      font-size: 0.55rem;
+    }
+    .tiles {
+      opacity: 0.7;
+    }
+  }
+</style>
+
+<header class="hero" id="hero">
+  <div class="hero-glow"></div>
+  <div class="tiles" id="tiles"></div>
+  <div class="cells" id="cells"></div>
+  <div class="hero-copy">
+    <div class="eyebrow">Mouse parallax · CSS perspective</div>
+    <h1><span>移動滑鼠</span><br />看方塊漂浮</h1>
+    <p>
+      32 個方塊被套用一模一樣的位移，看起來速度不同，是因為 CSS 3D
+      透視：離你越近的動得越多。
+    </p>
+  </div>
+  <div class="status" id="status">自動展示中 · 移動滑鼠接手</div>
+</header>
+
+<main class="wrap">
+  <div class="panel-row">
+    <section class="panel" aria-labelledby="ctl-h">
+      <h2 id="ctl-h">實驗開關</h2>
+      <div class="controls">
+        <label class="check"
+          ><input type="checkbox" id="opt-flat" />
+          <span
+            >關掉 3D 透視<small
+              >拿掉
+              <code>perspective</code> 後，所有方塊會變成一樣快、一樣大。</small
+            ></span
+          ></label
+        >
+        <label class="check"
+          ><input type="checkbox" id="opt-tags" />
+          <span
+            >顯示每格深度<small
+              >+2 最近、−2 最遠；透明的空格也會用虛線標出來。</small
+            ></span
+          ></label
+        >
+        <label class="check"
+          ><input type="checkbox" id="opt-cells" />
+          <span
+            >顯示底層 8×4 格線<small
+              >證明它不是隨機排，只是被透視推歪了。</small
+            ></span
+          ></label
+        >
+        <label class="check"
+          ><input type="checkbox" id="opt-auto" checked />
+          <span
+            >自動展示<small
+              >滑鼠停下 2 秒後自己慢慢飄（手機也看得到效果）。</small
+            ></span
+          ></label
+        >
+        <div class="slider">
+          <label for="opt-persp"
+            ><span>perspective</span
+            ><output id="out-persp">350px</output></label
+          >
+          <input
+            type="range"
+            id="opt-persp"
+            min="200"
+            max="1200"
+            step="10"
+            value="350"
+          />
+          <small>數字越小，透視越強，深淺方塊的速度差越大。</small>
+        </div>
+        <div class="slider">
+          <label for="opt-smooth"
+            ><span>smoothing</span><output id="out-smooth">97</output></label
+          >
+          <input
+            type="range"
+            id="opt-smooth"
+            min="0"
+            max="99"
+            step="1"
+            value="97"
+          />
+          <small>越高越「拖」。原站設定 97，每幀只追上剩下距離的 3%。</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" aria-labelledby="tbl-h">
+      <h2 id="tbl-h">各深度的移動倍率</h2>
+      <div style="overflow-x: auto">
+        <table>
+          <thead>
+            <tr>
+              <th>深度</th>
+              <th>translateZ</th>
+              <th>數量</th>
+              <th>畫面上的倍率</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p class="formula">
+        倍率 =
+        <code>perspective ÷ (perspective − z)</code>。滑鼠從最左移到最右，深度 0
+        的方塊移動 192px（±6rem），其他深度依倍率放大或縮小。
+      </p>
+    </section>
+  </div>
+
+  <section aria-labelledby="why-h">
+    <h2 id="why-h">三個重點</h2>
+    <div class="notes">
+      <div>
+        <h3>位移只算一次</h3>
+        <p>
+          JS 只在外層容器設定 <code>--mx</code>、<code>--my</code>
+          兩個變數，所有方塊共用，不用逐一計算每顆。
+        </p>
+      </div>
+      <div>
+        <h3>速度差交給透視</h3>
+        <p>
+          外層 div 用 <code>translateZ</code> 決定深度，內層 div
+          跟著滑鼠移動。兩層分開，兩個 transform 才不會互相覆蓋。
+        </p>
+      </div>
+      <div>
+        <h3>亂中有序</h3>
+        <p>
+          其實是 8 欄 × 4 列的整齊
+          Grid，有的格子透明、有的只有框線，加上透視把位置推歪，看起來就像隨機排列。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="code-h">
+    <h2 id="code-h">核心程式碼</h2>
+    <div class="code-row">
+      <div class="code">
+        <div class="label">HTML</div>
+        <pre><span class="c">&lt;!-- 外層管深度，內層管移動 --&gt;</span>
+&lt;div class="tiles"&gt;
+  &lt;div class="z" data-d="2"&gt;
+    &lt;div class="xy"&gt;JS&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="z" data-d="-2"&gt;
+    &lt;div class="xy outline"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  <span class="c">&lt;!-- …共 32 格 --&gt;</span>
+&lt;/div&gt;</pre>
+      </div>
+      <div class="code">
+        <div class="label">CSS</div>
+        <pre>.tiles {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  place-items: center;
+  <span class="k">perspective: 350px;</span>
+}
+.z { transform-style: preserve-3d; }
+.z[data-d="2"]  { transform: translateZ(96px); }
+.z[data-d="-2"] { transform: translateZ(-96px); }
+.xy {
+  transform: translate(
+    <span class="k">var(--mx), var(--my)</span>);
+}</pre>
+      </div>
+      <div class="code">
+        <div class="label">JavaScript</div>
+        <pre>const R = 96; <span class="c">// ±6rem</span>
+let tx = 0, ty = 0, x = 0, y = 0;
+addEventListener('pointermove', e =&gt; {
+  tx = (e.clientX / innerWidth  * 2 - 1) * R;
+  ty = (e.clientY / innerHeight * 2 - 1) * R;
+});
+(function tick() {
+  x += (tx - x) * 0.03; <span class="c">// smoothing 97</span>
+  y += (ty - y) * 0.03;
+  tiles.style.setProperty('--mx', x + 'px');
+  tiles.style.setProperty('--my', y + 'px');
+  requestAnimationFrame(tick);
+})();</pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+  (() => {
+    // 32 格：[深度, 樣式, 文字, 半透明]，順序與深度照原站排列
+    const L = [
+      [-2, "outline"],
+      [-2, "bright"],
+      [1, "", "PY"],
+      [0, "dull"],
+      [-1, "", "JS"],
+      [0, "", "TS"],
+      [-2, "dull"],
+      [-2, "", "GO"],
+      [0, "dull"],
+      [-1, "", "C#"],
+      [1, "dull"],
+      [2, "", "RS"],
+      [-2, "dull"],
+      [0, "outline"],
+      [1, "", "JAVA"],
+      [1, "outline"],
+      [1, "dull"],
+      [1, "", "HS"],
+      [0, "outline"],
+      [0, "bright"],
+      [0, "blank"],
+      [0, "bright"],
+      [0, "blank"],
+      [0, "", "RB"],
+      [0, "blank"],
+      [-2, "bright"],
+      [2, "bright"],
+      [-2, "outline"],
+      [0, "", "C++", true],
+      [1, "outline"],
+      [-1, "", "SWIFT"],
+      [0, "outline"],
+    ];
+    const tiles = document.getElementById("tiles");
+    const cells = document.getElementById("cells");
+    const fmt = (d) => (d > 0 ? "+" : d < 0 ? "−" : "") + Math.abs(d);
+    L.forEach(([d, cls, text, faded]) => {
+      const z = document.createElement("div");
+      z.className = "z" + (faded ? " faded" : "");
+      z.dataset.d = d;
+      const xy = document.createElement("div");
+      xy.className = "xy" + (cls ? " " + cls : "");
+      if (text) xy.append(text);
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = fmt(d);
+      xy.append(tag);
+      z.append(xy);
+      tiles.append(z);
+      cells.append(document.createElement("span"));
+    });
+
+    // 倍率表
+    const depths = [2, 1, 0, -1, -2];
+    const count = (d) => L.filter((t) => t[0] === d).length;
+    const rows = document.getElementById("rows");
+    const state = { persp: 350, flat: false, smooth: 97, auto: true };
+    function renderTable() {
+      const mult = depths.map((d) =>
+        state.flat ? 1 : state.persp / (state.persp - d * 48),
+      );
+      const max = Math.max(...mult);
+      rows.innerHTML = depths
+        .map(
+          (d, i) =>
+            `<tr><td>${fmt(d)}</td><td>${d * 48}px</td><td>${count(d)}</td>` +
+            `<td><span class="bar" style="width:${((mult[i] / max) * 4).toFixed(2)}rem"></span>×${mult[i].toFixed(2)} · ${Math.round(192 * mult[i])}px</td></tr>`,
+        )
+        .join("");
+    }
+
+    // 控制項
+    const $ = (id) => document.getElementById(id);
+    const hero = $("hero");
+    $("opt-flat").addEventListener("change", (e) => {
+      state.flat = e.target.checked;
+      tiles.classList.toggle("flat", state.flat);
+      renderTable();
+    });
+    $("opt-tags").addEventListener("change", (e) =>
+      hero.classList.toggle("show-tags", e.target.checked),
+    );
+    $("opt-cells").addEventListener("change", (e) =>
+      hero.classList.toggle("show-cells", e.target.checked),
+    );
+    $("opt-auto").addEventListener("change", (e) => {
+      state.auto = e.target.checked;
+    });
+    $("opt-persp").addEventListener("input", (e) => {
+      state.persp = +e.target.value;
+      $("out-persp").textContent = state.persp + "px";
+      tiles.style.setProperty("--persp", state.persp + "px");
+      renderTable();
+    });
+    $("opt-smooth").addEventListener("input", (e) => {
+      state.smooth = +e.target.value;
+      $("out-smooth").textContent = state.smooth;
+    });
+
+    // 動畫
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const status = $("status");
+    if (reduce) {
+      state.auto = false;
+      $("opt-auto").checked = false;
+      status.textContent =
+        "系統設定為減少動態效果，自動展示已關閉 · 移動滑鼠仍可操作";
+    }
+    const R = 96;
+    let tx = 0,
+      ty = 0,
+      x = 0,
+      y = 0,
+      lastMove = -1e9;
+    addEventListener(
+      "pointermove",
+      (e) => {
+        tx = ((e.clientX / innerWidth) * 2 - 1) * R;
+        ty = ((e.clientY / innerHeight) * 2 - 1) * R;
+        lastMove = performance.now();
+      },
+      { passive: true },
+    );
+
+    function tick(now) {
+      const idle = now - lastMove > 2000;
+      if (idle && state.auto) {
+        const t = now / 1000;
+        tx = Math.sin(t * 0.55) * R * 0.85;
+        ty = Math.sin(t * 0.85 + 1) * R * 0.6;
+      }
+      status.textContent =
+        reduce && !state.auto && idle
+          ? status.textContent
+          : idle && state.auto
+            ? "自動展示中 · 移動滑鼠接手"
+            : "跟隨滑鼠中";
+      const k = 1 - state.smooth / 100;
+      x += (tx - x) * k;
+      y += (ty - y) * k;
+      tiles.style.setProperty("--mx", x.toFixed(2) + "px");
+      tiles.style.setProperty("--my", y.toFixed(2) + "px");
+      requestAnimationFrame(tick);
+    }
+    renderTable();
+    requestAnimationFrame(tick);
+  })();
+</script>
