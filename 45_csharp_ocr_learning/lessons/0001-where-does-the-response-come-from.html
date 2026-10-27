@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Response 從哪一行來</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+
+<div class="lesson-kicker">C# × OCR 呼叫鏈 · Lesson 1</div>
+<h1>前端拿到的 response，是後端哪一行 return 的？</h1>
+<p class="subtitle">目標：看到 <code>/api/Upload/PostFormData</code> 的回應，能指出是 <code>Utilities.cs</code> 的哪一個 <code>return</code> 產生的。順便學會讀 C# 的方法簽章、<code>new { }</code> 和 try/catch。</p>
+
+<h2>先看全貌：一個 response 裡有四個「狀態」</h2>
+<p>
+  前端收到的東西，其實是好幾層程式一層包一層決定的。由外往內：
+</p>
+<div class="layers">
+  <div class="layer">
+    <span class="layer-name">① HTTP 狀態碼</span>（Network 面板看到的 200 / 401 / 500）
+    <div class="layer-who">誰決定：ASP.NET Web API 框架</div>
+    <div class="layer">
+      <span class="layer-name">② <code>success</code> / <code>msg</code></span>
+      <div class="layer-who">誰決定：<code>Utilities.Upload_register</code>（:349）——只代表「照片有沒有存好」</div>
+      <div class="layer">
+        <span class="layer-name">③ <code>value.ocr.status</code></span>（ok / skip / duplicate / fail / error）
+        <div class="layer-who">誰決定：<code>Utilities.CheckIdIdentify_register</code>（:700）</div>
+        <div class="layer">
+          <span class="layer-name">④ <code>value.ocr.http_status</code></span>
+          <div class="layer-who">誰決定：<strong>OCR 主機</strong>回給 <code>IDApi.cs</code> 的 HTTP 碼。不是我們後端的碼！</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<p>
+  今天只處理 ① 和 ②：<code>Upload_register</code> 有哪幾個出口、每個出口長什麼樣。③④ 留給後面幾課。
+</p>
+
+<h2>C# 方法簽章：型別寫在名字前面</h2>
+<p>你在 TS 課學過「名字: 型別」。C# 剛好反過來，是「型別 名字」：</p>
+<table>
+  <tr><th>TypeScript</th><th>C#</th></tr>
+  <tr><td class="mono">msg_txt: string</td><td class="mono">string msg_txt</td></tr>
+  <tr><td class="mono">fi: FileInfo[]</td><td class="mono">FileInfo[] fi</td></tr>
+  <tr><td class="mono">function f(): Promise&lt;ReturnMsg&gt;</td><td class="mono">Task&lt;ReturnMsg&gt; f()</td></tr>
+</table>
+<p>所以這一行要這樣拆（<a href="vscode://file/Users/yiyinglin/Desktop/personal/02_project/07_mydy/98_公司專案/後端/Utilities.cs:349">Utilities.cs:349</a>）：</p>
+<div class="annotated-code">
+  <div class="ln">349</div>
+  <div class="code-line">public async <span class="highlight">Task&lt;Layout.ReturnMsg&gt;</span> Upload_register(<span class="highlight">HttpRequestMessage</span> Request, <span class="highlight">string</span> msg_txt)</div>
+</div>
+<ul>
+  <li><code>public</code>：別的檔案（UploadController）可以呼叫它。</li>
+  <li><code>async Task&lt;Layout.ReturnMsg&gt;</code>：回傳型別。<code>Task&lt;T&gt;</code> 大致等於 JS 的 <code>Promise&lt;T&gt;</code>，等它跑完會拿到一個 <code>Layout.ReturnMsg</code>（就是有 <code>success</code>、<code>msg</code>、<code>value</code> 的那個物件）。</li>
+  <li><code>Upload_register</code>：方法名稱。</li>
+  <li>括號裡：兩個參數，每個都是「型別 名字」。</li>
+</ul>
+
+<div class="quiz" data-correct="b">
+  <div class="quiz-q">Q1. <a href="vscode://file/Users/yiyinglin/Desktop/personal/02_project/07_mydy/98_公司專案/後端/Utilities.cs:700">:700</a> 這行 <code>public object CheckIdIdentify_register(string dirPath, FileInfo[] fi, int id, string img, string msg_txt)</code>，這個方法回傳的型別是？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q1" value="a"> <code>public</code></label>
+    <label class="quiz-option"><input type="radio" name="q1" value="b"> <code>object</code></label>
+    <label class="quiz-option"><input type="radio" name="q1" value="c"> <code>string</code></label>
+    <label class="quiz-option"><input type="radio" name="q1" value="d"> <code>int</code></label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>Upload_register 的出口</h2>
+<p>
+  一個方法遇到 <code>return</code> 就結束，return 的東西會一路傳回 controller、再變成前端的 JSON。所以「找出口」就是「找 <code>return</code>」。成功的出口在最下面：
+</p>
+<div class="annotated-code">
+  <div class="ln">496</div><div class="code-line">object ocr = new { status = "skip" };</div>
+  <div class="ln">497</div><div class="code-line">if (img == "ID0A" || img == "ID0B")</div>
+  <div class="ln">498</div><div class="code-line">{</div>
+  <div class="ln">501</div><div class="code-line">    ocr = CheckIdIdentify_register(dir_path, fi, id, img, msg_txt);</div>
+  <div class="ln">503</div><div class="code-line">}</div>
+  <div class="ln">505</div><div class="code-line"><span class="highlight">return new Layout.ReturnMsg()</span></div>
+  <div class="ln">506</div><div class="code-line">{</div>
+  <div class="ln">507</div><div class="code-line">    success = true,</div>
+  <div class="ln">508</div><div class="code-line">    value = <span class="highlight">new { ocr }</span></div>
+  <div class="ln">509</div><div class="code-line">};</div>
+</div>
+<p>三個新語法：</p>
+<ul>
+  <li><strong><code>object ocr = ...</code></strong>：宣告變數，型別也寫在前面。<code>object</code> 是「什麼都能裝」的型別，像 TS 的 <code>unknown</code>。</li>
+  <li><strong><code>new { status = "skip" }</code></strong>：<em>匿名型別</em>，臨時造一個物件，不用先定義 class。等於 JS 的 <code>{ status: "skip" }</code>，只是用 <code>=</code> 不用 <code>:</code>。
+    <code>new { ocr }</code> 則是用變數名當屬性名，跟 JS 的 <code>{ ocr }</code> 縮寫一模一樣。
+    <span class="source-link">（<a href="https://learn.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/anonymous-types" target="_blank" rel="noopener">Microsoft Learn: Anonymous types — Inferred property names</a>）</span></li>
+  <li><strong><code>new Layout.ReturnMsg() { success = true, ... }</code></strong>：建立一個<em>有名字</em>的 class 的物件，然後在大括號裡順便設定屬性。</li>
+</ul>
+<p>
+  所以 :496–:509 的意思是：先假設不用辨識（<code>skip</code>）；如果是身分證正面 <code>ID0A</code> 或反面 <code>ID0B</code>，就把 <code>ocr</code> 換成辨識結果。最後一律 <code>success = true</code>。
+</p>
+
+<div class="quiz" data-correct="a">
+  <div class="quiz-q">Q2. <code>value = new { ocr }</code> 序列化成 JSON 後，前端看到的是哪一個？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q2" value="a"> <code>"value": { "ocr": {…} }</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="b"> <code>"value": [ "ocr", {…} ]</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="c"> <code>"value": { "new": {…} }</code></label>
+    <label class="quiz-option"><input type="radio" name="q2" value="d"> <code>"value": "ocr"</code></label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="quiz" data-correct="c">
+  <div class="quiz-q">Q3. 使用者上傳的是自拍照（<code>img</code> 是 <code>"ID0L"</code>），一切順利。前端收到的是？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q3" value="a"> <code>success: false</code>，<code>ocr.status: "skip"</code></label>
+    <label class="quiz-option"><input type="radio" name="q3" value="b"> <code>success: true</code>，<code>ocr.status: "fail"</code></label>
+    <label class="quiz-option"><input type="radio" name="q3" value="c"> <code>success: true</code>，<code>ocr.status: "skip"</code></label>
+    <label class="quiz-option"><input type="radio" name="q3" value="d"> <code>success: true</code>，<code>ocr.status: "ok"</code></label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h3>失敗的出口：try / catch</h3>
+<p>try/catch 跟 JS 幾乎一樣。差別是 C# 的 catch 要寫「接哪一種例外」，<code>Exception</code> 代表全部都接：</p>
+<div class="annotated-code">
+  <div class="ln">416</div><div class="code-line">try</div>
+  <div class="ln">417</div><div class="code-line">{</div>
+  <div class="ln">…</div><div class="code-line">    // 存檔、改圖、辨識…（:418–:509）</div>
+  <div class="ln">512</div><div class="code-line">}</div>
+  <div class="ln">513</div><div class="code-line"><span class="highlight">catch (System.Exception e)</span></div>
+  <div class="ln">514</div><div class="code-line">{</div>
+  <div class="ln">515</div><div class="code-line">    new Common().WriteErrorLog(1, msg_txt, mobile + " " + img + " " + e.Message, id, ...);</div>
+  <div class="ln">517</div><div class="code-line">    return new Layout.ReturnMsg()</div>
+  <div class="ln">518</div><div class="code-line">    {</div>
+  <div class="ln">519</div><div class="code-line">        success = false,</div>
+  <div class="ln">520</div><div class="code-line">        msg = msg_txt + " 失敗" + e.Message</div>
+  <div class="ln">521</div><div class="code-line">    };</div>
+  <div class="ln">522</div><div class="code-line">}</div>
+</div>
+<p>
+  :418–:509 任何一行出錯（例如檔案不是有效圖片，:452 的 <code>Image.FromFile</code> 就會丟例外），程式立刻跳到 :513，先寫一筆 log 到 <code>kcsd.z_ErrorLog</code>，再回 <code>success: false</code>。前面 :364、:385、:405 也是同樣的模式：各自的 try 包住一小段，出錯就回 <code>success: false</code>。
+</p>
+<p class="source-link">主要參考：<a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements" target="_blank" rel="noopener">Microsoft Learn: try-catch statement</a></p>
+
+<h2>那 HTTP 狀態碼呢？幾乎永遠是 200</h2>
+<p>
+  依追蹤紀錄，<code>UploadController.PostFormData</code> 把 <code>Upload_register</code> 的回傳值直接丟回前端，回傳的是一般物件（<code>ReturnMsg</code>），不是 <code>HttpResponseMessage</code>。微軟文件寫得很清楚：
+</p>
+<blockquote>
+  For all other return types, Web API uses a media formatter to serialize the return value. … The response status code is 200 (OK).
+  <cite>— <a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/action-results" target="_blank" rel="noopener">Action Results in Web API 2</a></cite>
+</blockquote>
+<p>
+  所以 <code>success: false</code>、<code>ocr.status: "fail"</code> 統統是 <strong>200</strong>。你不會在 Network 面板看到紅字，要看 body。
+  只有兩種情況不是 200：
+</p>
+<ul>
+  <li><strong>例外沒被任何 catch 接住</strong> → 框架預設回 <strong>500</strong>
+    （<a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/error-handling/exception-handling" target="_blank" rel="noopener">Exception Handling in Web API</a>）。</li>
+  <li><strong>程式主動丟 <code>HttpResponseException</code></strong> → 用它指定的碼。例如 <code>MemberController.cs:47</code> 登入資訊不完整時丟 <strong>401</strong>。上傳 API 的 JWT 檢查（<code>[JwtAuthActionFilter_General]</code>）不在本機，失敗時實際回什麼碼要再確認。</li>
+</ul>
+
+<div class="quiz" data-correct="a">
+  <div class="quiz-q">Q4. 前端收到 <code>{ success: true, value: { ocr: { status: "fail", http_status: 502 } } }</code>。瀏覽器 Network 面板上，這支 API 的狀態碼是？</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q4" value="a"> 200</label>
+    <label class="quiz-option"><input type="radio" name="q4" value="b"> 502</label>
+    <label class="quiz-option"><input type="radio" name="q4" value="c"> 500</label>
+    <label class="quiz-option"><input type="radio" name="q4" value="d"> 401</label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<div class="quiz" data-correct="a">
+  <div class="quiz-q">Q5. 如果某一行丟出例外、又沒有 catch 接住，就會變成 500。下面哪一行<strong>不在任何 try 裡面</strong>？（提示：try 區塊是 :353、:375、:398、:416 開始的那幾段）</div>
+  <div class="quiz-options">
+    <label class="quiz-option"><input type="radio" name="q5" value="a"> <code>:351</code> <code>MemberIdentity.Require(Request)</code></label>
+    <label class="quiz-option"><input type="radio" name="q5" value="b"> <code>:400</code> <code>ReadAsMultipartAsync(provider)</code></label>
+    <label class="quiz-option"><input type="radio" name="q5" value="c"> <code>:440</code> <code>GetFormData&lt;UploadDataModel&gt;</code></label>
+    <label class="quiz-option"><input type="radio" name="q5" value="d"> <code>:501</code> <code>CheckIdIdentify_register(…)</code></label>
+  </div>
+  <button class="quiz-check">檢查答案</button>
+  <div class="quiz-feedback"></div>
+</div>
+
+<h2>閉卷挑戰</h2>
+<p>不要往上捲。對每個回應，先在紙上寫下「哪一行 return 的」，再點開看答案。</p>
+<div class="callout">
+  <details>
+    <summary><strong>A.</strong> 200，<code>{ success: false, msg: "註冊上傳照片 失敗Out of memory." }</code></summary>
+    <p><code>:513</code> 的 catch → <code>:517</code> 的 return。<code>msg</code> 的格式就是 :520 的 <code>msg_txt + " 失敗" + e.Message</code>。（.NET Framework 的 <code>Image.FromFile</code> 讀到不是圖片的檔案會丟 <code>OutOfMemoryException</code>，名字很誤導。）z_ErrorLog 會有一筆 level 1 的紀錄。</p>
+  </details>
+  <details>
+    <summary><strong>B.</strong> 200，<code>{ success: true, value: { ocr: { status: "ok", data: { papa_nameu: … } } } }</code></summary>
+    <p><code>:505</code> 的 return。<code>img</code> 是 <code>ID0B</code>（反面），所以 :501 有執行，<code>ocr</code> 被換成辨識結果。</p>
+  </details>
+  <details>
+    <summary><strong>C.</strong> 500，body 是框架產生的錯誤訊息，沒有 <code>success</code> 欄位</summary>
+    <p>不是 <code>Upload_register</code> 的任何 return。是有例外沒被 catch 接住（例如 :351），框架自己回 500。這時 z_ErrorLog 不會有 Upload_register 寫的那筆 log。</p>
+  </details>
+</div>
+
+<div class="callout">
+  <div class="callout-title">今天的收穫</div>
+  <code>success: true</code> 只代表照片存好了，辨識結果要看 <code>value.ocr</code>；HTTP 碼幾乎都是 200，要看 body。
+  你現在能讀「型別 名字」的方法簽章、<code>new { }</code>，也能從 response 找回 <code>Upload_register</code> 的出口。
+  整理好的對照表在 <a href="../reference/csharp-ocr-cheatsheet.html">速查表</a>。
+</div>
+
+<p class="source-link">
+  推薦閱讀（10 分鐘）：<a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/action-results" target="_blank" rel="noopener">Microsoft Learn — Action Results in Web API 2</a>。只有一頁，讀完你會知道後端回什麼型別、前端就拿到什麼 HTTP 碼。
+</p>
+
+<h2>下一課</h2>
+<p>
+  進到 <code>CheckIdIdentify_register</code>（:700）：<code>ok</code> 和 <code>duplicate</code> 是怎麼分出來的，<code>z_Member</code> 什麼時候會被寫入。會學 if/else、<code>using</code>、LINQ 的 <code>Where().FirstOrDefault()</code>。
+</p>
+
+<div class="ask-agent">
+  有看不懂的地方直接問我，例如「:358 那行 CreateResponse 為什麼沒用？」或「Task 跟 Promise 差在哪？」。我會記得你學到哪裡，下次接著上。
+</div>
+
+<footer class="lesson-footer">
+  <a href="../reference/csharp-ocr-cheatsheet.html">速查表</a>
+  <a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/action-results" target="_blank" rel="noopener">Action Results in Web API 2</a>
+  <a href="../MISSION.md">Mission</a>
+</footer>
+
+</body>
+</html>

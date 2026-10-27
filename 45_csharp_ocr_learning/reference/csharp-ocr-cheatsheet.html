@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C# OCR 速查表</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<div class="lesson-kicker">Reference</div>
+<h1>C# × OCR 呼叫鏈速查表</h1>
+<p class="subtitle">上傳證件照時，前端收到什麼 → 後端走了哪條路。每上完一課就補進來。</p>
+
+<h2>1. Response 解碼表（<code>/api/Upload/PostFormData</code>）</h2>
+<p>前端先看 HTTP 碼，再看 <code>success</code>，最後看 <code>value.ocr.status</code>。</p>
+<table>
+  <tr><th>HTTP</th><th>success</th><th>ocr.status</th><th>後端出口</th><th>z_Member 寫入？</th></tr>
+  <tr><td>200</td><td>false</td><td>（無）</td><td class="mono">Utilities.cs:364 / :385 / :405 / :517 的 catch</td><td>否</td></tr>
+  <tr><td>200</td><td>true</td><td><span class="tag tag-ok">skip</span></td><td class="mono">:505（img 不是 ID0A/ID0B，沒送辨識）</td><td>否</td></tr>
+  <tr><td>200</td><td>true</td><td><span class="tag tag-ok">ok</span></td><td class="mono">:505 ← :792（正面）/ :814（反面）</td><td>是。正面：生日／姓名／身分證號／發證資訊空值不覆蓋；反面：四欄直接覆蓋</td></tr>
+  <tr><td>200</td><td>true</td><td><span class="tag tag-bad">duplicate</span></td><td class="mono">:505 ← :763 身分證號已屬於別的會員</td><td>否</td></tr>
+  <tr><td>200</td><td>true</td><td><span class="tag tag-bad">fail</span></td><td class="mono">:505 ← :824 IDApi 回 NG</td><td>否</td></tr>
+  <tr><td>200</td><td>true</td><td><span class="tag tag-bad">error</span></td><td class="mono">:505 ← :835 我們程式自己的例外</td><td>不一定（看例外在哪一步）</td></tr>
+  <tr><td>500</td><td colspan="2">（框架產生的 body）</td><td class="mono">例外沒被 catch，例如 :351 在所有 try 之外</td><td>否</td></tr>
+  <tr><td>401?</td><td colspan="2">—</td><td class="mono">JWT 驗證失敗（filter 不在本機，碼待確認）</td><td>否</td></tr>
+</table>
+
+<h3><code>status: "fail"</code> 時的 <code>http_status</code>（OCR 主機的碼，不是我們的）</h3>
+<table>
+  <tr><th>http_status</th><th>意思</th></tr>
+  <tr><td>400</td><td>OCR 說請求有問題（圖片讀不了、格式不符）</td></tr>
+  <tr><td>502</td><td>OCR 服務端錯誤，IDApi 已重試共 3 次</td></tr>
+  <tr><td>500</td><td>OCR 主機內部錯誤</td></tr>
+  <tr><td>200</td><td>OCR 回 200，但 body 的 <code>success</code> 不是 true，或 body 不是 JSON（IDApi.cs:84、:92）</td></tr>
+  <tr><td>0</td><td>沒帶碼的失敗：逾時 20 秒、連不上（:100–:101）；網址設定錯（:63）；<strong>OCR 回成功但欄位不完整、生日格式不對、id 對不上</strong>（MapResult :110–:125，<code>Failure</code> 沒傳碼）</td></tr>
+</table>
+
+<h2>2. 語法：TS → C#</h2>
+<table>
+  <tr><th>想表達</th><th>TS / JS</th><th>C#</th><th>專案例子</th></tr>
+  <tr><td>參數型別</td><td class="mono">msg_txt: string</td><td class="mono">string msg_txt</td><td class="mono">Utilities.cs:349</td></tr>
+  <tr><td>回傳型別</td><td class="mono">f(): Promise&lt;T&gt;</td><td class="mono">Task&lt;T&gt; f()</td><td class="mono">:349</td></tr>
+  <tr><td>什麼都能裝</td><td class="mono">unknown</td><td class="mono">object</td><td class="mono">:496, :700</td></tr>
+  <tr><td>臨時物件</td><td class="mono">{ status: "skip" }</td><td class="mono">new { status = "skip" }</td><td class="mono">:496</td></tr>
+  <tr><td>屬性名縮寫</td><td class="mono">{ ocr }</td><td class="mono">new { ocr }</td><td class="mono">:508, :844</td></tr>
+  <tr><td>建立 class 物件並設定屬性</td><td class="mono">new X(); x.a = 1</td><td class="mono">new X() { a = 1 }</td><td class="mono">:505</td></tr>
+  <tr><td>接所有錯誤</td><td class="mono">catch (e)</td><td class="mono">catch (Exception e)</td><td class="mono">:513</td></tr>
+</table>
+
+<h2>3. 規則</h2>
+<ul>
+  <li>Web API action 回傳一般物件 → body 是它的 JSON，HTTP 一律 <strong>200</strong>。
+    <span class="source-link"><a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/getting-started-with-aspnet-web-api/action-results" target="_blank" rel="noopener">來源</a></span></li>
+  <li>例外沒被 catch → <strong>500</strong>；<code>HttpResponseException</code> → 它指定的碼。
+    <span class="source-link"><a href="https://learn.microsoft.com/en-us/aspnet/web-api/overview/error-handling/exception-handling" target="_blank" rel="noopener">來源</a></span></li>
+  <li>catch 由上往下比對，只跑第一個符合的。
+    <span class="source-link"><a href="https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/statements/exception-handling-statements" target="_blank" rel="noopener">來源</a></span></li>
+  <li><code>success: true</code> 只代表照片存好了。</li>
+</ul>
+
+<h2>4. 除錯中斷點</h2>
+<ol>
+  <li><code>UploadController.cs:46</code>：有沒有進到後端</li>
+  <li><code>Utilities.cs:712</code>：看 <code>json</code>（IDApi 整理後的結果）</li>
+  <li><code>IDApi.cs:79</code> 的 <code>body</code>：OCR 主機回的原始 JSON</li>
+  <li><code>Utilities.cs:760</code>：<code>m</code> 不是 null → 身分證號重複被擋</li>
+</ol>
+
+<footer class="lesson-footer">
+  <a href="../lessons/0001-where-does-the-response-come-from.html">Lesson 1</a>
+  <a href="../MISSION.md">Mission</a>
+</footer>
+</body>
+</html>
